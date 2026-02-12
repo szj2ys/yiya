@@ -1,60 +1,22 @@
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import Link from "next/link";
 
 export const Footer = () => {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="hidden lg:block h-20 w-full border-t-2 border-slate-200 p-2">
-      <div className="max-w-screen-lg mx-auto flex items-center justify-evenly h-full">
-        <Button size="lg" variant="ghost" className="w-full">
-          <Image 
-            src="/hr.svg" 
-            alt="Croatian" 
-            height={32} 
-            width={40}
-            className="mr-4 rounded-md"
-          />
-          Croatian
-        </Button>
-        <Button size="lg" variant="ghost" className="w-full">
-          <Image 
-            src="/es.svg" 
-            alt="Spanish" 
-            height={32} 
-            width={40}
-            className="mr-4 rounded-md"
-          />
-          Spanish
-        </Button>
-        <Button size="lg" variant="ghost" className="w-full">
-          <Image 
-            src="/fr.svg" 
-            alt="French" 
-            height={32} 
-            width={40}
-            className="mr-4 rounded-md"
-          />
-          French
-        </Button>
-        <Button size="lg" variant="ghost" className="w-full">
-          <Image 
-            src="/it.svg" 
-            alt="Italian" 
-            height={32} 
-            width={40}
-            className="mr-4 rounded-md"
-          />
-          Italian
-        </Button>
-        <Button size="lg" variant="ghost" className="w-full">
-          <Image 
-            src="/jp.svg" 
-            alt="Japanese" 
-            height={32} 
-            width={40}
-            className="mr-4 rounded-md"
-          />
-          Japanese
-        </Button>
+    <footer className="w-full border-t border-black/5 bg-white">
+      <div className="mx-auto flex max-w-screen-lg flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-neutral-500">
+          © {year} Lingo. All rights reserved.
+        </p>
+        <div className="flex items-center gap-4 text-sm">
+          <Link href="/privacy" className="text-neutral-600 hover:text-neutral-900">
+            Privacy
+          </Link>
+          <Link href="/terms" className="text-neutral-600 hover:text-neutral-900">
+            Terms
+          </Link>
+        </div>
       </div>
     </footer>
   );

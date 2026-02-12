@@ -1,0 +1,2 @@
+# Vitest is dev-only; ignore its config for Next lint to avoid parsing issues
+vitest.config.*
