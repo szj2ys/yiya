@@ -12,6 +12,7 @@ import { useHeartsModal } from "@/store/use-hearts-modal";
 import { challengeOptions, challenges, userSubscription } from "@/db/schema";
 import { usePracticeModal } from "@/store/use-practice-modal";
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
+import { buildTrackPayload, trackPayload } from "@/lib/analytics";
 
 import { Header } from "./header";
 import { Footer } from "./footer";
@@ -82,6 +83,16 @@ export const Quiz = ({
   const [selectedOption, setSelectedOption] = useState<number>();
   const [status, setStatus] = useState<"correct" | "wrong" | "none">("none");
 
+  const isPractice = initialPercentage === 100;
+
+  useMount(() => {
+    trackPayload(
+      buildTrackPayload(isPractice ? "practice_start" : "lesson_start", {
+        lesson_id: lessonId,
+      }),
+    ).catch(() => undefined);
+  });
+
   const challenge = challenges[activeIndex];
   const options = challenge?.challengeOptions ?? [];
 
@@ -143,6 +154,9 @@ export const Quiz = ({
           .then((response) => {
             if (response?.error === "hearts") {
               openHeartsModal();
+              trackPayload(buildTrackPayload("hearts_empty", { lesson_id: lessonId })).catch(
+                () => undefined,
+              );
               return;
             }
 
@@ -152,6 +166,12 @@ export const Quiz = ({
             if (!response?.error) {
               setHearts((prev) => Math.max(prev - 1, 0));
             }
+
+            if (!response?.error && hearts - 1 === 0) {
+              trackPayload(buildTrackPayload("hearts_empty", { lesson_id: lessonId })).catch(
+                () => undefined,
+              );
+            }
           })
           .catch(() => toast.error("Something went wrong. Please try again."))
       });
@@ -159,6 +179,15 @@ export const Quiz = ({
   };
 
   if (!challenge) {
+    trackPayload(
+      isPractice
+        ? buildTrackPayload("practice_complete", { lesson_id: lessonId })
+        : buildTrackPayload("lesson_complete", {
+            lesson_id: lessonId,
+            hearts_remaining: hearts,
+          }),
+    ).catch(() => undefined);
+
     return (
       <>
         {finishAudio}

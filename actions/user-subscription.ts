@@ -5,6 +5,7 @@ import { auth, currentUser } from "@clerk/nextjs";
 import { stripe } from "@/lib/stripe";
 import { absoluteUrl } from "@/lib/utils";
 import { getUserSubscription } from "@/db/queries";
+import { track } from "@/lib/analytics";
 
 const returnUrl = absoluteUrl("/shop");
 
@@ -17,6 +18,8 @@ export const createStripeUrl = async () => {
   }
 
   const userSubscription = await getUserSubscription();
+
+  await track("checkout_start", { surface: "shop" });
 
   if (userSubscription && userSubscription.stripeCustomerId) {
     const stripeSession = await stripe.billingPortal.sessions.create({
