@@ -12,11 +12,11 @@ import { Button } from "@/components/ui/button";
 
 export const Header = () => {
   return (
-    <header className="h-20 w-full border-b-2 border-slate-200 px-4">
-      <div className="lg:max-w-screen-lg mx-auto flex items-center justify-between h-full">
-        <div className="pt-8 pl-4 pb-7 flex items-center gap-x-3">
-          <Image src="/mascot.svg" height={40} width={40} alt="Mascot" />
-          <h1 className="text-2xl font-extrabold text-green-600 tracking-wide">
+    <header className="sticky top-0 z-40 w-full border-b border-black/5 bg-white/80 px-4 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-screen-lg items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Image src="/mascot.svg" height={36} width={36} alt="Lingo" />
+          <h1 className="text-xl font-extrabold text-green-600 tracking-tight">
             Lingo
           </h1>
         </div>
@@ -35,8 +35,12 @@ export const Header = () => {
               afterSignInUrl="/learn"
               afterSignUpUrl="/learn"
             >
-              <Button size="lg" variant="ghost">
-                Login
+              <Button
+                size="lg"
+                variant="ghost"
+                className="h-11 rounded-2xl text-sm normal-case tracking-normal"
+              >
+                Log in
               </Button>
             </SignInButton>
           </SignedOut>
