@@ -1,16 +1,31 @@
 import { cache } from "react";
-import { eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { auth } from "@clerk/nextjs";
 
 import db from "@/db/drizzle";
 import { 
   challengeProgress,
   courses, 
+  challenges,
   lessons, 
   units, 
   userProgress,
   userSubscription
 } from "@/db/schema";
+
+type ReviewItem =
+  | {
+      type: "challenge";
+      challengeId: number;
+      lessonId: number;
+    }
+  | {
+      type: "lesson";
+      lessonId: number;
+    };
+
+const MAX_REVIEW_ITEMS = 10;
+const MAX_LOOKBACK_ITEMS = 50;
 
 export const getUserProgress = cache(async () => {
   const { userId } = await auth();
@@ -234,6 +249,95 @@ export const getLessonPercentage = cache(async () => {
   );
 
   return percentage;
+});
+
+export const getTodayReviewItems = cache(async () => {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return [] as ReviewItem[];
+  }
+
+  // 1) Recently-wrong challenges first (most recent attempt first)
+  const wrongChallengeProgress = await db.query.challengeProgress.findMany({
+    where: and(
+      eq(challengeProgress.userId, userId),
+      eq(challengeProgress.completed, false),
+    ),
+    orderBy: (challengeProgress, { desc }) => [desc(challengeProgress.id)],
+    limit: MAX_REVIEW_ITEMS,
+    columns: {
+      challengeId: true,
+    },
+  });
+
+  const wrongChallengeIds = wrongChallengeProgress.map((row) => row.challengeId);
+
+  const wrongChallenges = wrongChallengeIds.length
+    ? await db.query.challenges.findMany({
+        where: inArray(challenges.id, wrongChallengeIds),
+        columns: { id: true, lessonId: true },
+      })
+    : [];
+
+  const challengeIdToLessonId = new Map(
+    wrongChallenges.map((challenge) => [challenge.id, challenge.lessonId] as const),
+  );
+
+  const challengeItems: ReviewItem[] = wrongChallengeIds.flatMap((challengeId) => {
+    const lessonId = challengeIdToLessonId.get(challengeId);
+    if (!lessonId) return [];
+    return [{ type: "challenge", challengeId, lessonId }];
+  });
+
+  // 2) Recently completed lessons for recap (by most recent completed challenge)
+  const completedChallengeProgress = await db.query.challengeProgress.findMany({
+    where: and(
+      eq(challengeProgress.userId, userId),
+      eq(challengeProgress.completed, true),
+    ),
+    orderBy: (challengeProgress, { desc }) => [desc(challengeProgress.id)],
+    limit: MAX_LOOKBACK_ITEMS,
+    columns: {
+      challengeId: true,
+    },
+  });
+
+  const completedChallengeIds = completedChallengeProgress.map((row) => row.challengeId);
+
+  const completedChallenges = completedChallengeIds.length
+    ? await db.query.challenges.findMany({
+        where: inArray(challenges.id, completedChallengeIds),
+        columns: { id: true, lessonId: true },
+      })
+    : [];
+
+  const completedChallengeIdToLessonId = new Map(
+    completedChallenges.map((challenge) => [challenge.id, challenge.lessonId] as const),
+  );
+
+  const recapLessonIds: number[] = [];
+  const recapLessonIdsSet = new Set<number>();
+  const wrongLessonSet = new Set<number>(challengeItems.map((i) => i.lessonId));
+
+  for (const challengeId of completedChallengeIds) {
+    const lessonId = completedChallengeIdToLessonId.get(challengeId);
+    if (!lessonId) continue;
+    if (wrongLessonSet.has(lessonId)) continue;
+    if (recapLessonIdsSet.has(lessonId)) continue;
+
+    recapLessonIdsSet.add(lessonId);
+    recapLessonIds.push(lessonId);
+
+    if (recapLessonIds.length >= MAX_REVIEW_ITEMS) break;
+  }
+
+  const recapItems: ReviewItem[] = recapLessonIds.map((lessonId) => ({
+    type: "lesson",
+    lessonId,
+  }));
+
+  return [...challengeItems, ...recapItems];
 });
 
 const DAY_IN_MS = 86_400_000;
