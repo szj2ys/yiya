@@ -23,6 +23,7 @@ type Props ={
   initialPercentage: number;
   initialHearts: number;
   initialLessonId: number;
+  initialStreak: number;
   initialLessonChallenges: (typeof challenges.$inferSelect & {
     completed: boolean;
     challengeOptions: typeof challengeOptions.$inferSelect[];
@@ -37,6 +38,7 @@ export const Quiz = ({
   initialHearts,
   initialLessonId,
   initialLessonChallenges,
+  initialStreak,
   userSubscription,
 }: Props) => {
   const { open: openHeartsModal } = useHeartsModal();
@@ -66,6 +68,7 @@ export const Quiz = ({
   const [pending, startTransition] = useTransition();
 
   const [lessonId] = useState(initialLessonId);
+  const [streak] = useState(initialStreak);
   const [hearts, setHearts] = useState(initialHearts);
   const [percentage, setPercentage] = useState(() => {
     return initialPercentage === 100 ? 0 : initialPercentage;
@@ -184,6 +187,9 @@ export const Quiz = ({
           <h1 className="text-xl lg:text-3xl font-bold text-neutral-700">
             Great job! <br /> You&apos;ve completed the lesson.
           </h1>
+          <p className="text-sm lg:text-base text-neutral-600">
+            {streak > 0 ? `🔥 ${streak} day streak` : "Start your streak!"}
+          </p>
           <div className="flex items-center gap-x-4 w-full">
             <ResultCard
               variant="points"

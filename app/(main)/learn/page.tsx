@@ -4,6 +4,7 @@ import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
+import { Streak } from "@/components/streak";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { lessons, units as unitsSchema } from "@/db/schema";
 import { 
@@ -11,7 +12,8 @@ import {
   getLessonPercentage, 
   getUnits, 
   getUserProgress,
-  getUserSubscription
+  getUserSubscription,
+  getUserStreak
 } from "@/db/queries";
 
 import { Unit } from "./unit";
@@ -23,6 +25,7 @@ const LearnPage = async () => {
   const lessonPercentageData = getLessonPercentage();
   const unitsData = getUnits();
   const userSubscriptionData = getUserSubscription();
+  const userStreakData = getUserStreak();
 
   const [
     userProgress,
@@ -30,12 +33,14 @@ const LearnPage = async () => {
     courseProgress,
     lessonPercentage,
     userSubscription,
+    userStreak,
   ] = await Promise.all([
     userProgressData,
     unitsData,
     courseProgressData,
     lessonPercentageData,
     userSubscriptionData,
+    userStreakData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -57,6 +62,7 @@ const LearnPage = async () => {
           points={userProgress.points}
           hasActiveSubscription={isPro}
         />
+        <Streak streak={userStreak?.streak ?? 0} />
         {!isPro && (
           <Promo />
         )}
