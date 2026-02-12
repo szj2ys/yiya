@@ -6,18 +6,21 @@ import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import { Streak } from "@/components/streak";
 import { StickyWrapper } from "@/components/sticky-wrapper";
+import { Button } from "@/components/ui/button";
 import { lessons, units as unitsSchema } from "@/db/schema";
-import { 
-  getCourseProgress, 
-  getLessonPercentage, 
-  getUnits, 
+import {
+  getCourseProgress,
+  getLessonPercentage,
+  getUnits,
   getUserProgress,
   getUserSubscription,
-  getUserStreak
+  getUserStreak,
 } from "@/db/queries";
 
 import { Unit } from "./unit";
 import { Header } from "./header";
+import { PracticeEntry } from "./practice-entry";
+import { StartFirstLesson } from "./start-first-lesson";
 
 const LearnPage = async () => {
   const userProgressData = getUserProgress();
@@ -52,6 +55,7 @@ const LearnPage = async () => {
   }
 
   const isPro = !!userSubscription?.isActive;
+  const shouldShowStartCta = !courseProgress.activeLesson;
 
   return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
@@ -70,6 +74,27 @@ const LearnPage = async () => {
       </StickyWrapper>
       <FeedWrapper>
         <Header title={userProgress.activeCourse.title} />
+
+        {shouldShowStartCta && (
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl border bg-white p-5">
+            <h2 className="text-lg font-bold text-neutral-800">
+              Ready for your first lesson?
+            </h2>
+            <p className="text-sm text-neutral-600">
+              Start your first lesson now — it only takes a minute.
+            </p>
+            <StartFirstLesson
+              primaryCta={
+                <Button size="lg" variant="primary" className="w-full sm:w-auto">
+                  Start first lesson
+                </Button>
+              }
+            />
+          </div>
+        )}
+
+        <PracticeEntry />
+
         {units.map((unit) => (
           <div key={unit.id} className="mb-10">
             <Unit
