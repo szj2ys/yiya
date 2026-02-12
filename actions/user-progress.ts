@@ -7,7 +7,11 @@ import { auth, currentUser } from "@clerk/nextjs";
 
 import db from "@/db/drizzle";
 import { POINTS_TO_REFILL } from "@/constants";
-import { getCourseById, getUserProgress, getUserSubscription } from "@/db/queries";
+import {
+  getCourseById,
+  getUserProgress,
+  getUserSubscription,
+} from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 
 export const upsertUserProgress = async (courseId: number) => {
@@ -31,11 +35,14 @@ export const upsertUserProgress = async (courseId: number) => {
   const existingUserProgress = await getUserProgress();
 
   if (existingUserProgress) {
-    await db.update(userProgress).set({
-      activeCourseId: courseId,
-      userName: user.firstName || "User",
-      userImageSrc: user.imageUrl || "/mascot.svg",
-    });
+    await db
+      .update(userProgress)
+      .set({
+        activeCourseId: courseId,
+        userName: user.firstName || "User",
+        userImageSrc: user.imageUrl || "/mascot.svg",
+      })
+      .where(eq(userProgress.userId, userId));
 
     revalidatePath("/courses");
     revalidatePath("/learn");
@@ -84,7 +91,7 @@ export const reduceHearts = async (challengeId: number) => {
   const isPractice = !!existingChallengeProgress;
 
   if (isPractice) {
-    return { error: "practice" }; 
+    return { error: "practice" };
   }
 
   if (!currentUserProgress) {
@@ -99,9 +106,12 @@ export const reduceHearts = async (challengeId: number) => {
     return { error: "hearts" };
   }
 
-  await db.update(userProgress).set({
-    hearts: Math.max(currentUserProgress.hearts - 1, 0),
-  }).where(eq(userProgress.userId, userId));
+  await db
+    .update(userProgress)
+    .set({
+      hearts: Math.max(currentUserProgress.hearts - 1, 0),
+    })
+    .where(eq(userProgress.userId, userId));
 
   revalidatePath("/shop");
   revalidatePath("/learn");
@@ -125,10 +135,13 @@ export const refillHearts = async () => {
     throw new Error("Not enough points");
   }
 
-  await db.update(userProgress).set({
-    hearts: 5,
-    points: currentUserProgress.points - POINTS_TO_REFILL,
-  }).where(eq(userProgress.userId, currentUserProgress.userId));
+  await db
+    .update(userProgress)
+    .set({
+      hearts: 5,
+      points: currentUserProgress.points - POINTS_TO_REFILL,
+    })
+    .where(eq(userProgress.userId, currentUserProgress.userId));
 
   revalidatePath("/shop");
   revalidatePath("/learn");

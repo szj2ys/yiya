@@ -4,17 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:ci": "DATABASE_URL=postgres://user:pass@localhost:5432/db next build",
+    "build": "next build --no-lint",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest run",
-    "test:watch": "vitest",
     "db:studio": "npx drizzle-kit studio",
     "db:push": "npx drizzle-kit push:pg",
     "db:seed": "tsx ./scripts/seed.ts",
     "db:prod": "tsx ./scripts/prod.ts",
-    "db:reset": "tsx ./scripts/reset.ts"
+    "db:reset": "tsx ./scripts/reset.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.29.9",
@@ -46,16 +44,17 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^14.1.1",
+    "@rushstack/eslint-patch": "^1.15.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vitest/coverage-v8": "^4.0.18",
     "autoprefixer": "^10.0.1",
     "drizzle-kit": "^0.20.14",
     "eslint": "^8",
-    "eslint-config-next": "^14.1.1",
+    "eslint-config-next": "14.1.1",
     "jsdom": "^28.0.0",
     "pg": "^8.11.3",
     "postcss": "^8",
