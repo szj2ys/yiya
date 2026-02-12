@@ -8,6 +8,33 @@ import db from "@/db/drizzle";
 import { getUserProgress, getUserSubscription } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 
+const DAY_IN_MS = 86_400_000;
+const TWO_DAYS_IN_MS = 172_800_000;
+
+const computeNextStreak = (params: {
+  currentStreak: number;
+  lastLessonAt: Date | null;
+  now: Date;
+}) => {
+  const { currentStreak, lastLessonAt, now } = params;
+
+  if (!lastLessonAt) {
+    return { streak: 1, shouldUpdateStreak: true };
+  }
+
+  const elapsedMs = now.getTime() - lastLessonAt.getTime();
+
+  if (elapsedMs > TWO_DAYS_IN_MS) {
+    return { streak: 1, shouldUpdateStreak: true };
+  }
+
+  if (elapsedMs >= DAY_IN_MS) {
+    return { streak: currentStreak + 1, shouldUpdateStreak: true };
+  }
+
+  return { streak: currentStreak, shouldUpdateStreak: false };
+};
+
 export const upsertChallengeProgress = async (challengeId: number) => {
   const { userId } = await auth();
 
@@ -76,9 +103,21 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     completed: true,
   });
 
-  await db.update(userProgress).set({
-    points: currentUserProgress.points + 10,
-  }).where(eq(userProgress.userId, userId));
+  const now = new Date();
+
+  const { streak: nextStreak, shouldUpdateStreak } = computeNextStreak({
+    currentStreak: currentUserProgress.streak ?? 0,
+    lastLessonAt: currentUserProgress.lastLessonAt ?? null,
+    now,
+  });
+
+  await db.update(userProgress)
+    .set({
+      points: currentUserProgress.points + 10,
+      ...(shouldUpdateStreak ? { streak: nextStreak } : {}),
+      lastLessonAt: now,
+    })
+    .where(eq(userProgress.userId, userId));
 
   revalidatePath("/learn");
   revalidatePath("/lesson");

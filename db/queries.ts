@@ -26,6 +26,24 @@ export const getUserProgress = cache(async () => {
     },
   });
 
+	return data;
+});
+
+export const getUserStreak = cache(async () => {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return null;
+  }
+
+  const data = await db.query.userProgress.findFirst({
+    where: eq(userProgress.userId, userId),
+    columns: {
+      streak: true,
+      lastLessonAt: true,
+    },
+  });
+
   return data;
 });
 
