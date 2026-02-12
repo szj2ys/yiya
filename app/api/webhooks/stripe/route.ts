@@ -3,7 +3,6 @@ import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
-import db from "@/db/drizzle";
 import { stripe } from "@/lib/stripe";
 import { userSubscription } from "@/db/schema";
 
@@ -19,7 +18,7 @@ export async function POST(req: Request) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!,
     );
-  } catch(error: any) {
+  } catch (error: any) {
     return new NextResponse(`Webhook error: ${error.message}`, {
       status: 400,
     });
@@ -27,9 +26,12 @@ export async function POST(req: Request) {
 
   const session = event.data.object as Stripe.Checkout.Session;
 
+  // Lazy-import DB to avoid failing `next build` when env isn't set.
+  const { default: db } = await import("@/db/drizzle");
+
   if (event.type === "checkout.session.completed") {
     const subscription = await stripe.subscriptions.retrieve(
-      session.subscription as string
+      session.subscription as string,
     );
 
     if (!session?.metadata?.userId) {
@@ -41,24 +43,25 @@ export async function POST(req: Request) {
       stripeSubscriptionId: subscription.id,
       stripeCustomerId: subscription.customer as string,
       stripePriceId: subscription.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(
-        subscription.current_period_end * 1000,
-      ),
+      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
     });
   }
 
   if (event.type === "invoice.payment_succeeded") {
     const subscription = await stripe.subscriptions.retrieve(
-      session.subscription as string
+      session.subscription as string,
     );
 
-    await db.update(userSubscription).set({
-      stripePriceId: subscription.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(
-        subscription.current_period_end * 1000,
-      ),
-    }).where(eq(userSubscription.stripeSubscriptionId, subscription.id))
+    await db
+      .update(userSubscription)
+      .set({
+        stripePriceId: subscription.items.data[0].price.id,
+        stripeCurrentPeriodEnd: new Date(
+          subscription.current_period_end * 1000,
+        ),
+      })
+      .where(eq(userSubscription.stripeSubscriptionId, subscription.id));
   }
 
   return new NextResponse(null, { status: 200 });
-};
+}
