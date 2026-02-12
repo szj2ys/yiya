@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useHeartsModal } from "@/store/use-hearts-modal";
+import { track } from "@/lib/analytics";
 
 export const HeartsModal = () => {
   const router = useRouter();
@@ -21,6 +22,14 @@ export const HeartsModal = () => {
   const { isOpen, close } = useHeartsModal();
 
   useEffect(() => setIsClient(true), []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    track("paywall_view", { surface: "hearts_modal" }).catch(() => undefined);
+  }, [isOpen]);
 
   const onClick = () => {
     close();
@@ -39,10 +48,10 @@ export const HeartsModal = () => {
             <Image src="/mascot_bad.svg" alt="Mascot" height={80} width={80} />
           </div>
           <DialogTitle className="text-center font-bold text-2xl">
-            You ran out of hearts!
+            Keep your streak going
           </DialogTitle>
           <DialogDescription className="text-center text-base">
-            Get Pro for unlimited hearts, or purchase them in the store.
+            Get unlimited hearts to keep learning today — and protect your streak.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mb-4">
@@ -51,9 +60,12 @@ export const HeartsModal = () => {
               variant="primary"
               className="w-full"
               size="lg"
-              onClick={onClick}
+              onClick={() => {
+                track("checkout_start", { surface: "hearts_modal" }).catch(() => undefined);
+                onClick();
+              }}
             >
-              Get unlimited hearts
+              Continue learning
             </Button>
             <Button
               variant="primaryOutline"
@@ -61,7 +73,7 @@ export const HeartsModal = () => {
               size="lg"
               onClick={close}
             >
-              No thanks
+              Not now
             </Button>
           </div>
         </DialogFooter>
