@@ -12,6 +12,7 @@
 # next.js
 /.next/
 /out/
+next-env.d.ts
 
 # production
 /build
@@ -27,17 +28,13 @@ yarn-error.log*
 
 # local env files
 .env*.local
-.env
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
-# worktrees
-/.worktrees
-
-# task files
+# local worktrees + agent briefs
+.worktrees/
 TODO.md
