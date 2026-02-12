@@ -12,7 +12,9 @@
     "db:seed": "tsx ./scripts/seed.ts",
     "db:prod": "tsx ./scripts/prod.ts",
     "db:reset": "tsx ./scripts/reset.ts",
-    "test": "vitest run"
+    "test": "vitest run -c vitest.config.ts",
+    "test:watch": "vitest",
+    "build:ci": "DATABASE_URL=postgres://user:pass@localhost:5432/db next build --no-lint"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.29.9",

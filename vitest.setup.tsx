@@ -1,5 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom/vitest";
+import { vi } from "vitest";
 
 // Next.js / app router mocks
 vi.mock("next/image", () => ({
