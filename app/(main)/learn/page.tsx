@@ -11,6 +11,7 @@ import { lessons, units as unitsSchema } from "@/db/schema";
 import {
   getCourseProgress,
   getLessonPercentage,
+  getTodayReviewItems,
   getUnits,
   getUserProgress,
   getUserSubscription,
@@ -29,6 +30,7 @@ const LearnPage = async () => {
   const unitsData = getUnits();
   const userSubscriptionData = getUserSubscription();
   const userStreakData = getUserStreak();
+  const todayReviewItemsData = getTodayReviewItems();
 
   const [
     userProgress,
@@ -37,6 +39,7 @@ const LearnPage = async () => {
     lessonPercentage,
     userSubscription,
     userStreak,
+    todayReviewItems,
   ] = await Promise.all([
     userProgressData,
     unitsData,
@@ -44,6 +47,7 @@ const LearnPage = async () => {
     lessonPercentageData,
     userSubscriptionData,
     userStreakData,
+    todayReviewItemsData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -93,7 +97,7 @@ const LearnPage = async () => {
           </div>
         )}
 
-        <PracticeEntry />
+        <PracticeEntry reviewItemCount={todayReviewItems.length} />
 
         {units.map((unit) => (
           <div key={unit.id} className="mb-10">

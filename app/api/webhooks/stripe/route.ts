@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 
 import { stripe } from "@/lib/stripe";
 import { userSubscription } from "@/db/schema";
+import { track } from "@/lib/analytics";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -45,6 +46,8 @@ export async function POST(req: Request) {
       stripePriceId: subscription.items.data[0].price.id,
       stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
     });
+
+    await track("checkout_complete", { surface: "shop" });
   }
 
   if (event.type === "invoice.payment_succeeded") {

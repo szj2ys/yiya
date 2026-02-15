@@ -18,6 +18,8 @@ export default defineConfig({
     include: [
       "__tests__/**/*.{test,spec}.ts",
       "app/**/__tests__/**/*.{test,spec}.tsx",
+      "app/**/*.{test,spec}.ts",
+      "app/**/*.{test,spec}.tsx",
     ],
   },
 });
