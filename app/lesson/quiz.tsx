@@ -23,11 +23,18 @@ import { Challenge } from "./challenge";
 import { ResultCard } from "./result-card";
 import { QuestionBubble } from "./question-bubble";
 
+type WrongAnswer = {
+  challengeId: number;
+  question: string;
+  correctAnswer: string;
+};
+
 type Props = {
   initialPercentage: number;
   initialHearts: number;
   initialLessonId: number;
   initialStreak: number;
+  courseLanguage: string;
   initialLessonChallenges: (typeof challenges.$inferSelect & {
     completed: boolean;
     challengeOptions: typeof challengeOptions.$inferSelect[];
@@ -44,6 +51,7 @@ export const Quiz = ({
   initialLessonId,
   initialLessonChallenges,
   initialStreak,
+  courseLanguage,
   reviewCardId,
   userSubscription,
 }: Props) => {
@@ -79,6 +87,9 @@ export const Quiz = ({
 
   const [selectedOption, setSelectedOption] = useState<number>();
   const [status, setStatus] = useState<"correct" | "wrong" | "none">("none");
+
+  const [correctCount, setCorrectCount] = useState(0);
+  const [wrongAnswers, setWrongAnswers] = useState<WrongAnswer[]>([]);
 
   const [reviewSessionStartedAtMs] = useState<number>(() => Date.now());
   const [reviewedCount, setReviewedCount] = useState(0);
@@ -176,6 +187,7 @@ export const Quiz = ({
             correctControls.play();
             setStatus("correct");
             setPercentage((prev) => prev + 100 / challenges.length);
+            setCorrectCount((prev) => prev + 1);
 
             submitReviewIfNeeded({ correct: true }).catch(() => undefined);
 
@@ -200,6 +212,20 @@ export const Quiz = ({
 
             incorrectControls.play();
             setStatus("wrong");
+            setWrongAnswers((prev) => {
+              if (prev.some((entry) => entry.challengeId === challenge.id)) {
+                return prev;
+              }
+
+              return [
+                ...prev,
+                {
+                  challengeId: challenge.id,
+                  question: challenge.question,
+                  correctAnswer: correctOption.text,
+                },
+              ];
+            });
 
             submitReviewIfNeeded({ correct: false }).catch(() => undefined);
 
@@ -219,7 +245,7 @@ export const Quiz = ({
                   userAnswer: selectedText,
                   correctAnswer: correctOption.text,
                   challengeType: challenge.type,
-                  courseLanguage: "English",
+                  courseLanguage,
                 }),
               })
                 .then(async (res) => {
@@ -278,43 +304,97 @@ export const Quiz = ({
           numberOfPieces={500}
           tweenDuration={10000}
         />
-        <div className="flex flex-col gap-y-4 lg:gap-y-8 max-w-lg mx-auto text-center items-center justify-center h-full">
-          <Image
-            src="/finish.svg"
-            alt="Finish"
-            className="hidden lg:block"
-            height={100}
-            width={100}
-          />
-          <Image
-            src="/finish.svg"
-            alt="Finish"
-            className="block lg:hidden"
-            height={50}
-            width={50}
-          />
-          <h1 className="text-xl lg:text-3xl font-bold text-neutral-700">
-            Great job! <br /> You&apos;ve completed the lesson.
-          </h1>
-          <p className="text-sm lg:text-base text-neutral-600">
-            {streak > 0 ? `🔥 ${streak} day streak` : "Start your streak!"}
-          </p>
-          <div className="flex items-center gap-x-4 w-full">
-            <ResultCard
-              variant="points"
-              value={challenges.length * 10}
+        <div className="flex flex-col gap-y-6 max-w-lg mx-auto items-center justify-center h-full px-6 lg:px-0">
+          <div className="flex flex-col items-center text-center gap-y-3">
+            <Image
+              src="/finish.svg"
+              alt="Finish"
+              height={80}
+              width={80}
+              className="w-16 h-16 lg:w-20 lg:h-20"
             />
-            <ResultCard
-              variant="hearts"
-              value={hearts}
-            />
+            <h1 className="text-2xl lg:text-3xl font-bold text-neutral-700">
+              Lesson complete
+            </h1>
+            <p className="text-base lg:text-lg text-neutral-600">
+              {wrongAnswers.length === 0
+                ? "Perfect run — nice work."
+                : "Here’s what you nailed and what to review."}
+            </p>
+          </div>
+
+          <div className="w-full rounded-2xl bg-white/70 border border-neutral-200 p-5 lg:p-6 flex flex-col gap-y-5">
+            <div className="flex flex-col gap-y-2">
+              <p className="text-sm font-medium text-neutral-500">Accuracy</p>
+              <p className="text-xl font-semibold text-neutral-700">
+                {correctCount}/{challenges.length} correct
+              </p>
+              <p className="text-sm text-neutral-600">
+                {wrongAnswers.length} wrong • {challenges.length} total challenges
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-y-3">
+              <p className="text-sm font-medium text-neutral-500">Stats</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
+                  <p className="text-sm text-neutral-500">Streak</p>
+                  <p className="text-lg font-semibold text-neutral-700">
+                    {streak > 0 ? `🔥 ${streak}` : "—"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
+                  <p className="text-sm text-neutral-500">Hearts</p>
+                  <p className="text-lg font-semibold text-neutral-700">{hearts}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-x-4 w-full">
+                <ResultCard variant="points" value={challenges.length * 10} />
+                <ResultCard variant="hearts" value={hearts} />
+              </div>
+            </div>
+
+            {wrongAnswers.length > 0 && (
+              <div className="flex flex-col gap-y-3">
+                <p className="text-sm font-medium text-neutral-500">Review these</p>
+                <div className="flex flex-col gap-y-3">
+                  {wrongAnswers.map((item) => (
+                    <div
+                      key={item.challengeId}
+                      className="rounded-2xl border border-neutral-200 bg-white p-4"
+                    >
+                      <p className="text-base font-semibold text-neutral-700">{item.question}</p>
+                      <p className="text-sm text-neutral-600 mt-1">
+                        Correct: <span className="font-medium text-emerald-700">{item.correctAnswer}</span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="w-full flex flex-col gap-y-3">
+            {wrongAnswers.length > 0 && (
+              <button
+                type="button"
+                className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
+                onClick={() => openPracticeModal()}
+              >
+                Practice weak items
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="w-full h-12 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-semibold hover:bg-neutral-50 transition"
+              onClick={() => router.push("/learn")}
+            >
+              Continue
+            </button>
           </div>
         </div>
-        <Footer
-          lessonId={lessonId}
-          status="completed"
-          onCheck={() => router.push("/learn")}
-        />
       </>
     );
   }

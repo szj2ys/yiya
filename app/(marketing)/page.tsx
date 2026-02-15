@@ -64,7 +64,7 @@ export default function Home() {
               </h1>
 
               <p className="mt-4 max-w-[42ch] text-pretty text-base leading-relaxed text-neutral-600 sm:text-lg">
-                Lingo turns daily practice into bite‑size interactive lessons so you can build real vocabulary and keep your streak alive.
+                Yiya turns daily practice into bite‑size interactive lessons so you can build real vocabulary and keep your streak alive.
               </p>
 
               <div className="mt-6 w-full max-w-[360px]">
@@ -129,7 +129,7 @@ export default function Home() {
                 <Image
                   src="/hero.svg"
                   fill
-                  alt="Lingo mascot"
+                  alt="Yiya mascot"
                   className="object-contain p-6"
                   priority
                 />

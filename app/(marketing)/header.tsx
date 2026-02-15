@@ -15,9 +15,9 @@ export const Header = () => {
     <header className="sticky top-0 z-40 w-full border-b border-black/5 bg-white/80 px-4 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-screen-lg items-center justify-between">
         <div className="flex items-center gap-3">
-          <Image src="/mascot.svg" height={36} width={36} alt="Lingo" />
+          <Image src="/mascot.svg" height={36} width={36} alt="Yiya" />
           <h1 className="text-xl font-extrabold text-green-600 tracking-tight">
-            Lingo
+            Yiya
           </h1>
         </div>
         <ClerkLoading>
