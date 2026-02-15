@@ -56,6 +56,7 @@ const LessonIdPage = async ({
       initialHearts={userProgress.hearts}
       initialPercentage={initialPercentage}
       initialStreak={userStreak?.streak ?? 0}
+      courseLanguage={userProgress.activeCourse?.title ?? "English"}
       reviewCardId={reviewCardId}
       userSubscription={userSubscription}
     />

@@ -63,6 +63,7 @@ const buildBaseProps = () => ({
   initialHearts: 5,
   initialLessonId: 1,
   initialStreak: 0,
+  courseLanguage: "Spanish",
   userSubscription: null,
   reviewCardId: 123,
 });
@@ -161,4 +162,3 @@ describe("Quiz review rating mapping", () => {
     });
   });
 });
-
