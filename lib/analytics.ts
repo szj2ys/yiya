@@ -19,6 +19,8 @@ export type AnalyticsEventMap = {
   paywall_view: BaseProperties & { surface: string };
   checkout_start: BaseProperties & { surface: string };
   checkout_complete: BaseProperties & { surface: string };
+  explanation_view: BaseProperties & { challenge_id: number; cached: boolean };
+  explanation_practice_click: BaseProperties & { challenge_id: number };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;
