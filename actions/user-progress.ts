@@ -13,6 +13,7 @@ import {
   getUserSubscription,
 } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
+import { createReviewCard } from "@/actions/review";
 
 export const upsertUserProgress = async (courseId: number) => {
   const { userId } = await auth();
@@ -112,6 +113,8 @@ export const reduceHearts = async (challengeId: number) => {
       hearts: Math.max(currentUserProgress.hearts - 1, 0),
     })
     .where(eq(userProgress.userId, userId));
+
+  await createReviewCard(userId, challengeId, "wrong");
 
   revalidatePath("/shop");
   revalidatePath("/learn");

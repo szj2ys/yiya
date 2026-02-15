@@ -13,6 +13,7 @@ import { challengeOptions, challenges, userSubscription } from "@/db/schema";
 import { usePracticeModal } from "@/store/use-practice-modal";
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
 import { buildTrackPayload, trackPayload } from "@/lib/analytics";
+import { submitReview } from "@/actions/review";
 import type { ExplanationResult } from "@/lib/ai/explain";
 import { ExplanationPanel } from "@/components/explanation-panel";
 
@@ -31,6 +32,7 @@ type Props = {
     completed: boolean;
     challengeOptions: typeof challengeOptions.$inferSelect[];
   })[];
+  reviewCardId?: number;
   userSubscription: typeof userSubscription.$inferSelect & {
     isActive: boolean;
   } | null;
@@ -42,6 +44,7 @@ export const Quiz = ({
   initialLessonId,
   initialLessonChallenges,
   initialStreak,
+  reviewCardId,
   userSubscription,
 }: Props) => {
   const { open: openHeartsModal } = useHeartsModal();
@@ -85,6 +88,28 @@ export const Quiz = ({
   const [selectedOption, setSelectedOption] = useState<number>();
   const [status, setStatus] = useState<"correct" | "wrong" | "none">("none");
 
+  const [reviewSessionStartedAtMs] = useState<number>(() => Date.now());
+  const [reviewedCount, setReviewedCount] = useState(0);
+  const [againCount, setAgainCount] = useState(0);
+
+  const [questionStartedAtMs, setQuestionStartedAtMs] = useState<number>(() => Date.now());
+
+  const submitReviewIfNeeded = async (params: { correct: boolean }) => {
+    if (!isPractice || !reviewCardId) {
+      return;
+    }
+
+    const durationMs = Date.now() - questionStartedAtMs;
+    const rating = params.correct ? (durationMs <= 10_000 ? 4 : 3) : 1;
+
+    await submitReview(reviewCardId, rating);
+
+    setReviewedCount((prev) => prev + 1);
+    if (rating === 1) {
+      setAgainCount((prev) => prev + 1);
+    }
+  };
+
   const [explanationLoading, setExplanationLoading] = useState(false);
   const [explanationData, setExplanationData] = useState<ExplanationResult | null>(null);
 
@@ -96,6 +121,14 @@ export const Quiz = ({
         lesson_id: lessonId,
       }),
     ).catch(() => undefined);
+
+    if (isPractice) {
+      trackPayload(
+        buildTrackPayload("review_session_start", {
+          due_count: 1,
+        }),
+      ).catch(() => undefined);
+    }
   });
 
   const challenge = challenges[activeIndex];
@@ -103,6 +136,7 @@ export const Quiz = ({
 
   const onNext = () => {
     setActiveIndex((current) => current + 1);
+    setQuestionStartedAtMs(Date.now());
   };
 
   const onSelect = (id: number) => {
@@ -150,6 +184,8 @@ export const Quiz = ({
             setStatus("correct");
             setPercentage((prev) => prev + 100 / challenges.length);
 
+            submitReviewIfNeeded({ correct: true }).catch(() => undefined);
+
             // This is a practice
             if (initialPercentage === 100) {
               setHearts((prev) => Math.min(prev + 1, 5));
@@ -171,6 +207,8 @@ export const Quiz = ({
 
             incorrectControls.play();
             setStatus("wrong");
+
+            submitReviewIfNeeded({ correct: false }).catch(() => undefined);
 
             // Fetch explain only for non-practice mode.
             if (!isPractice) {
@@ -218,6 +256,16 @@ export const Quiz = ({
   };
 
   if (!challenge) {
+    if (isPractice) {
+      trackPayload(
+        buildTrackPayload("review_session_complete", {
+          reviewed_count: reviewedCount,
+          again_count: againCount,
+          duration_ms: Date.now() - reviewSessionStartedAtMs,
+        }),
+      ).catch(() => undefined);
+    }
+
     trackPayload(
       isPractice
         ? buildTrackPayload("practice_complete", { lesson_id: lessonId })

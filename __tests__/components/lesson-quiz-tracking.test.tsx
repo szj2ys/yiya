@@ -22,6 +22,7 @@ vi.mock("@/store/use-practice-modal", () => ({ usePracticeModal: () => ({ open: 
 vi.mock("@/store/use-hearts-modal", () => ({ useHeartsModal: () => ({ open: vi.fn() }) }));
 vi.mock("@/actions/challenge-progress", () => ({ upsertChallengeProgress: vi.fn() }));
 vi.mock("@/actions/user-progress", () => ({ reduceHearts: vi.fn() }));
+vi.mock("@/actions/review", () => ({ submitReview: vi.fn() }));
 
 vi.mock("@/app/lesson/header", () => ({ Header: () => null }));
 vi.mock("@/app/lesson/footer", () => ({ Footer: () => null }));
@@ -49,5 +50,27 @@ describe("Quiz analytics", () => {
       });
     });
   });
-});
 
+  it("should track review session start and complete in practice mode", async () => {
+    render(
+      <Quiz
+        initialPercentage={100}
+        initialHearts={5}
+        initialLessonId={1}
+        initialStreak={0}
+        initialLessonChallenges={[]}
+        userSubscription={null}
+      />
+    );
+
+    await waitFor(() => {
+      expect(trackSpy).toHaveBeenCalledWith("review_session_start", {
+        due_count: 1,
+      });
+      expect(trackSpy).toHaveBeenCalledWith(
+        "review_session_complete",
+        expect.objectContaining({ reviewed_count: 0, again_count: 0 }),
+      );
+    });
+  });
+});

@@ -2,10 +2,14 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 const challengeProgressFindManySpy = vi.fn();
 const challengesFindManySpy = vi.fn();
+const reviewCardsFindManySpy = vi.fn();
 
 vi.mock("@/db/drizzle", () => ({
   default: {
     query: {
+      reviewCards: {
+        findMany: reviewCardsFindManySpy,
+      },
       challengeProgress: {
         findMany: challengeProgressFindManySpy,
       },
@@ -28,6 +32,8 @@ describe("getTodayReviewItems", () => {
   beforeEach(() => {
     challengeProgressFindManySpy.mockReset();
     challengesFindManySpy.mockReset();
+    reviewCardsFindManySpy.mockReset();
+    reviewCardsFindManySpy.mockResolvedValue([]);
   });
 
   it("should return review items when user has previous progress", async () => {

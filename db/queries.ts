@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, lte } from "drizzle-orm";
 import { auth } from "@clerk/nextjs";
 
 import db from "@/db/drizzle";
@@ -8,6 +8,7 @@ import {
   courses, 
   challenges,
   lessons, 
+  reviewCards,
   units, 
   userProgress,
   userSubscription
@@ -18,6 +19,7 @@ type ReviewItem =
       type: "challenge";
       challengeId: number;
       lessonId: number;
+      reviewCardId?: number;
     }
   | {
       type: "lesson";
@@ -256,6 +258,46 @@ export const getTodayReviewItems = cache(async () => {
 
   if (!userId) {
     return [] as ReviewItem[];
+  }
+
+  // FSRS-driven due cards (Phase 2)
+  const now = new Date();
+  const dueCards = await db.query.reviewCards.findMany({
+    where: and(eq(reviewCards.userId, userId), lte(reviewCards.due, now)),
+    orderBy: (reviewCards, { asc }) => [asc(reviewCards.due)],
+    limit: MAX_REVIEW_ITEMS,
+    columns: {
+      id: true,
+      challengeId: true,
+    },
+  });
+
+  if (dueCards.length > 0) {
+    const dueChallengeIds = dueCards.map((c) => c.challengeId);
+    const challengeIdToReviewCardId = new Map(
+      dueCards.map((c) => [c.challengeId, c.id] as const),
+    );
+    const dueChallenges = await db.query.challenges.findMany({
+      where: inArray(challenges.id, dueChallengeIds),
+      columns: { id: true, lessonId: true },
+    });
+
+    const challengeIdToLessonId = new Map(
+      dueChallenges.map((c) => [c.id, c.lessonId] as const),
+    );
+
+    return dueChallengeIds.flatMap((challengeId) => {
+      const lessonId = challengeIdToLessonId.get(challengeId);
+      if (!lessonId) return [];
+      return [
+        {
+          type: "challenge",
+          challengeId,
+          lessonId,
+          reviewCardId: challengeIdToReviewCardId.get(challengeId),
+        },
+      ];
+    });
   }
 
   // 1) Recently-wrong challenges first (most recent attempt first)

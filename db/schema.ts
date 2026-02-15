@@ -2,11 +2,14 @@ import { relations } from "drizzle-orm";
 import {
   boolean,
   integer,
+  index,
   pgEnum,
   pgTable,
+  real,
   serial,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const courses = pgTable("courses", {
@@ -144,3 +147,43 @@ export const userSubscription = pgTable("user_subscription", {
   stripePriceId: text("stripe_price_id").notNull(),
   stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(),
 });
+
+export const reviewCardStateEnum = pgEnum("review_card_state", [
+  "new",
+  "learning",
+  "review",
+  "relearning",
+]);
+
+export const reviewCards = pgTable(
+  "review_cards",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    challengeId: integer("challenge_id")
+      .references(() => challenges.id, { onDelete: "cascade" })
+      .notNull(),
+    state: reviewCardStateEnum("state").notNull().default("new"),
+    stability: real("stability").notNull().default(0),
+    difficulty: real("difficulty").notNull().default(5.0),
+    elapsedDays: integer("elapsed_days").notNull().default(0),
+    scheduledDays: integer("scheduled_days").notNull().default(0),
+    reps: integer("reps").notNull().default(0),
+    lapses: integer("lapses").notNull().default(0),
+    due: timestamp("due").notNull().defaultNow(),
+    lastReview: timestamp("last_review"),
+  },
+  (t) => ({
+    userChallengeUnique: uniqueIndex(
+      "review_cards_user_id_challenge_id_unique",
+    ).on(t.userId, t.challengeId),
+    userDueIndex: index("review_cards_user_id_due_idx").on(t.userId, t.due),
+  }),
+);
+
+export const reviewCardsRelations = relations(reviewCards, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [reviewCards.challengeId],
+    references: [challenges.id],
+  }),
+}));
