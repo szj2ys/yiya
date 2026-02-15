@@ -38,6 +38,7 @@ describe("Quiz analytics", () => {
         initialHearts={5}
         initialLessonId={1}
         initialStreak={0}
+        courseLanguage="Spanish"
         initialLessonChallenges={[]}
         userSubscription={null}
       />
@@ -58,6 +59,7 @@ describe("Quiz analytics", () => {
         initialHearts={5}
         initialLessonId={1}
         initialStreak={0}
+        courseLanguage="Spanish"
         initialLessonChallenges={[]}
         userSubscription={null}
       />

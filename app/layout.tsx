@@ -11,8 +11,8 @@ import "./globals.css";
 const font = Nunito({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Duolingo Clone",
-  description: "Learn, practice, and master new languages with Lingo",
+  title: "Yiya",
+  description: "Learn, practice, and master new languages with Yiya",
 };
 
 export default function RootLayout({
