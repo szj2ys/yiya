@@ -1,17 +1,40 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
 
-import { getReviewSummary } from "./practice-summary";
+import { PracticeEntry } from "./practice-entry";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
+vi.mock("react", async () => {
+  const actual = await vi.importActual<typeof import("react")>("react");
+  return {
+    ...actual,
+    useTransition: () => [false, (cb: () => void) => cb()],
+  };
+});
+
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), message: vi.fn() } }));
+
+vi.mock("@/actions/practice", () => ({
+  startPractice: vi.fn().mockResolvedValue({ type: "empty" }),
+}));
 
 describe("PracticeEntry", () => {
-  it("should display dynamic time estimate based on item count", () => {
-    expect(getReviewSummary(8)).toBe("8 items · ~2 min");
+  it("should display due count and time estimate", () => {
+    render(<PracticeEntry reviewItemCount={2} dueCount={8} />);
+    expect(screen.getByText("8 items due · ~2 min")).toBeInTheDocument();
+    expect(screen.getByText("8")).toBeInTheDocument();
+  });
+
+  it("should fallback to legacy count when due is zero", () => {
+    render(<PracticeEntry reviewItemCount={8} dueCount={0} />);
+    expect(screen.getByText("8 items due · ~2 min")).toBeInTheDocument();
   });
 
   it("should show empty state when no items", () => {
-    expect(getReviewSummary(0)).toBe("No items to review");
-  });
-
-  it("should round up to at least one minute", () => {
-    expect(getReviewSummary(1)).toBe("1 items · ~1 min");
+    render(<PracticeEntry reviewItemCount={0} dueCount={0} />);
+    expect(screen.getByText("No items to review")).toBeInTheDocument();
   });
 });

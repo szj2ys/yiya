@@ -17,6 +17,7 @@ import {
   getUserSubscription,
   getUserStreak,
 } from "@/db/queries";
+import { getReviewDueCount } from "@/actions/review";
 
 import { Unit } from "./unit";
 import { Header } from "./header";
@@ -31,6 +32,7 @@ const LearnPage = async () => {
   const userSubscriptionData = getUserSubscription();
   const userStreakData = getUserStreak();
   const todayReviewItemsData = getTodayReviewItems();
+  const reviewDueCountData = getReviewDueCount();
 
   const [
     userProgress,
@@ -40,6 +42,7 @@ const LearnPage = async () => {
     userSubscription,
     userStreak,
     todayReviewItems,
+    reviewDueCount,
   ] = await Promise.all([
     userProgressData,
     unitsData,
@@ -48,6 +51,7 @@ const LearnPage = async () => {
     userSubscriptionData,
     userStreakData,
     todayReviewItemsData,
+    reviewDueCountData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -97,7 +101,10 @@ const LearnPage = async () => {
           </div>
         )}
 
-        <PracticeEntry reviewItemCount={todayReviewItems.length} />
+        <PracticeEntry
+          reviewItemCount={todayReviewItems.length}
+          dueCount={reviewDueCount}
+        />
 
         {units.map((unit) => (
           <div key={unit.id} className="mb-10">

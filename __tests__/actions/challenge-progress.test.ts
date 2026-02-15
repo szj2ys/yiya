@@ -10,6 +10,7 @@ const insertSpy = vi.fn(() => ({ values: insertValuesSpy }));
 
 const getUserProgressSpy = vi.fn();
 const getUserSubscriptionSpy = vi.fn();
+const createReviewCardSpy = vi.fn().mockResolvedValue(undefined);
 
 const challengeProgressFindFirstSpy = vi.fn();
 const challengesFindFirstSpy = vi.fn();
@@ -28,6 +29,10 @@ vi.mock("@/db/drizzle", () => ({
 vi.mock("@/db/queries", () => ({
   getUserProgress: getUserProgressSpy,
   getUserSubscription: getUserSubscriptionSpy,
+}));
+
+vi.mock("@/actions/review", () => ({
+  createReviewCard: (...args: unknown[]) => createReviewCardSpy(...args),
 }));
 
 vi.mock("@clerk/nextjs", () => ({
@@ -50,11 +55,30 @@ beforeEach(() => {
   getUserSubscriptionSpy.mockReset();
   challengeProgressFindFirstSpy.mockReset();
   challengesFindFirstSpy.mockReset();
+  createReviewCardSpy.mockReset();
 
   // defaults: non-practice run, active subscription irrelevant
   challengeProgressFindFirstSpy.mockResolvedValue(null);
   challengesFindFirstSpy.mockResolvedValue({ id: 1, lessonId: 10 });
   getUserSubscriptionSpy.mockResolvedValue({ isActive: true });
+});
+
+describe("upsertChallengeProgress review card", () => {
+  it("should create review card on challenge completion", async () => {
+    getUserProgressSpy.mockResolvedValue({
+      userId: "user_a",
+      hearts: 5,
+      points: 0,
+      streak: 0,
+      lastLessonAt: null,
+    });
+
+    const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
+
+    await upsertChallengeProgress(1);
+
+    expect(createReviewCardSpy).toHaveBeenCalledWith("user_a", 1, "correct");
+  });
 });
 
 describe("upsertChallengeProgress streak", () => {

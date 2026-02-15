@@ -16,6 +16,12 @@ export type AnalyticsEventMap = {
   hearts_empty: BaseProperties & { lesson_id?: number };
   practice_start: BaseProperties & { lesson_id: number };
   practice_complete: BaseProperties & { lesson_id: number };
+  review_session_start: BaseProperties & { due_count: number };
+  review_session_complete: BaseProperties & {
+    reviewed_count: number;
+    again_count: number;
+    duration_ms: number;
+  };
   paywall_view: BaseProperties & { surface: string };
   checkout_start: BaseProperties & { surface: string };
   checkout_complete: BaseProperties & { surface: string };

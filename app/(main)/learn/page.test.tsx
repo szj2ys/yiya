@@ -19,6 +19,10 @@ vi.mock("@/db/queries", () => ({
   getUserStreak: vi.fn().mockResolvedValue({ streak: 7, lastLessonAt: new Date() }),
 }));
 
+vi.mock("@/actions/review", () => ({
+  getReviewDueCount: vi.fn().mockResolvedValue(0),
+}));
+
 vi.mock("@/components/sticky-wrapper", () => ({
   StickyWrapper: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>

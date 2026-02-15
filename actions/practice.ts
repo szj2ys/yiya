@@ -5,7 +5,7 @@ import { auth } from "@clerk/nextjs";
 import { getTodayReviewItems } from "@/db/queries";
 
 type PracticeStartResult =
-  | { type: "challenge"; challengeId: number; lessonId: number }
+  | { type: "challenge"; challengeId: number; lessonId: number; reviewCardId?: number }
   | { type: "lesson"; lessonId: number }
   | { type: "empty" };
 
@@ -29,6 +29,7 @@ export const startPractice = async (): Promise<PracticeStartResult> => {
       type: "challenge",
       challengeId: next.challengeId,
       lessonId: next.lessonId,
+      ...("reviewCardId" in next ? { reviewCardId: next.reviewCardId } : {}),
     };
   }
 

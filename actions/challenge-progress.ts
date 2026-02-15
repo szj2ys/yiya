@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import db from "@/db/drizzle";
 import { getUserProgress, getUserSubscription } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
+import { createReviewCard } from "@/actions/review";
 
 const DAY_IN_MS = 86_400_000;
 const TWO_DAYS_IN_MS = 172_800_000;
@@ -102,6 +103,8 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     userId,
     completed: true,
   });
+
+  await createReviewCard(userId, challengeId, "correct");
 
   const now = new Date();
 
