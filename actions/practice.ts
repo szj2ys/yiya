@@ -29,7 +29,7 @@ export const startPractice = async (): Promise<PracticeStartResult> => {
       type: "challenge",
       challengeId: next.challengeId,
       lessonId: next.lessonId,
-      ...("reviewCardId" in next ? { reviewCardId: next.reviewCardId } : {}),
+      reviewCardId: next.reviewCardId,
     };
   }
 

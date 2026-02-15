@@ -1,6 +1,6 @@
 "use server";
 
-import { and, asc, count, eq, lte } from "drizzle-orm";
+import { and, count, eq, lte } from "drizzle-orm";
 import { auth } from "@clerk/nextjs";
 import { State, fsrs } from "ts-fsrs";
 

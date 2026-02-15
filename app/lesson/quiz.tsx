@@ -373,9 +373,7 @@ export const Quiz = ({
             setExplanationData(null);
             setExplanationLoading(false);
           }}
-          onPractice={() => {
-            openPracticeModal();
-          }}
+          onPractice={openPracticeModal}
         />
       )}
 
