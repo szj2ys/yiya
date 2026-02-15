@@ -61,16 +61,8 @@ export const Quiz = ({
   const router = useRouter();
 
   const [finishAudio] = useAudio({ src: "/finish.mp3", autoPlay: true });
-  const [
-    correctAudio,
-    _c,
-    correctControls,
-  ] = useAudio({ src: "/correct.wav" });
-  const [
-    incorrectAudio,
-    _i,
-    incorrectControls,
-  ] = useAudio({ src: "/incorrect.wav" });
+  const [correctAudio, , correctControls] = useAudio({ src: "/correct.wav" });
+  const [incorrectAudio, , incorrectControls] = useAudio({ src: "/incorrect.wav" });
   const [pending, startTransition] = useTransition();
 
   const [lessonId] = useState(initialLessonId);
@@ -94,6 +86,11 @@ export const Quiz = ({
 
   const [questionStartedAtMs, setQuestionStartedAtMs] = useState<number>(() => Date.now());
 
+  const [explanationLoading, setExplanationLoading] = useState(false);
+  const [explanationData, setExplanationData] = useState<ExplanationResult | null>(null);
+
+  const isPractice = initialPercentage === 100;
+
   const submitReviewIfNeeded = async (params: { correct: boolean }) => {
     if (!isPractice || !reviewCardId) {
       return;
@@ -109,11 +106,6 @@ export const Quiz = ({
       setAgainCount((prev) => prev + 1);
     }
   };
-
-  const [explanationLoading, setExplanationLoading] = useState(false);
-  const [explanationData, setExplanationData] = useState<ExplanationResult | null>(null);
-
-  const isPractice = initialPercentage === 100;
 
   useMount(() => {
     trackPayload(
@@ -145,23 +137,24 @@ export const Quiz = ({
     setSelectedOption(id);
   };
 
+  const resetSelection = () => {
+    setStatus("none");
+    setSelectedOption(undefined);
+    setExplanationData(null);
+    setExplanationLoading(false);
+  };
+
   const onContinue = () => {
     if (!selectedOption) return;
 
     if (status === "wrong") {
-      setStatus("none");
-      setSelectedOption(undefined);
-      setExplanationData(null);
-      setExplanationLoading(false);
+      resetSelection();
       return;
     }
 
     if (status === "correct") {
       onNext();
-      setStatus("none");
-      setSelectedOption(undefined);
-      setExplanationData(null);
-      setExplanationLoading(false);
+      resetSelection();
       return;
     }
 
@@ -373,9 +366,7 @@ export const Quiz = ({
             setExplanationData(null);
             setExplanationLoading(false);
           }}
-          onPractice={() => {
-            openPracticeModal();
-          }}
+          onPractice={openPracticeModal}
         />
       )}
 
