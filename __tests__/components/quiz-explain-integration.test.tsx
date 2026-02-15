@@ -58,6 +58,7 @@ describe("Quiz explain integration", () => {
         initialHearts={5}
         initialLessonId={1}
         initialStreak={0}
+        courseLanguage="Spanish"
         userSubscription={null}
         initialLessonChallenges={[
           {
@@ -87,6 +88,9 @@ describe("Quiz explain integration", () => {
       );
     });
 
+    const explainBody = JSON.parse(fetchSpy.mock.calls[0][1].body as string);
+    expect(explainBody.courseLanguage).toBe("Spanish");
+
     await waitFor(() => {
       expect(screen.getByText("Why it’s wrong")).toBeInTheDocument();
       expect(screen.getByText("E")).toBeInTheDocument();
@@ -100,6 +104,7 @@ describe("Quiz explain integration", () => {
         initialHearts={5}
         initialLessonId={1}
         initialStreak={0}
+        courseLanguage="Spanish"
         userSubscription={null}
         initialLessonChallenges={[
           {
@@ -146,6 +151,7 @@ describe("Quiz explain integration", () => {
         initialHearts={5}
         initialLessonId={1}
         initialStreak={0}
+        courseLanguage="Spanish"
         userSubscription={null}
         initialLessonChallenges={[
           {
