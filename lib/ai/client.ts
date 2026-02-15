@@ -9,12 +9,9 @@ export type AiChatOptions = {
   response_format?: OpenAI.Chat.Completions.ChatCompletionCreateParams["response_format"];
 };
 
-function getEnv(name: string): string {
+function getEnvOptional(name: string): string | undefined {
   const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing required env var: ${name}`);
-  }
-  return value;
+  return value && value.length ? value : undefined;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -39,8 +36,8 @@ function isTransientError(error: unknown): boolean {
 }
 
 export const aiClient = new OpenAI({
-  apiKey: getEnv("OPENAI_API_KEY"),
-  baseURL: getEnv("OPENAI_API_BASE_URL"),
+  apiKey: getEnvOptional("OPENAI_API_KEY") ?? "",
+  baseURL: getEnvOptional("OPENAI_API_BASE_URL") ?? "",
   timeout: 30_000,
   maxRetries: 0,
 });
@@ -49,6 +46,15 @@ export async function aiChat(
   messages: ChatMessage[],
   options: AiChatOptions = {},
 ): Promise<string> {
+  // Validate required env vars at call-time (so Next build doesn't fail
+  // when the server bundle is evaluated).
+  if (!getEnvOptional("OPENAI_API_KEY")) {
+    throw new Error("Missing required env var: OPENAI_API_KEY");
+  }
+  if (!getEnvOptional("OPENAI_API_BASE_URL")) {
+    throw new Error("Missing required env var: OPENAI_API_BASE_URL");
+  }
+
   const {
     model = "gpt-4o-mini",
     temperature,

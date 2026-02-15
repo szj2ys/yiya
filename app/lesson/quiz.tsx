@@ -13,6 +13,8 @@ import { challengeOptions, challenges, userSubscription } from "@/db/schema";
 import { usePracticeModal } from "@/store/use-practice-modal";
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
 import { buildTrackPayload, trackPayload } from "@/lib/analytics";
+import type { ExplanationResult } from "@/lib/ai/explain";
+import { ExplanationPanel } from "@/components/explanation-panel";
 
 import { Header } from "./header";
 import { Footer } from "./footer";
@@ -20,7 +22,7 @@ import { Challenge } from "./challenge";
 import { ResultCard } from "./result-card";
 import { QuestionBubble } from "./question-bubble";
 
-type Props ={
+type Props = {
   initialPercentage: number;
   initialHearts: number;
   initialLessonId: number;
@@ -83,6 +85,9 @@ export const Quiz = ({
   const [selectedOption, setSelectedOption] = useState<number>();
   const [status, setStatus] = useState<"correct" | "wrong" | "none">("none");
 
+  const [explanationLoading, setExplanationLoading] = useState(false);
+  const [explanationData, setExplanationData] = useState<ExplanationResult | null>(null);
+
   const isPractice = initialPercentage === 100;
 
   useMount(() => {
@@ -112,6 +117,8 @@ export const Quiz = ({
     if (status === "wrong") {
       setStatus("none");
       setSelectedOption(undefined);
+      setExplanationData(null);
+      setExplanationLoading(false);
       return;
     }
 
@@ -119,6 +126,8 @@ export const Quiz = ({
       onNext();
       setStatus("none");
       setSelectedOption(undefined);
+      setExplanationData(null);
+      setExplanationLoading(false);
       return;
     }
 
@@ -162,6 +171,36 @@ export const Quiz = ({
 
             incorrectControls.play();
             setStatus("wrong");
+
+            // Fetch explain only for non-practice mode.
+            if (!isPractice) {
+              const selectedText =
+                options.find((o) => o.id === selectedOption)?.text ?? "";
+              setExplanationLoading(true);
+              setExplanationData(null);
+
+              fetch("/api/ai/explain", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  challengeId: challenge.id,
+                  question: challenge.question,
+                  userAnswer: selectedText,
+                  correctAnswer: correctOption.text,
+                  challengeType: challenge.type,
+                  courseLanguage: "English",
+                }),
+              })
+                .then(async (res) => {
+                  if (!res.ok) return null;
+                  return (await res.json()) as ExplanationResult;
+                })
+                .then((data) => {
+                  if (data) setExplanationData(data);
+                })
+                .catch(() => undefined)
+                .finally(() => setExplanationLoading(false));
+            }
 
             if (!response?.error) {
               setHearts((prev) => Math.max(prev - 1, 0));
@@ -276,10 +315,30 @@ export const Quiz = ({
           </div>
         </div>
       </div>
+
+      {!isPractice && status === "wrong" && (
+        <ExplanationPanel
+          challengeId={challenge.id}
+          explanation={explanationData}
+          loading={explanationLoading}
+          onDismiss={() => {
+            setExplanationData(null);
+            setExplanationLoading(false);
+          }}
+          onPractice={() => {
+            openPracticeModal();
+          }}
+        />
+      )}
+
       <Footer
         disabled={pending || !selectedOption}
         status={status}
         onCheck={onContinue}
+        correctAnswerText={
+          status === "wrong" ? options.find((o) => o.correct)?.text : undefined
+        }
+        reserveBottomSpacePx={!isPractice && status === "wrong" ? 340 : 0}
       />
     </>
   );
