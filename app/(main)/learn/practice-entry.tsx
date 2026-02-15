@@ -8,8 +8,6 @@ import { toast } from "sonner";
 import { startPractice } from "@/actions/practice";
 import { Button } from "@/components/ui/button";
 
-type PracticeStartResult = Awaited<ReturnType<typeof startPractice>>;
-
 type PracticeEntryProps = {
   reviewItemCount: number;
   dueCount: number;
@@ -26,18 +24,15 @@ export const PracticeEntry = ({ reviewItemCount, dueCount }: PracticeEntryProps)
 
     startTransition(() => {
       startPractice()
-        .then(handlePracticeStart)
+        .then((result) => {
+          if (result.type === "empty") {
+            toast.message("No practice items for today yet.");
+            return;
+          }
+          router.push(`/lesson/${result.lessonId}`);
+        })
         .catch(() => toast.error("Something went wrong. Please try again."));
     });
-  };
-
-  const handlePracticeStart = (result: PracticeStartResult) => {
-    if (result.type === "empty") {
-      toast.message("No practice items for today yet.");
-      return;
-    }
-
-    router.push(`/lesson/${result.lessonId}`);
   };
 
   const label = "Today\u2019s practice";

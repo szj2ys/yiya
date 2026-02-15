@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { and, desc, eq, inArray, lte } from "drizzle-orm";
+import { and, eq, inArray, lte } from "drizzle-orm";
 import { auth } from "@clerk/nextjs";
 
 import db from "@/db/drizzle";

@@ -35,10 +35,6 @@ export function sha256(input: string): string {
   return createHash("sha256").update(input).digest("hex");
 }
 
-export function makeCacheKey(prompt: string, model: string): string {
-  return sha256(`${prompt}${model}`);
-}
-
 export async function getCachedOrFetch<T>(
   key: string,
   fetchFn: () => Promise<T>,
