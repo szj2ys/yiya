@@ -239,6 +239,8 @@ export const Quiz = ({
     );
   }
 
+  // Note: lesson_fail isn't tracked yet. Only hearts_empty is required in Phase 0.
+
   const title = challenge.type === "ASSIST" 
     ? "Select the correct meaning"
     : challenge.question;

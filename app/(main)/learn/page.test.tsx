@@ -13,6 +13,7 @@ vi.mock("@/db/queries", () => ({
   }),
   getCourseProgress: mockGetCourseProgress,
   getLessonPercentage: vi.fn().mockResolvedValue(0),
+  getTodayReviewItems: vi.fn().mockResolvedValue([]),
   getUnits: vi.fn().mockResolvedValue([]),
   getUserSubscription: vi.fn().mockResolvedValue({ isActive: true }),
   getUserStreak: vi.fn().mockResolvedValue({ streak: 7, lastLessonAt: new Date() }),
@@ -47,7 +48,9 @@ vi.mock("./practice-entry", () => ({
 }));
 
 vi.mock("./start-first-lesson", () => ({
-  StartFirstLesson: () => <div>StartFirstLesson</div>,
+  StartFirstLesson: ({ primaryCta }: { primaryCta: React.ReactNode }) => (
+    <div>{primaryCta}</div>
+  ),
 }));
 
 vi.mock("@/components/promo", () => ({ Promo: () => <div>Promo</div> }));

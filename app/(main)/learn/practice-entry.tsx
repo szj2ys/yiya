@@ -8,9 +8,15 @@ import { toast } from "sonner";
 import { startPractice } from "@/actions/practice";
 import { Button } from "@/components/ui/button";
 
+import { getReviewSummary } from "./practice-summary";
+
 type PracticeStartResult = Awaited<ReturnType<typeof startPractice>>;
 
-export const PracticeEntry = () => {
+type PracticeEntryProps = {
+  reviewItemCount: number;
+};
+
+export const PracticeEntry = ({ reviewItemCount }: PracticeEntryProps) => {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -36,6 +42,7 @@ export const PracticeEntry = () => {
   };
 
   const label = "Today\u2019s practice";
+  const summary = getReviewSummary(reviewItemCount);
 
   return (
     <div className="mb-6 rounded-2xl border bg-white p-5">
@@ -45,7 +52,7 @@ export const PracticeEntry = () => {
         </div>
         <div className="flex-1">
           <p className="text-sm font-semibold text-neutral-800">{label}</p>
-          <p className="text-xs text-neutral-600">Practice (2 min)</p>
+          <p className="text-xs text-neutral-600">{summary}</p>
         </div>
         <Button onClick={onPractice} disabled={pending}>
           Practice

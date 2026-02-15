@@ -13,7 +13,6 @@ export type AnalyticsEventMap = {
   session_start: BaseProperties;
   lesson_start: BaseProperties & { lesson_id: number };
   lesson_complete: BaseProperties & { lesson_id: number; hearts_remaining: number };
-  lesson_fail: BaseProperties & { lesson_id: number; hearts_remaining: number };
   hearts_empty: BaseProperties & { lesson_id?: number };
   practice_start: BaseProperties & { lesson_id: number };
   practice_complete: BaseProperties & { lesson_id: number };
