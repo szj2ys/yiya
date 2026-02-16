@@ -1,7 +1,7 @@
 "use server";
 
 import { and, count, eq, lte } from "drizzle-orm";
-import { auth } from "@clerk/nextjs";
+import { getAuthUserId } from "@/lib/auth-utils";
 import { State, fsrs } from "ts-fsrs";
 
 import db from "@/db/drizzle";
@@ -31,7 +31,7 @@ const toFsrsState = (state: ReviewCardState): State => toFsrsStateMap[state];
 const fromFsrsState = (state: State): ReviewCardState => fromFsrsStateMap[state];
 
 export const getReviewSession = async () => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     throw new Error("Unauthorized");
@@ -56,7 +56,7 @@ export const getReviewSession = async () => {
 };
 
 export const getReviewDueCount = async () => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     return 0;
@@ -107,7 +107,7 @@ export const createReviewCard = async (
 };
 
 export const submitReview = async (cardId: number, rating: ReviewRating) => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     throw new Error("Unauthorized");

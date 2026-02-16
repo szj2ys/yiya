@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs";
 
+import { getAuthUserId } from "@/lib/auth-utils";
 import { getExplanation } from "@/lib/ai/explain";
 
 type ExplainRequestBody = {
@@ -31,7 +31,7 @@ function isValidBody(value: unknown): value is ExplainRequestBody {
 }
 
 export const POST = async (req: Request) => {
-  const { userId } = auth();
+  const userId = await getAuthUserId();
   if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }

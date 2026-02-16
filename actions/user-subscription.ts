@@ -1,6 +1,7 @@
 "use server";
 
-import { auth, currentUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs";
+import { getAuthUserId } from "@/lib/auth-utils";
 
 import { stripe } from "@/lib/stripe";
 import { absoluteUrl } from "@/lib/utils";
@@ -10,7 +11,7 @@ import { track } from "@/lib/analytics";
 const returnUrl = absoluteUrl("/shop");
 
 export const createStripeUrl = async () => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
   const user = await currentUser();
 
   if (!userId || !user) {

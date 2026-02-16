@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs";
+import { getAuthUserId } from "@/lib/auth-utils";
 
 import { getTodayReviewItems } from "@/db/queries";
 
@@ -10,7 +10,7 @@ type PracticeStartResult =
   | { type: "empty" };
 
 export const startPractice = async (): Promise<PracticeStartResult> => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     throw new Error("Unauthorized");

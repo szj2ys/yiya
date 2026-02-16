@@ -3,7 +3,8 @@
 import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { auth, currentUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs";
+import { getAuthUserId } from "@/lib/auth-utils";
 
 import db from "@/db/drizzle";
 import { POINTS_TO_REFILL } from "@/constants";
@@ -16,7 +17,7 @@ import { challengeProgress, challenges, userProgress } from "@/db/schema";
 import { createReviewCard } from "@/actions/review";
 
 export const upsertUserProgress = async (courseId: number) => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
   const user = await currentUser();
 
   if (!userId || !user) {
@@ -63,7 +64,7 @@ export const upsertUserProgress = async (courseId: number) => {
 };
 
 export const reduceHearts = async (challengeId: number) => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     throw new Error("Unauthorized");

@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs";
+import { getAuthUserId } from "@/lib/auth-utils";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -37,7 +37,7 @@ const computeNextStreak = (params: {
 };
 
 export const upsertChallengeProgress = async (challengeId: number) => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     throw new Error("Unauthorized"); 

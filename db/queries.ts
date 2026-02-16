@@ -1,9 +1,9 @@
 import { cache } from "react";
 import { and, eq, inArray, lte } from "drizzle-orm";
-import { auth } from "@clerk/nextjs";
 
 import db from "@/db/drizzle";
-import { 
+import { getAuthUserId } from "@/lib/auth-utils";
+import {
   challengeProgress,
   courses, 
   challenges,
@@ -30,7 +30,7 @@ const MAX_REVIEW_ITEMS = 10;
 const MAX_LOOKBACK_ITEMS = 50;
 
 export const getUserProgress = cache(async () => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     return null;
@@ -47,7 +47,7 @@ export const getUserProgress = cache(async () => {
 });
 
 export const getUserStreak = cache(async () => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     return null;
@@ -65,7 +65,7 @@ export const getUserStreak = cache(async () => {
 });
 
 export const getUnits = cache(async () => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
   const userProgress = await getUserProgress();
 
   if (!userId || !userProgress?.activeCourseId) {
@@ -143,7 +143,7 @@ export const getCourseById = cache(async (courseId: number) => {
 });
 
 export const getCourseProgress = cache(async () => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
   const userProgress = await getUserProgress();
 
   if (!userId || !userProgress?.activeCourseId) {
@@ -187,7 +187,7 @@ export const getCourseProgress = cache(async () => {
 });
 
 export const getLesson = cache(async (id?: number) => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     return null;
@@ -254,7 +254,7 @@ export const getLessonPercentage = cache(async () => {
 });
 
 export const getTodayReviewItems = cache(async () => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     return [] as ReviewItem[];
@@ -384,7 +384,7 @@ export const getTodayReviewItems = cache(async () => {
 
 const DAY_IN_MS = 86_400_000;
 export const getUserSubscription = cache(async () => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) return null;
 
@@ -405,7 +405,7 @@ export const getUserSubscription = cache(async () => {
 });
 
 export const getTopTenUsers = cache(async () => {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
 
   if (!userId) {
     return [];
