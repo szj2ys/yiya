@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { lessons, units as unitsSchema } from "@/db/schema";
 import {
   getCourseProgress,
+  getCourseStats,
   getLessonPercentage,
   getTodayReviewItems,
   getUnits,
@@ -21,7 +22,9 @@ import { getReviewDueCount } from "@/actions/review";
 
 import { Unit } from "./unit";
 import { Header } from "./header";
+import { DailyGoal } from "./daily-goal";
 import { PracticeEntry } from "./practice-entry";
+import { ProgressStats } from "./progress-stats";
 import { StartFirstLesson } from "./start-first-lesson";
 
 const LearnPage = async () => {
@@ -33,6 +36,7 @@ const LearnPage = async () => {
   const userStreakData = getUserStreak();
   const todayReviewItemsData = getTodayReviewItems();
   const reviewDueCountData = getReviewDueCount();
+  const courseStatsData = getCourseStats();
 
   const [
     userProgress,
@@ -43,6 +47,7 @@ const LearnPage = async () => {
     userStreak,
     todayReviewItems,
     reviewDueCount,
+    courseStats,
   ] = await Promise.all([
     userProgressData,
     unitsData,
@@ -52,6 +57,7 @@ const LearnPage = async () => {
     userStreakData,
     todayReviewItemsData,
     reviewDueCountData,
+    courseStatsData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -74,6 +80,15 @@ const LearnPage = async () => {
           points={userProgress.points}
           hasActiveSubscription={isPro}
         />
+        {courseStats && (
+          <ProgressStats
+            totalLessons={courseStats.totalLessons}
+            completedLessons={courseStats.completedLessons}
+            totalChallenges={courseStats.totalChallenges}
+            completedChallenges={courseStats.completedChallenges}
+            wordsLearned={courseStats.wordsLearned}
+          />
+        )}
         <Streak streak={userStreak?.streak ?? 0} />
         {!isPro && (
           <Promo />
@@ -99,6 +114,14 @@ const LearnPage = async () => {
               }
             />
           </div>
+        )}
+
+        {courseStats && (
+          <DailyGoal
+            lastLessonAt={userProgress.lastLessonAt ?? null}
+            completedLessons={courseStats.completedLessons}
+            totalLessons={courseStats.totalLessons}
+          />
         )}
 
         <PracticeEntry
