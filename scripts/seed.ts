@@ -14,7 +14,7 @@ const db = drizzle(sql, { schema });
 // Types
 // ---------------------------------------------------------------------------
 
-type ChallengeType = "SELECT" | "ASSIST";
+type ChallengeType = "SELECT" | "ASSIST" | "TYPE";
 
 interface WordEntry {
   /** The word/phrase in the target language */
@@ -1428,8 +1428,7 @@ function pickDistractors(
 
 /**
  * Build challenges and options for a single lesson.
- * Alternates between SELECT and ASSIST question types.
- * Each word produces 2 challenges (one SELECT, one ASSIST) for 10 challenges per lesson.
+ * Each word produces 3 challenges (SELECT, ASSIST, TYPE) for 15 challenges per lesson.
  */
 function buildLessonChallenges(
   lessonWords: WordEntry[],
@@ -1491,6 +1490,21 @@ function buildLessonChallenges(
         correct: false,
       });
     }
+
+    // --- TYPE challenge: "Translate: 'meaning'" (user must type the word) ---
+    const typeIdx = challenges.length;
+    challenges.push({
+      type: "TYPE",
+      question: `Translate: "${wordEntry.meaning}"`,
+      order: order++,
+    });
+
+    // Single correct option containing the target-language word (used for validation)
+    options.push({
+      challengeIndex: typeIdx,
+      text: wordEntry.word,
+      correct: true,
+    });
   }
 
   return { challenges, options };

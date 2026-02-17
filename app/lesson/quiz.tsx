@@ -86,6 +86,7 @@ export const Quiz = ({
   });
 
   const [selectedOption, setSelectedOption] = useState<number>();
+  const [typedAnswer, setTypedAnswer] = useState("");
   const [status, setStatus] = useState<"correct" | "wrong" | "none">("none");
 
   const [correctCount, setCorrectCount] = useState(0);
@@ -151,12 +152,28 @@ export const Quiz = ({
   const resetSelection = () => {
     setStatus("none");
     setSelectedOption(undefined);
+    setTypedAnswer("");
     setExplanationData(null);
     setExplanationLoading(false);
   };
 
+  /**
+   * Normalize a string for comparison: trim, lowercase, and strip combining
+   * diacritical marks so accented characters match their base form.
+   */
+  const normalizeForComparison = (s: string) =>
+    s
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
   const onContinue = () => {
-    if (!selectedOption) return;
+    const isType = challenge.type === "TYPE";
+
+    // For SELECT/ASSIST we need a selectedOption; for TYPE we need typed text
+    if (!isType && !selectedOption) return;
+    if (isType && typedAnswer.trim().length === 0) return;
 
     if (status === "wrong") {
       resetSelection();
@@ -175,7 +192,12 @@ export const Quiz = ({
       return;
     }
 
-    if (correctOption.id === selectedOption) {
+    // Determine whether the answer is correct
+    const isCorrect = isType
+      ? normalizeForComparison(typedAnswer) === normalizeForComparison(correctOption.text)
+      : correctOption.id === selectedOption;
+
+    if (isCorrect) {
       startTransition(() => {
         upsertChallengeProgress(challenge.id)
           .then((response) => {
@@ -231,8 +253,9 @@ export const Quiz = ({
 
             // Fetch explain only for non-practice mode.
             if (!isPractice) {
-              const selectedText =
-                options.find((o) => o.id === selectedOption)?.text ?? "";
+              const userAnswer = isType
+                ? typedAnswer.trim()
+                : (options.find((o) => o.id === selectedOption)?.text ?? "");
               setExplanationLoading(true);
               setExplanationData(null);
 
@@ -242,7 +265,7 @@ export const Quiz = ({
                 body: JSON.stringify({
                   challengeId: challenge.id,
                   question: challenge.question,
-                  userAnswer: selectedText,
+                  userAnswer,
                   correctAnswer: correctOption.text,
                   challengeType: challenge.type,
                   courseLanguage,
@@ -401,9 +424,11 @@ export const Quiz = ({
 
   // Note: lesson_fail isn't tracked yet. Only hearts_empty is required in Phase 0.
 
-  const title = challenge.type === "ASSIST" 
+  const title = challenge.type === "ASSIST"
     ? "Select the correct meaning"
-    : challenge.question;
+    : challenge.type === "TYPE"
+      ? "Type the translation"
+      : challenge.question;
 
   return (
     <>
@@ -421,7 +446,7 @@ export const Quiz = ({
               {title}
             </h1>
             <div>
-              {challenge.type === "ASSIST" && (
+              {(challenge.type === "ASSIST" || challenge.type === "TYPE") && (
                 <QuestionBubble question={challenge.question} />
               )}
               <Challenge
@@ -431,6 +456,8 @@ export const Quiz = ({
                 selectedOption={selectedOption}
                 disabled={pending}
                 type={challenge.type}
+                typedAnswer={typedAnswer}
+                onTypedAnswerChange={setTypedAnswer}
               />
             </div>
           </div>
@@ -451,7 +478,7 @@ export const Quiz = ({
       )}
 
       <Footer
-        disabled={pending || !selectedOption}
+        disabled={pending || (challenge.type === "TYPE" ? typedAnswer.trim().length === 0 : !selectedOption)}
         status={status}
         onCheck={onContinue}
         correctAnswerText={
