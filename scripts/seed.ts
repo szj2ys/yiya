@@ -1477,17 +1477,17 @@ function buildLessonChallenges(
     });
 
     const assistDistractors = pickDistractors(allUnitWords, wordEntry, 2);
-    // Correct option (the meaning)
+    // Correct option (the meaning in the learner's language)
     options.push({
       challengeIndex: assistIdx,
-      text: wordEntry.word,
+      text: wordEntry.meaning,
       correct: true,
     });
-    // Wrong options (other target-language words)
+    // Wrong options (other meanings)
     for (const d of assistDistractors) {
       options.push({
         challengeIndex: assistIdx,
-        text: d.word,
+        text: d.meaning,
         correct: false,
       });
     }
