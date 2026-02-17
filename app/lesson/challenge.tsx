@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { challengeOptions, challenges } from "@/db/schema";
 
 import { Card } from "./card";
+import { TypeChallenge } from "./type-challenge";
 
 type Props = {
   options: typeof challengeOptions.$inferSelect[];
@@ -10,6 +11,8 @@ type Props = {
   selectedOption?: number;
   disabled?: boolean;
   type: typeof challenges.$inferSelect["type"];
+  typedAnswer?: string;
+  onTypedAnswerChange?: (value: string) => void;
 };
 
 export const Challenge = ({
@@ -19,7 +22,23 @@ export const Challenge = ({
   selectedOption,
   disabled,
   type,
+  typedAnswer,
+  onTypedAnswerChange,
 }: Props) => {
+  if (type === "TYPE") {
+    const correctOption = options.find((o) => o.correct);
+    return (
+      <TypeChallenge
+        question=""
+        value={typedAnswer ?? ""}
+        onChange={onTypedAnswerChange ?? (() => {})}
+        status={status}
+        disabled={disabled}
+        correctAnswer={correctOption?.text}
+      />
+    );
+  }
+
   return (
     <div className={cn(
       "grid gap-2",
