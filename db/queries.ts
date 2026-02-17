@@ -404,6 +404,66 @@ export const getUserSubscription = cache(async () => {
   };
 });
 
+export const getCourseStats = cache(async () => {
+  const userId = await getAuthUserId();
+  const userProgressData = await getUserProgress();
+
+  if (!userId || !userProgressData?.activeCourseId) {
+    return null;
+  }
+
+  const unitsInCourse = await db.query.units.findMany({
+    where: eq(units.courseId, userProgressData.activeCourseId),
+    with: {
+      lessons: {
+        with: {
+          challenges: {
+            with: {
+              challengeProgress: {
+                where: eq(challengeProgress.userId, userId),
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const allLessons = unitsInCourse.flatMap((unit) => unit.lessons);
+  const allChallenges = allLessons.flatMap((lesson) => lesson.challenges);
+
+  const totalLessons = allLessons.length;
+  const totalChallenges = allChallenges.length;
+
+  const completedLessons = allLessons.filter((lesson) => {
+    if (lesson.challenges.length === 0) return false;
+    return lesson.challenges.every(
+      (challenge) =>
+        challenge.challengeProgress &&
+        challenge.challengeProgress.length > 0 &&
+        challenge.challengeProgress.every((p) => p.completed),
+    );
+  }).length;
+
+  const completedChallenges = allChallenges.filter(
+    (challenge) =>
+      challenge.challengeProgress &&
+      challenge.challengeProgress.length > 0 &&
+      challenge.challengeProgress.every((p) => p.completed),
+  ).length;
+
+  // Approximate words learned: count unique completed challenges
+  const wordsLearned = completedChallenges;
+
+  return {
+    totalLessons,
+    completedLessons,
+    totalChallenges,
+    completedChallenges,
+    wordsLearned,
+  };
+});
+
 export const getTopTenUsers = cache(async () => {
   const userId = await getAuthUserId();
 
