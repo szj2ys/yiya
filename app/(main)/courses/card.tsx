@@ -34,7 +34,7 @@ export const Card = ({
     <div
       onClick={() => onClick(id)}
       className={cn(
-        "relative h-full border-2 rounded-xl border-b-4 hover:bg-black/5 cursor-pointer active:border-b-2 flex flex-col items-center justify-between p-3 pb-6 min-h-[217px] min-w-[200px]",
+        "relative h-full border-2 rounded-xl border-b-4 hover:bg-black/5 cursor-pointer active:border-b-2 flex flex-col items-center justify-between p-3 pb-6 min-h-[200px] min-w-0 w-full transition-all duration-150",
         disabled && "pointer-events-none opacity-50"
       )}
     >
@@ -48,7 +48,7 @@ export const Card = ({
           {badge}
         </span>
       )}
-      <div className="min-[24px] w-full flex items-center justify-end">
+      <div className="min-h-[24px] w-full flex items-center justify-end">
         {active && (
           <div className="rounded-md bg-green-600 flex items-center justify-center p-1.5">
             <Check className="text-white stroke-[4] h-4 w-4" />
@@ -61,9 +61,10 @@ export const Card = ({
         height={70}
         width={93.33}
         className="rounded-lg drop-shadow-md border object-cover"
+        sizes="(max-width: 640px) 80px, 93px"
       />
-      <div className="flex flex-col items-center mt-3">
-        <p className="text-neutral-700 text-center font-bold">
+      <div className="flex flex-col items-center mt-3 px-1">
+        <p className="text-neutral-700 text-center font-bold text-sm sm:text-base">
           {title}
         </p>
         {description && (

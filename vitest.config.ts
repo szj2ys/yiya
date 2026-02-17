@@ -16,7 +16,7 @@ export default defineConfig({
     // Use jsdom by default so @testing-library/react works.
     environment: "jsdom",
     include: [
-      "__tests__/**/*.{test,spec}.ts",
+      "__tests__/**/*.{test,spec}.{ts,tsx}",
       "app/**/__tests__/**/*.{test,spec}.tsx",
       "app/**/*.{test,spec}.ts",
       "app/**/*.{test,spec}.tsx",

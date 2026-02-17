@@ -27,24 +27,31 @@ export const Footer = ({
   return (
     <footer
       className={cn(
-        "lg:-h[140px] h-[100px] border-t-2",
+        "lg:h-[140px] h-auto border-t-2",
+        "sticky bottom-0 z-40 bg-white",
         status === "correct" && "border-transparent bg-green-100",
         status === "wrong" && "border-transparent bg-rose-100",
       )}
-      style={reserveBottomSpacePx ? { marginBottom: reserveBottomSpacePx } : undefined}
+      style={{
+        paddingBottom: isMobile
+          ? `max(env(safe-area-inset-bottom, 0px), ${reserveBottomSpacePx}px)`
+          : reserveBottomSpacePx
+            ? `${reserveBottomSpacePx}px`
+            : undefined,
+      }}
     >
-      <div className="max-w-[1140px] h-full mx-auto flex items-center justify-between px-6 lg:px-10">
+      <div className="max-w-[1140px] h-full mx-auto flex items-center justify-between px-4 lg:px-10 py-3 lg:py-0 gap-x-4">
         {status === "correct" && (
           <div className="text-green-500 font-bold text-base lg:text-2xl flex items-center">
-            <CheckCircle className="h-6 w-6 lg:h-10 lg:w-10 mr-4" />
+            <CheckCircle className="h-6 w-6 lg:h-10 lg:w-10 mr-3 flex-shrink-0" />
             Nicely done!
           </div>
         )}
         {status === "wrong" && (
           <div className="text-rose-500 font-bold text-base lg:text-2xl flex items-center">
-            <XCircle className="h-6 w-6 lg:h-10 lg:w-10 mr-4" />
+            <XCircle className="h-6 w-6 lg:h-10 lg:w-10 mr-3 flex-shrink-0" />
             {correctAnswerText ? (
-              <span className="text-neutral-700">
+              <span className="text-neutral-700 text-sm lg:text-2xl">
                 Correct: <span className="text-rose-600">{correctAnswerText}</span>
               </span>
             ) : (
@@ -56,6 +63,7 @@ export const Footer = ({
           <Button
             variant="default"
             size={isMobile ? "sm" : "lg"}
+            className="min-h-[44px]"
             onClick={() => window.location.href = `/lesson/${lessonId}`}
           >
             Practice again
@@ -63,7 +71,7 @@ export const Footer = ({
         )}
         <Button
           disabled={disabled}
-          className="ml-auto"
+          className="ml-auto min-h-[44px] min-w-[100px] text-base"
           onClick={onCheck}
           size={isMobile ? "sm" : "lg"}
           variant={status === "wrong" ? "danger" : "secondary"}
