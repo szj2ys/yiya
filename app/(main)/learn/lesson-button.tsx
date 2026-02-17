@@ -52,9 +52,9 @@ export const LessonButton = ({
   const href = isCompleted ? `/lesson/${id}` : "/lesson";
 
   return (
-    <Link 
-      href={href} 
-      aria-disabled={locked} 
+    <Link
+      href={href}
+      aria-disabled={locked}
       style={{ pointerEvents: locked ? "none" : "auto" }}
     >
       <div
@@ -65,7 +65,7 @@ export const LessonButton = ({
         }}
       >
         {current ? (
-          <div className="h-[102px] w-[102px] relative">
+          <div className="h-[112px] w-[112px] relative">
             <div className="absolute -top-6 left-2.5 px-3 py-2.5 border-2 font-bold uppercase text-green-500 bg-white rounded-xl animate-bounce tracking-wide z-10">
               Start
               <div
@@ -86,11 +86,11 @@ export const LessonButton = ({
               <Button
                 size="rounded"
                 variant={locked ? "locked" : "secondary"}
-                className="h-[70px] w-[70px] border-b-8"
+                className="h-[56px] w-[56px] lg:h-[70px] lg:w-[70px] border-b-8"
               >
                 <Icon
                   className={cn(
-                    "h-10 w-10",
+                    "h-8 w-8 lg:h-10 lg:w-10",
                     locked
                     ? "fill-neutral-400 text-neutral-400 stroke-neutral-400"
                     : "fill-primary-foreground text-primary-foreground",
@@ -104,11 +104,11 @@ export const LessonButton = ({
           <Button
             size="rounded"
             variant={locked ? "locked" : "secondary"}
-            className="h-[70px] w-[70px] border-b-8"
+            className="h-[56px] w-[56px] lg:h-[70px] lg:w-[70px] border-b-8"
           >
             <Icon
               className={cn(
-                "h-10 w-10",
+                "h-8 w-8 lg:h-10 lg:w-10",
                 locked
                 ? "fill-neutral-400 text-neutral-400 stroke-neutral-400"
                 : "fill-primary-foreground text-primary-foreground",
