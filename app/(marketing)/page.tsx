@@ -13,7 +13,8 @@ import { BookOpenCheck, Globe2, Loader, Sparkles, TrendingUp } from "lucide-reac
 import { Button } from "@/components/ui/button";
 
 const LANGUAGES = [
-  { code: "hr", name: "Croatian" },
+  { code: "en", name: "English" },
+  { code: "cn", name: "Chinese" },
   { code: "es", name: "Spanish" },
   { code: "fr", name: "French" },
   { code: "it", name: "Italian" },
@@ -23,8 +24,8 @@ const LANGUAGES = [
 const STATS = [
   {
     icon: Globe2,
-    title: "5 languages",
-    description: "Croatian, Spanish, French, Italian, Japanese.",
+    title: "6 languages",
+    description: "English, Chinese, Spanish, French, Italian, Japanese.",
   },
   {
     icon: BookOpenCheck,
@@ -171,11 +172,11 @@ export default function Home() {
               Pick a language and start today
             </h2>
             <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-neutral-600 sm:text-base">
-              Choose from five languages and jump into a lesson right away.
+              Choose from six languages and jump into a lesson right away.
             </p>
           </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {LANGUAGES.map((language) => (
               <div
                 key={language.code}
