@@ -39,7 +39,19 @@ vi.mock("react-use", () => ({
 }));
 
 vi.mock("@/app/lesson/header", () => ({ Header: () => null }));
-vi.mock("@/app/lesson/footer", () => ({ Footer: () => null }));
+vi.mock("@/app/lesson/footer", () => ({
+  Footer: ({ onCheck, disabled, status }: any) => (
+    <button type="button" onClick={onCheck} disabled={disabled}>
+      {status === "none"
+        ? "Check"
+        : status === "correct"
+          ? "Next"
+          : status === "wrong"
+            ? "Retry"
+            : "Continue"}
+    </button>
+  ),
+}));
 vi.mock("@/app/lesson/question-bubble", () => ({ QuestionBubble: () => null }));
 vi.mock("@/app/lesson/result-card", () => ({ ResultCard: () => null }));
 
@@ -128,9 +140,11 @@ describe("Quiz review rating mapping", () => {
     vi.advanceTimersByTime(11_000);
     fireEvent.click(screen.getByText("Check"));
 
-    await waitFor(() => {
-      expect(submitReviewSpy).toHaveBeenCalledWith(123, 3);
-    });
+    // Flush the promise chain (upsertChallengeProgress -> submitReviewIfNeeded)
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(submitReviewSpy).toHaveBeenCalledWith(123, 3);
 
     vi.useRealTimers();
   });

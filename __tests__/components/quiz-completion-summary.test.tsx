@@ -83,18 +83,25 @@ describe("Quiz completion summary", () => {
       />,
     );
 
-    // Q1 wrong
+    // Q1: wrong once, then correct
     fireEvent.click(screen.getByText("Wrong 1"));
     fireEvent.click(screen.getByRole("button", { name: "Check" }));
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    await screen.findByRole("button", { name: "Retry" });
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+
+    fireEvent.click(screen.getByText("Right 1"));
+    fireEvent.click(screen.getByRole("button", { name: "Check" }));
+    await screen.findByRole("button", { name: "Next" });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     // Q2 correct
     fireEvent.click(screen.getByText("Right 2"));
     fireEvent.click(screen.getByRole("button", { name: "Check" }));
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    await screen.findByRole("button", { name: "Next" });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     expect(screen.getByText("Lesson complete")).toBeInTheDocument();
-    expect(screen.getByText("1/2 correct")).toBeInTheDocument();
+    expect(screen.getByText("2/2 correct")).toBeInTheDocument();
 
     expect(screen.getByText("Review these")).toBeInTheDocument();
     expect(screen.getByText("Q1?")).toBeInTheDocument();

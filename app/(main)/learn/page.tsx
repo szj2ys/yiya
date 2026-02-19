@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/button";
 import { lessons, units as unitsSchema } from "@/db/schema";
 import {
   getCourseProgress,
+  getCourseStats,
+  getLearningStats,
   getLessonPercentage,
+  getMemoryStrength,
   getTodayLessonCount,
   getTodayReviewItems,
   getUnits,
@@ -20,9 +23,10 @@ import {
 } from "@/db/queries";
 import { getReviewDueCount } from "@/actions/review";
 
-import { Unit } from "./unit";
+import { UnitWithProgress } from "./unit-with-progress";
 import { Header } from "./header";
 import { ContinueCta } from "./continue-cta";
+import { LearningProgress } from "./learning-progress";
 import { DailyGoal } from "./daily-goal";
 import { PracticeEntry } from "./practice-entry";
 import { StartFirstLesson } from "./start-first-lesson";
@@ -39,6 +43,9 @@ const LearnPage = async () => {
   const reviewDueCountData = getReviewDueCount();
   const weeklyActivityData = getWeeklyActivity();
   const todayLessonCountData = getTodayLessonCount();
+  const courseStatsData = getCourseStats();
+  const memoryStrengthData = getMemoryStrength();
+  const learningStatsData = getLearningStats();
 
   const [
     userProgress,
@@ -51,6 +58,9 @@ const LearnPage = async () => {
     reviewDueCount,
     weeklyActivity,
     todayLessonCount,
+    courseStats,
+    memoryStrength,
+    learningStats,
   ] = await Promise.all([
     userProgressData,
     unitsData,
@@ -62,6 +72,9 @@ const LearnPage = async () => {
     reviewDueCountData,
     weeklyActivityData,
     todayLessonCountData,
+    courseStatsData,
+    memoryStrengthData,
+    learningStatsData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -116,6 +129,12 @@ const LearnPage = async () => {
           </div>
         )}
 
+        <LearningProgress
+          courseStats={courseStats}
+          memoryStrength={memoryStrength}
+          accuracyPercent={learningStats?.averageAccuracy ?? 0}
+        />
+
         <DailyGoal
           todayLessonCount={todayLessonCount}
           dailyGoal={userProgress.dailyGoal ?? 1}
@@ -132,7 +151,7 @@ const LearnPage = async () => {
 
         {units.map((unit: typeof units[number]) => (
           <div key={unit.id} className="mb-10">
-            <Unit
+            <UnitWithProgress
               id={unit.id}
               order={unit.order}
               description={unit.description}

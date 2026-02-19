@@ -3,11 +3,18 @@ import { fireEvent, render, screen } from "@testing-library/react";
 
 import { ExplanationPanel } from "@/components/explanation-panel";
 
-const trackSpy = vi.fn();
+const trackSpy = vi.fn().mockResolvedValue(undefined);
 
-vi.mock("@/lib/analytics", () => ({
-  track: (...args: unknown[]) => trackSpy(...args),
-}));
+vi.mock("@/lib/analytics", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/analytics")>(
+    "@/lib/analytics",
+  );
+
+  return {
+    ...actual,
+    track: (...args: unknown[]) => trackSpy(...args),
+  };
+});
 
 describe("ExplanationPanel", () => {
   it("should render explanation content", () => {
