@@ -35,6 +35,6 @@ describe("PracticeEntry", () => {
 
   it("should show empty state when no items", () => {
     render(<PracticeEntry reviewItemCount={0} dueCount={0} />);
-    expect(screen.getByText("No items to review")).toBeInTheDocument();
+    expect(screen.getByText("All caught up!")).toBeInTheDocument();
   });
 });

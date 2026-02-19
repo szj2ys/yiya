@@ -1,5 +1,5 @@
 import React from "react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import type { challenges } from "@/db/schema";
@@ -41,6 +41,11 @@ const fetchSpy = vi.fn();
 global.fetch = fetchSpy as unknown as typeof global.fetch;
 
 describe("Quiz explain integration", () => {
+  beforeEach(() => {
+    fetchSpy.mockReset();
+    pushSpy.mockReset();
+    openPracticeModalSpy.mockReset();
+  });
   it("should show ExplanationPanel after wrong answer", async () => {
     fetchSpy.mockResolvedValueOnce({
       ok: true,
@@ -176,12 +181,15 @@ describe("Quiz explain integration", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Why it’s wrong")).toBeInTheDocument();
+      expect(screen.getByText("E")).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Got it" }));
 
     await waitFor(() => {
-      expect(screen.queryByText("Why it’s wrong")).toBeNull();
+      const heading = screen.getByText("Why it’s wrong");
+      const panel = heading.closest("div[aria-hidden]");
+      expect(panel).toHaveAttribute("aria-hidden", "true");
     });
   });
 });

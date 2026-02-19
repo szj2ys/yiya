@@ -39,7 +39,16 @@ vi.mock("react-use", () => ({
 }));
 
 vi.mock("@/app/lesson/header", () => ({ Header: () => null }));
-vi.mock("@/app/lesson/footer", () => ({ Footer: () => null }));
+vi.mock("@/app/lesson/footer", () => ({
+  Footer: ({ onCheck, disabled, status }: any) => (
+    <button type="button" disabled={disabled} onClick={onCheck}>
+      {status === "none" && "Check"}
+      {status === "correct" && "Next"}
+      {status === "wrong" && "Retry"}
+      {status === "completed" && "Continue"}
+    </button>
+  ),
+}));
 vi.mock("@/app/lesson/question-bubble", () => ({ QuestionBubble: () => null }));
 vi.mock("@/app/lesson/result-card", () => ({ ResultCard: () => null }));
 
@@ -101,8 +110,8 @@ describe("Quiz review rating mapping", () => {
   });
 
   it("should map slow correct to Good rating", async () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-02-15T00:00:00.000Z"));
+    let nowMs = new Date("2026-02-15T00:00:00.000Z").getTime();
+    const nowSpy = vi.spyOn(Date, "now").mockImplementation(() => nowMs);
 
     render(
       <Quiz
@@ -125,14 +134,14 @@ describe("Quiz review rating mapping", () => {
     );
 
     fireEvent.click(screen.getByText("A"));
-    vi.advanceTimersByTime(11_000);
+    nowMs += 11_000;
     fireEvent.click(screen.getByText("Check"));
 
     await waitFor(() => {
       expect(submitReviewSpy).toHaveBeenCalledWith(123, 3);
     });
 
-    vi.useRealTimers();
+    nowSpy.mockRestore();
   });
 
   it("should map wrong to Again rating", async () => {

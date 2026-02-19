@@ -3,11 +3,15 @@ import { render, waitFor } from "@testing-library/react";
 
 import { Quiz } from "@/app/lesson/quiz";
 
-const trackSpy = vi.fn();
+const trackPayloadSpy = vi.fn().mockResolvedValue(undefined);
 
-vi.mock("@/lib/analytics", () => ({
-  track: (...args: unknown[]) => trackSpy(...args),
-}));
+vi.mock("@/lib/analytics", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/analytics")>();
+  return {
+    ...actual,
+    trackPayload: (...args: unknown[]) => trackPayloadSpy(...args),
+  };
+});
 
 // Keep these lightweight: the test only asserts tracking behavior.
 vi.mock("next/image", () => ({ default: (props: any) => <img {...props} /> }));
@@ -47,10 +51,16 @@ describe("Quiz analytics", () => {
     );
 
     await waitFor(() => {
-      expect(trackSpy).toHaveBeenCalledWith("lesson_complete", {
-        lesson_id: 1,
-        hearts_remaining: 5,
-      });
+      expect(trackPayloadSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: "lesson_complete",
+          properties: expect.objectContaining({
+            schema_version: 1,
+            lesson_id: 1,
+            hearts_remaining: 5,
+          }),
+        }),
+      );
     });
   });
 
@@ -68,12 +78,29 @@ describe("Quiz analytics", () => {
     );
 
     await waitFor(() => {
-      expect(trackSpy).toHaveBeenCalledWith("review_session_start", {
-        due_count: 1,
-      });
-      expect(trackSpy).toHaveBeenCalledWith(
-        "review_session_complete",
-        expect.objectContaining({ reviewed_count: 0, again_count: 0 }),
+      expect(trackPayloadSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: "review_session_start",
+          properties: expect.objectContaining({ schema_version: 1, due_count: 1 }),
+        }),
+      );
+
+      expect(trackPayloadSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: "review_session_complete",
+          properties: expect.objectContaining({
+            schema_version: 1,
+            reviewed_count: 0,
+            again_count: 0,
+          }),
+        }),
+      );
+
+      expect(trackPayloadSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: "practice_complete",
+          properties: expect.objectContaining({ schema_version: 1, lesson_id: 1 }),
+        }),
       );
     });
   });

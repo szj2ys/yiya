@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import type { challenges } from "@/db/schema";
 
@@ -86,15 +86,29 @@ describe("Quiz completion summary", () => {
     // Q1 wrong
     fireEvent.click(screen.getByText("Wrong 1"));
     fireEvent.click(screen.getByRole("button", { name: "Check" }));
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+
+    // Q1 correct (move on)
+    fireEvent.click(screen.getByText("Right 1"));
+    fireEvent.click(screen.getByRole("button", { name: "Check" }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Next" })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     // Q2 correct
     fireEvent.click(screen.getByText("Right 2"));
     fireEvent.click(screen.getByRole("button", { name: "Check" }));
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Next" })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     expect(screen.getByText("Lesson complete")).toBeInTheDocument();
-    expect(screen.getByText("1/2 correct")).toBeInTheDocument();
+    expect(screen.getByText("2/2 correct")).toBeInTheDocument();
 
     expect(screen.getByText("Review these")).toBeInTheDocument();
     expect(screen.getByText("Q1?")).toBeInTheDocument();
