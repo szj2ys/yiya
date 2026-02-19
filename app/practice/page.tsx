@@ -23,7 +23,7 @@ const PracticePage = async () => {
 
   // Build the challengeId → reviewCardId mapping for multi-card support
   const reviewCardIds: Record<number, number> = {};
-  const initialLessonChallenges = cards.map((card) => {
+  const initialLessonChallenges = cards.map((card: typeof cards[number]) => {
     reviewCardIds[card.challenge.id] = card.id;
 
     return {

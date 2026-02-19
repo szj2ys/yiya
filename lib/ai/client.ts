@@ -42,6 +42,13 @@ export const aiClient = new OpenAI({
   maxRetries: 0,
 });
 
+export class AiConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AiConfigError";
+  }
+}
+
 export async function aiChat(
   messages: ChatMessage[],
   options: AiChatOptions = {},
@@ -49,10 +56,10 @@ export async function aiChat(
   // Validate required env vars at call-time (so Next build doesn't fail
   // when the server bundle is evaluated).
   if (!getEnvOptional("OPENAI_API_KEY")) {
-    throw new Error("Missing required env var: OPENAI_API_KEY");
+    throw new AiConfigError("Missing required env var: OPENAI_API_KEY");
   }
   if (!getEnvOptional("OPENAI_API_BASE_URL")) {
-    throw new Error("Missing required env var: OPENAI_API_BASE_URL");
+    throw new AiConfigError("Missing required env var: OPENAI_API_BASE_URL");
   }
 
   const {

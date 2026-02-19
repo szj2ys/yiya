@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    // Pre-existing type errors in the codebase — tracked separately
-    ignoreBuildErrors: true,
-  },
   async headers() {
     return [
       {

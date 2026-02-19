@@ -10,7 +10,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
 
-const LearderboardPage = async () => {
+const LeaderboardPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();
   const leaderboardData = getTopTenUsers();
@@ -60,7 +60,7 @@ const LearderboardPage = async () => {
             See where you stand among other learners in the community.
           </p>
           <Separator className="mb-4 h-0.5 rounded-full" />
-          {leaderboard.map((userProgress, index) => (
+          {leaderboard.map((userProgress: typeof leaderboard[number], index: number) => (
             <div 
               key={userProgress.userId}
               className="flex items-center w-full p-2 px-4 rounded-xl hover:bg-gray-200/50"
@@ -88,4 +88,4 @@ const LearderboardPage = async () => {
   );
 };
  
-export default LearderboardPage;
+export default LeaderboardPage;

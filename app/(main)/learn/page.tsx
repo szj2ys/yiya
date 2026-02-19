@@ -130,7 +130,7 @@ const LearnPage = async () => {
           dueCount={reviewDueCount}
         />
 
-        {units.map((unit) => (
+        {units.map((unit: typeof units[number]) => (
           <div key={unit.id} className="mb-10">
             <Unit
               id={unit.id}

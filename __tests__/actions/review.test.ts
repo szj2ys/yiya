@@ -143,7 +143,7 @@ describe("review actions", () => {
 
     await createReviewCard("user_a", 1, "wrong");
 
-    const inserted = reviewCardsInsertValuesSpy.mock.calls[0][0];
+    const inserted = (reviewCardsInsertValuesSpy.mock.calls[0] as any[])[0];
     expect(inserted).toMatchObject({ userId: "user_a", challengeId: 1, state: "relearning" });
   });
 

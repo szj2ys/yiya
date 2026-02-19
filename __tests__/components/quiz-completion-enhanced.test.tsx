@@ -38,8 +38,7 @@ vi.mock("@/app/lesson/result-card", () => ({ ResultCard: () => null }));
 vi.mock("@/app/lesson/question-bubble", () => ({ QuestionBubble: () => null }));
 
 const fetchSpy = vi.fn();
-// @ts-expect-error - test env
-global.fetch = fetchSpy;
+global.fetch = fetchSpy as unknown as typeof global.fetch;
 
 beforeEach(() => {
   pushSpy.mockClear();

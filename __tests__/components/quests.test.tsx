@@ -22,7 +22,7 @@ describe("Quests sidebar", () => {
     // The "Earn 20 XP" quest has 1000% raw progress — should be capped
     // The "Earn 100 XP" quest has 200% raw progress — should be capped
     // Check that no progress bar exceeds 100 by inspecting rendered values
-    const progressBars = document.querySelectorAll('[role="progressbar"]');
+    const progressBars = Array.from(document.querySelectorAll('[role="progressbar"]'));
     for (const bar of progressBars) {
       const valueNow = Number(bar.getAttribute("aria-valuenow"));
       expect(valueNow).toBeLessThanOrEqual(100);

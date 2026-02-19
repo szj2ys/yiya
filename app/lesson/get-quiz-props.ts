@@ -28,7 +28,7 @@ export async function getQuizProps(lessonId?: number) {
       : undefined;
 
   const initialPercentage =
-    (lesson.challenges.filter((c) => c.completed).length /
+    (lesson.challenges.filter((c: typeof lesson.challenges[number]) => c.completed).length /
       lesson.challenges.length) *
     100;
 
