@@ -163,6 +163,51 @@ describe("Quiz completion screen enhancements", () => {
     expect(screen.getByRole("button", { name: "Back to Learn" })).toBeInTheDocument();
   });
 
+  it("should display next lesson title below the Next Lesson button", () => {
+    render(
+      <Quiz
+        initialPercentage={0}
+        initialHearts={5}
+        initialLessonId={1}
+        initialStreak={3}
+        courseLanguage="Spanish"
+        userSubscription={null}
+        nextLessonId={2}
+        nextLessonTitle="Colors"
+        initialLessonChallenges={[]}
+      />,
+    );
+
+    expect(screen.getByText("Next Lesson")).toBeInTheDocument();
+    expect(screen.getByText("Colors")).toBeInTheDocument();
+    // The title should be inside the same button
+    const colorsEl = screen.getByText("Colors");
+    expect(colorsEl.closest("button")).not.toBeNull();
+    expect(colorsEl.className).toContain("text-sm");
+    expect(colorsEl.className).toContain("text-neutral-500");
+  });
+
+  it("should not show next lesson title when nextLessonTitle is null", () => {
+    render(
+      <Quiz
+        initialPercentage={0}
+        initialHearts={5}
+        initialLessonId={1}
+        initialStreak={3}
+        courseLanguage="Spanish"
+        userSubscription={null}
+        nextLessonId={2}
+        nextLessonTitle={null}
+        initialLessonChallenges={[]}
+      />,
+    );
+
+    expect(screen.getByText("Next Lesson")).toBeInTheDocument();
+    // No subtitle should be rendered
+    const nextBtn = screen.getByText("Next Lesson").closest("button")!;
+    expect(nextBtn.querySelectorAll("span")).toHaveLength(1);
+  });
+
   it("should not show perfect badge when nextLessonId is undefined (backward compatible)", () => {
     // Test backward compatibility: nextLessonId not passed
     render(

@@ -42,5 +42,6 @@ export async function getQuizProps(lessonId?: number) {
     reviewCardId,
     userSubscription,
     nextLessonId: nextLesson?.id ?? null,
+    nextLessonTitle: nextLesson?.title ?? null,
   };
 }

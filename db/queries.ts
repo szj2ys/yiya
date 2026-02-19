@@ -552,11 +552,11 @@ export const getNextLesson = cache(async (currentLessonId: number) => {
       gt(lessons.order, currentLesson.order),
     ),
     orderBy: (lessons, { asc }) => [asc(lessons.order)],
-    columns: { id: true },
+    columns: { id: true, title: true },
   });
 
   if (nextInUnit) {
-    return { id: nextInUnit.id };
+    return { id: nextInUnit.id, title: nextInUnit.title };
   }
 
   // 3. Get the current unit to find the next unit in the same course
@@ -587,10 +587,10 @@ export const getNextLesson = cache(async (currentLessonId: number) => {
   const firstLessonOfNextUnit = await db.query.lessons.findFirst({
     where: eq(lessons.unitId, nextUnit.id),
     orderBy: (lessons, { asc }) => [asc(lessons.order)],
-    columns: { id: true },
+    columns: { id: true, title: true },
   });
 
-  return firstLessonOfNextUnit ? { id: firstLessonOfNextUnit.id } : null;
+  return firstLessonOfNextUnit ? { id: firstLessonOfNextUnit.id, title: firstLessonOfNextUnit.title } : null;
 });
 
 export type WeeklyActivityDay = {

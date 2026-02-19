@@ -41,12 +41,13 @@ describe("getNextLesson", () => {
     // 2nd call: next lesson in same unit
     lessonsFindFirstSpy.mockResolvedValueOnce({
       id: 2,
+      title: "Colors",
     });
 
     const { getNextLesson } = await import("@/db/queries");
     const result = await getNextLesson(1);
 
-    expect(result).toEqual({ id: 2 });
+    expect(result).toEqual({ id: 2, title: "Colors" });
     expect(lessonsFindFirstSpy).toHaveBeenCalledTimes(2);
   });
 
@@ -76,12 +77,13 @@ describe("getNextLesson", () => {
     // 5th call: first lesson of next unit
     lessonsFindFirstSpy.mockResolvedValueOnce({
       id: 4,
+      title: "Animals",
     });
 
     const { getNextLesson } = await import("@/db/queries");
     const result = await getNextLesson(3);
 
-    expect(result).toEqual({ id: 4 });
+    expect(result).toEqual({ id: 4, title: "Animals" });
   });
 
   it("should return null when all done", async () => {
@@ -109,6 +111,28 @@ describe("getNextLesson", () => {
     const result = await getNextLesson(5);
 
     expect(result).toBeNull();
+  });
+
+  it("should return id and title for the next lesson", async () => {
+    // current lesson
+    lessonsFindFirstSpy.mockResolvedValueOnce({
+      id: 1,
+      unitId: 10,
+      order: 1,
+    });
+
+    // next lesson in same unit
+    lessonsFindFirstSpy.mockResolvedValueOnce({
+      id: 2,
+      title: "Greetings",
+    });
+
+    const { getNextLesson } = await import("@/db/queries");
+    const result = await getNextLesson(1);
+
+    expect(result).toEqual({ id: 2, title: "Greetings" });
+    expect(result).toHaveProperty("id");
+    expect(result).toHaveProperty("title");
   });
 
   it("should return null when lesson not found", async () => {
