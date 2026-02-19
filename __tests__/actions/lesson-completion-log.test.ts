@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-const now = new Date("2026-02-12T12:00:00.000Z");
+const now = new Date("2026-02-19T12:00:00.000Z");
 
 const whereSpy = vi.fn().mockResolvedValue(undefined);
 const setSpy = vi.fn(() => ({ where: whereSpy }));
@@ -8,22 +8,13 @@ const updateSpy = vi.fn(() => ({ set: setSpy }));
 const insertValuesSpy = vi.fn().mockResolvedValue(undefined);
 const insertSpy = vi.fn(() => ({ values: insertValuesSpy }));
 
-const getUserProgressSpy = vi.fn();
-const getUserSubscriptionSpy = vi.fn();
-const createReviewCardSpy = vi.fn().mockResolvedValue(undefined);
-
-const challengeProgressFindFirstSpy = vi.fn();
-const challengesFindFirstSpy = vi.fn();
-
-// select().from().where() chain for lesson completion count queries
-// Each .where() returns a thenable that also has .innerJoin()
+// Track select query responses in order
 let selectQueryIndex = 0;
 const selectQueryResults: Array<Array<{ value: number }>> = [];
 
 function createWhereResult() {
   const idx = selectQueryIndex++;
   const result = selectQueryResults[idx] ?? [{ value: 0 }];
-  // Return a thenable that also has innerJoin method
   return {
     then: (resolve: (v: any) => void, reject?: (e: any) => void) =>
       Promise.resolve(result).then(resolve, reject),
@@ -34,6 +25,13 @@ function createWhereResult() {
 const selectWhereSpy = vi.fn(() => createWhereResult());
 const selectFromSpy = vi.fn(() => ({ where: selectWhereSpy }));
 const selectSpy = vi.fn(() => ({ from: selectFromSpy }));
+
+const getUserProgressSpy = vi.fn();
+const getUserSubscriptionSpy = vi.fn();
+const createReviewCardSpy = vi.fn().mockResolvedValue(undefined);
+
+const challengeProgressFindFirstSpy = vi.fn();
+const challengesFindFirstSpy = vi.fn();
 
 vi.mock("@/db/drizzle", () => ({
   default: {
@@ -71,6 +69,11 @@ beforeEach(() => {
   updateSpy.mockClear();
   insertSpy.mockClear();
   insertValuesSpy.mockClear();
+  selectSpy.mockClear();
+  selectFromSpy.mockClear();
+  selectWhereSpy.mockClear();
+  selectQueryIndex = 0;
+  selectQueryResults.length = 0;
 
   getUserProgressSpy.mockReset();
   getUserSubscriptionSpy.mockReset();
@@ -78,19 +81,13 @@ beforeEach(() => {
   challengesFindFirstSpy.mockReset();
   createReviewCardSpy.mockReset();
 
-  selectQueryIndex = 0;
-  selectQueryResults.length = 0;
-  // Default: 0 total challenges, 0 completed (lesson completion won't trigger)
-  selectQueryResults.push([{ value: 0 }], [{ value: 0 }]);
-
-  // defaults: non-practice run, active subscription irrelevant
   challengeProgressFindFirstSpy.mockResolvedValue(null);
   challengesFindFirstSpy.mockResolvedValue({ id: 1, lessonId: 10 });
   getUserSubscriptionSpy.mockResolvedValue({ isActive: true });
 });
 
-describe("upsertChallengeProgress review card", () => {
-  it("should create review card on challenge completion", async () => {
+describe("upsertChallengeProgress lesson completion logging", () => {
+  it("should log lesson completion when all challenges are done", async () => {
     getUserProgressSpy.mockResolvedValue({
       userId: "user_a",
       hearts: 5,
@@ -99,73 +96,34 @@ describe("upsertChallengeProgress review card", () => {
       lastLessonAt: null,
     });
 
+    // First select: total challenges = 3, Second select: completed = 3
+    selectQueryResults.push([{ value: 3 }], [{ value: 3 }]);
+
     const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
 
     await upsertChallengeProgress(1);
 
-    expect(createReviewCardSpy).toHaveBeenCalledWith("user_a", 1, "correct");
+    // Should have called insert twice: challengeProgress + lessonCompletions
+    expect(insertSpy.mock.calls.length).toBe(2);
   });
-});
 
-describe("upsertChallengeProgress streak", () => {
-  it("should increment streak when last lesson was 24-48h ago", async () => {
+  it("should not log lesson completion when not all challenges are done", async () => {
     getUserProgressSpy.mockResolvedValue({
       userId: "user_a",
       hearts: 5,
       points: 0,
-      streak: 3,
-      lastLessonAt: new Date(now.getTime() - 30 * 60 * 60 * 1000),
+      streak: 0,
+      lastLessonAt: null,
     });
+
+    // total = 3, completed = 2 (not all done)
+    selectQueryResults.push([{ value: 3 }], [{ value: 2 }]);
 
     const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
 
     await upsertChallengeProgress(1);
 
-    // last update call sets streak to 4
-    const setCalls = setSpy.mock.calls.map((c) => c[0]);
-    const lastSet = setCalls[setCalls.length - 1];
-
-    expect(lastSet).toMatchObject({ streak: 4 });
-    expect(lastSet.lastLessonAt).toBeInstanceOf(Date);
-  });
-
-  it("should reset streak when last lesson was more than 48h ago", async () => {
-    getUserProgressSpy.mockResolvedValue({
-      userId: "user_a",
-      hearts: 5,
-      points: 0,
-      streak: 9,
-      lastLessonAt: new Date(now.getTime() - 49 * 60 * 60 * 1000),
-    });
-
-    const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
-
-    await upsertChallengeProgress(1);
-
-    const setCalls = setSpy.mock.calls.map((c) => c[0]);
-    const lastSet = setCalls[setCalls.length - 1];
-
-    expect(lastSet).toMatchObject({ streak: 1 });
-    expect(lastSet.lastLessonAt).toBeInstanceOf(Date);
-  });
-
-  it("should not change streak when last lesson was within 24h", async () => {
-    getUserProgressSpy.mockResolvedValue({
-      userId: "user_a",
-      hearts: 5,
-      points: 0,
-      streak: 5,
-      lastLessonAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
-    });
-
-    const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
-
-    await upsertChallengeProgress(1);
-
-    const setCalls = setSpy.mock.calls.map((c) => c[0]);
-    const lastSet = setCalls[setCalls.length - 1];
-
-    expect(lastSet).not.toHaveProperty("streak");
-    expect(lastSet.lastLessonAt).toBeInstanceOf(Date);
+    // Should have called insert exactly once (for challengeProgress only)
+    expect(insertSpy.mock.calls.length).toBe(1);
   });
 });

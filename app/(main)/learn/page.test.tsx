@@ -22,6 +22,22 @@ vi.mock("@/db/queries", () => ({
     completedChallenges: 15,
     wordsLearned: 20,
   }),
+  getWeeklyActivity: vi.fn().mockResolvedValue([
+    { date: "2026-02-13", count: 0 },
+    { date: "2026-02-14", count: 1 },
+    { date: "2026-02-15", count: 0 },
+    { date: "2026-02-16", count: 2 },
+    { date: "2026-02-17", count: 0 },
+    { date: "2026-02-18", count: 1 },
+    { date: "2026-02-19", count: 0 },
+  ]),
+  getLearningStats: vi.fn().mockResolvedValue({
+    currentStreak: 7,
+    longestStreak: 7,
+    totalWordsLearned: 42,
+    totalLessonsCompleted: 10,
+    averageAccuracy: 85,
+  }),
 }));
 
 vi.mock("@/actions/review", () => ({
@@ -71,6 +87,14 @@ vi.mock("./daily-goal", () => ({
 
 vi.mock("./progress-stats", () => ({
   ProgressStats: () => <div>ProgressStats</div>,
+}));
+
+vi.mock("./weekly-activity", () => ({
+  WeeklyActivity: () => <div>WeeklyActivity</div>,
+}));
+
+vi.mock("./learning-stats", () => ({
+  LearningStats: () => <div>LearningStats</div>,
 }));
 
 describe("LearnPage", () => {

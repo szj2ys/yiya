@@ -1,15 +1,16 @@
 import { cache } from "react";
-import { and, eq, gt, inArray, lte } from "drizzle-orm";
+import { and, count, countDistinct, eq, gte, gt, inArray, lte, sql } from "drizzle-orm";
 
 import db from "@/db/drizzle";
 import { getAuthUserId } from "@/lib/auth-utils";
 import {
   challengeProgress,
-  courses, 
+  courses,
   challenges,
-  lessons, 
+  lessonCompletions,
+  lessons,
   reviewCards,
-  units, 
+  units,
   userProgress,
   userSubscription
 } from "@/db/schema";
@@ -551,4 +552,135 @@ export const getNextLesson = cache(async (currentLessonId: number) => {
   });
 
   return firstLessonOfNextUnit ? { id: firstLessonOfNextUnit.id } : null;
+});
+
+export type WeeklyActivityDay = {
+  date: string; // YYYY-MM-DD
+  count: number;
+};
+
+export const getWeeklyActivity = cache(async (): Promise<WeeklyActivityDay[]> => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return [];
+  }
+
+  const now = new Date();
+  const sevenDaysAgo = new Date(now);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const completions = await db.query.lessonCompletions.findMany({
+    where: and(
+      eq(lessonCompletions.userId, userId),
+      gte(lessonCompletions.completedAt, sevenDaysAgo),
+    ),
+    columns: {
+      completedAt: true,
+    },
+  });
+
+  // Build a map of date -> count
+  const countsByDate = new Map<string, number>();
+  for (const row of completions) {
+    const dateStr = row.completedAt.toISOString().slice(0, 10);
+    countsByDate.set(dateStr, (countsByDate.get(dateStr) ?? 0) + 1);
+  }
+
+  // Generate all 7 days
+  const result: WeeklyActivityDay[] = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(sevenDaysAgo);
+    date.setDate(date.getDate() + i);
+    const dateStr = date.toISOString().slice(0, 10);
+    result.push({
+      date: dateStr,
+      count: countsByDate.get(dateStr) ?? 0,
+    });
+  }
+
+  return result;
+});
+
+export type LearningStatsData = {
+  currentStreak: number;
+  longestStreak: number;
+  totalWordsLearned: number;
+  totalLessonsCompleted: number;
+  averageAccuracy: number;
+};
+
+export const getLearningStats = cache(async (): Promise<LearningStatsData | null> => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return null;
+  }
+
+  // Get current streak
+  const progress = await db.query.userProgress.findFirst({
+    where: eq(userProgress.userId, userId),
+    columns: { streak: true },
+  });
+
+  const currentStreak = progress?.streak ?? 0;
+  // TODO: Track historical max streak separately — for now use currentStreak as proxy
+  const longestStreak = currentStreak;
+
+  // Total distinct challenges completed (words learned)
+  const [wordsResult] = await db
+    .select({ value: countDistinct(challengeProgress.challengeId) })
+    .from(challengeProgress)
+    .where(
+      and(
+        eq(challengeProgress.userId, userId),
+        eq(challengeProgress.completed, true),
+      ),
+    );
+
+  const totalWordsLearned = wordsResult?.value ?? 0;
+
+  // Total lesson completions
+  const [lessonsResult] = await db
+    .select({ value: count() })
+    .from(lessonCompletions)
+    .where(eq(lessonCompletions.userId, userId));
+
+  const totalLessonsCompleted = lessonsResult?.value ?? 0;
+
+  // Average accuracy: completed / (completed + wrong attempts)
+  const [completedCount] = await db
+    .select({ value: count() })
+    .from(challengeProgress)
+    .where(
+      and(
+        eq(challengeProgress.userId, userId),
+        eq(challengeProgress.completed, true),
+      ),
+    );
+
+  const [wrongCount] = await db
+    .select({ value: count() })
+    .from(challengeProgress)
+    .where(
+      and(
+        eq(challengeProgress.userId, userId),
+        eq(challengeProgress.completed, false),
+      ),
+    );
+
+  const totalAttempts = (completedCount?.value ?? 0) + (wrongCount?.value ?? 0);
+  const averageAccuracy =
+    totalAttempts > 0
+      ? Math.round(((completedCount?.value ?? 0) / totalAttempts) * 100)
+      : 0;
+
+  return {
+    currentStreak,
+    longestStreak,
+    totalWordsLearned,
+    totalLessonsCompleted,
+    averageAccuracy,
+  };
 });
