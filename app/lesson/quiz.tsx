@@ -43,6 +43,7 @@ type Props = {
   userSubscription: typeof userSubscription.$inferSelect & {
     isActive: boolean;
   } | null;
+  nextLessonId?: number | null;
 };
 
 export const Quiz = ({
@@ -54,6 +55,7 @@ export const Quiz = ({
   courseLanguage,
   reviewCardId,
   userSubscription,
+  nextLessonId,
 }: Props) => {
   const { open: openHeartsModal } = useHeartsModal();
   const { open: openPracticeModal } = usePracticeModal();
@@ -317,6 +319,8 @@ export const Quiz = ({
           }),
     ).catch(() => undefined);
 
+    const isPerfect = wrongAnswers.length === 0;
+
     return (
       <>
         {finishAudio}
@@ -324,11 +328,26 @@ export const Quiz = ({
           width={width}
           height={height}
           recycle={false}
-          numberOfPieces={500}
+          numberOfPieces={isPerfect ? 800 : 500}
           tweenDuration={10000}
         />
-        <div className="flex flex-col gap-y-6 max-w-lg mx-auto items-center justify-center h-full px-6 lg:px-0">
-          <div className="flex flex-col items-center text-center gap-y-3">
+        <div className="flex flex-col max-w-lg mx-auto items-center h-full px-6 lg:px-0 pb-40 lg:pb-6 pt-6 lg:pt-0 lg:justify-center">
+          {/* 1. Achievement / Celebration */}
+          {isPerfect && (
+            <div className="w-full mb-5">
+              <div className="rounded-2xl border-2 border-amber-300 bg-gradient-to-b from-amber-50 to-white p-5 flex items-center gap-x-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl">
+                  <span role="img" aria-label="trophy">&#x1F3C6;</span>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-amber-700">Perfect!</p>
+                  <p className="text-sm text-amber-600">Zero mistakes — outstanding work.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col items-center text-center gap-y-3 mb-5">
             <Image
               src="/finish.svg"
               alt="Finish"
@@ -340,13 +359,14 @@ export const Quiz = ({
               Lesson complete
             </h1>
             <p className="text-base lg:text-lg text-neutral-600">
-              {wrongAnswers.length === 0
+              {isPerfect
                 ? "Perfect run — nice work."
                 : "Here’s what you nailed and what to review."}
             </p>
           </div>
 
-          <div className="w-full rounded-2xl bg-white/70 border border-neutral-200 p-5 lg:p-6 flex flex-col gap-y-5">
+          {/* 2. Core Stats */}
+          <div className="w-full rounded-2xl bg-white/70 border border-neutral-200 p-5 lg:p-6 flex flex-col gap-y-5 mb-5">
             <div className="flex flex-col gap-y-2">
               <p className="text-sm font-medium text-neutral-500">Accuracy</p>
               <p className="text-xl font-semibold text-neutral-700">
@@ -378,6 +398,7 @@ export const Quiz = ({
               </div>
             </div>
 
+            {/* 3. Wrong Answers Review */}
             {wrongAnswers.length > 0 && (
               <div className="flex flex-col gap-y-3">
                 <p className="text-sm font-medium text-neutral-500">Review these</p>
@@ -398,24 +419,57 @@ export const Quiz = ({
             )}
           </div>
 
-          <div className="w-full flex flex-col gap-y-3">
+          {/* 4. All Lessons Complete celebration (inline, non-sticky) */}
+          {!nextLessonId && (
+            <div className="w-full rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center mb-5">
+              <p className="text-lg font-bold text-emerald-700">All lessons complete!</p>
+              <p className="text-sm text-emerald-600 mt-1">
+                You&apos;ve finished every lesson. Amazing dedication!
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* 4. Sticky bottom CTAs on mobile */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-neutral-200 p-4 lg:static lg:border-t-0 lg:bg-transparent lg:backdrop-blur-none lg:p-0 z-10">
+          <div className="max-w-lg mx-auto flex flex-col gap-y-3 lg:px-0">
+            {nextLessonId ? (
+              <button
+                type="button"
+                className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition"
+                onClick={() => router.push(`/lesson/${nextLessonId}`)}
+              >
+                Next Lesson
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition"
+                onClick={() => router.push("/learn")}
+              >
+                Back to Learn
+              </button>
+            )}
+
             {wrongAnswers.length > 0 && (
               <button
                 type="button"
-                className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
+                className="w-full h-12 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-semibold hover:bg-neutral-50 active:bg-neutral-100 transition"
                 onClick={() => openPracticeModal()}
               >
                 Practice weak items
               </button>
             )}
 
-            <button
-              type="button"
-              className="w-full h-12 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-semibold hover:bg-neutral-50 transition"
-              onClick={() => router.push("/learn")}
-            >
-              Continue
-            </button>
+            {nextLessonId && (
+              <button
+                type="button"
+                className="w-full h-12 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-semibold hover:bg-neutral-50 active:bg-neutral-100 transition"
+                onClick={() => router.push("/learn")}
+              >
+                Back to Learn
+              </button>
+            )}
           </div>
         </div>
       </>
