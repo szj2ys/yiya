@@ -11,21 +11,25 @@ import { lessons, units as unitsSchema } from "@/db/schema";
 import {
   getCourseProgress,
   getCourseStats,
+  getLearningStats,
   getLessonPercentage,
   getTodayReviewItems,
   getUnits,
   getUserProgress,
   getUserSubscription,
   getUserStreak,
+  getWeeklyActivity,
 } from "@/db/queries";
 import { getReviewDueCount } from "@/actions/review";
 
 import { Unit } from "./unit";
 import { Header } from "./header";
 import { DailyGoal } from "./daily-goal";
+import { LearningStats } from "./learning-stats";
 import { PracticeEntry } from "./practice-entry";
 import { ProgressStats } from "./progress-stats";
 import { StartFirstLesson } from "./start-first-lesson";
+import { WeeklyActivity } from "./weekly-activity";
 
 const LearnPage = async () => {
   const userProgressData = getUserProgress();
@@ -37,6 +41,8 @@ const LearnPage = async () => {
   const todayReviewItemsData = getTodayReviewItems();
   const reviewDueCountData = getReviewDueCount();
   const courseStatsData = getCourseStats();
+  const weeklyActivityData = getWeeklyActivity();
+  const learningStatsData = getLearningStats();
 
   const [
     userProgress,
@@ -48,6 +54,8 @@ const LearnPage = async () => {
     todayReviewItems,
     reviewDueCount,
     courseStats,
+    weeklyActivity,
+    learningStats,
   ] = await Promise.all([
     userProgressData,
     unitsData,
@@ -58,6 +66,8 @@ const LearnPage = async () => {
     todayReviewItemsData,
     reviewDueCountData,
     courseStatsData,
+    weeklyActivityData,
+    learningStatsData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -90,6 +100,9 @@ const LearnPage = async () => {
           />
         )}
         <Streak streak={userStreak?.streak ?? 0} lastLessonAt={userStreak?.lastLessonAt ?? null} />
+        {learningStats && (
+          <LearningStats stats={learningStats} />
+        )}
         {!isPro && (
           <Promo />
         )}
@@ -123,6 +136,10 @@ const LearnPage = async () => {
             totalLessons={courseStats.totalLessons}
             dailyGoal={userProgress.dailyGoal ?? 1}
           />
+        )}
+
+        {weeklyActivity.length > 0 && (
+          <WeeklyActivity data={weeklyActivity} />
         )}
 
         <PracticeEntry

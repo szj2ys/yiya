@@ -1,12 +1,12 @@
 "use server";
 
 import { getAuthUserId } from "@/lib/auth-utils";
-import { and, eq } from "drizzle-orm";
+import { and, eq, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import db from "@/db/drizzle";
 import { getUserProgress, getUserSubscription } from "@/db/queries";
-import { challengeProgress, challenges, userProgress } from "@/db/schema";
+import { challengeProgress, challenges, lessonCompletions, userProgress } from "@/db/schema";
 import { createReviewCard } from "@/actions/review";
 import { computeNextStreak } from "@/lib/streak";
 
@@ -95,6 +95,37 @@ export const upsertChallengeProgress = async (challengeId: number) => {
       lastLessonAt: now,
     })
     .where(eq(userProgress.userId, userId));
+
+  // Check if all challenges in the lesson are now completed; if so, log lesson completion
+  const [totalResult] = await db
+    .select({ value: count() })
+    .from(challenges)
+    .where(eq(challenges.lessonId, lessonId));
+
+  const [completedResult] = await db
+    .select({ value: count() })
+    .from(challengeProgress)
+    .where(
+      and(
+        eq(challengeProgress.userId, userId),
+        eq(challengeProgress.completed, true),
+      ),
+    )
+    .innerJoin(challenges, and(
+      eq(challengeProgress.challengeId, challenges.id),
+      eq(challenges.lessonId, lessonId),
+    ));
+
+  if (
+    totalResult.value > 0 &&
+    completedResult.value >= totalResult.value
+  ) {
+    await db.insert(lessonCompletions).values({
+      userId,
+      lessonId,
+      completedAt: now,
+    });
+  }
 
   revalidatePath("/learn");
   revalidatePath("/lesson");

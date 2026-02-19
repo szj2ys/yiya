@@ -156,6 +156,22 @@ export const reviewCardStateEnum = pgEnum("review_card_state", [
   "relearning",
 ]);
 
+export const lessonCompletions = pgTable("lesson_completions", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  lessonId: integer("lesson_id").references(() => lessons.id, { onDelete: "cascade" }).notNull(),
+  completedAt: timestamp("completed_at").notNull().defaultNow(),
+}, (t) => ({
+  userDateIndex: index("lesson_completions_user_date_idx").on(t.userId, t.completedAt),
+}));
+
+export const lessonCompletionsRelations = relations(lessonCompletions, ({ one }) => ({
+  lesson: one(lessons, {
+    fields: [lessonCompletions.lessonId],
+    references: [lessons.id],
+  }),
+}));
+
 export const reviewCards = pgTable(
   "review_cards",
   {
