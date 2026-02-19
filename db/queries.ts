@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { and, eq, inArray, lte } from "drizzle-orm";
+import { and, eq, gt, inArray, lte } from "drizzle-orm";
 
 import db from "@/db/drizzle";
 import { getAuthUserId } from "@/lib/auth-utils";
@@ -483,4 +483,72 @@ export const getTopTenUsers = cache(async () => {
   });
 
   return data;
+});
+
+/**
+ * Find the next lesson after the given lesson ID.
+ *
+ * Strategy:
+ * 1. Look for the next lesson in the same unit (by order).
+ * 2. If the current unit is complete, find the first lesson of the next unit
+ *    (within the same course).
+ * 3. If all units/lessons are done, return null.
+ */
+export const getNextLesson = cache(async (currentLessonId: number) => {
+  // 1. Fetch the current lesson to get its unitId and order
+  const currentLesson = await db.query.lessons.findFirst({
+    where: eq(lessons.id, currentLessonId),
+    columns: { id: true, unitId: true, order: true },
+  });
+
+  if (!currentLesson) {
+    return null;
+  }
+
+  // 2. Try to find the next lesson in the same unit (order > current order)
+  const nextInUnit = await db.query.lessons.findFirst({
+    where: and(
+      eq(lessons.unitId, currentLesson.unitId),
+      gt(lessons.order, currentLesson.order),
+    ),
+    orderBy: (lessons, { asc }) => [asc(lessons.order)],
+    columns: { id: true },
+  });
+
+  if (nextInUnit) {
+    return { id: nextInUnit.id };
+  }
+
+  // 3. Get the current unit to find the next unit in the same course
+  const currentUnit = await db.query.units.findFirst({
+    where: eq(units.id, currentLesson.unitId),
+    columns: { id: true, courseId: true, order: true },
+  });
+
+  if (!currentUnit) {
+    return null;
+  }
+
+  // 4. Find the next unit in the same course
+  const nextUnit = await db.query.units.findFirst({
+    where: and(
+      eq(units.courseId, currentUnit.courseId),
+      gt(units.order, currentUnit.order),
+    ),
+    orderBy: (units, { asc }) => [asc(units.order)],
+    columns: { id: true },
+  });
+
+  if (!nextUnit) {
+    return null;
+  }
+
+  // 5. Get the first lesson of the next unit
+  const firstLessonOfNextUnit = await db.query.lessons.findFirst({
+    where: eq(lessons.unitId, nextUnit.id),
+    orderBy: (lessons, { asc }) => [asc(lessons.order)],
+    columns: { id: true },
+  });
+
+  return firstLessonOfNextUnit ? { id: firstLessonOfNextUnit.id } : null;
 });

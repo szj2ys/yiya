@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { getLesson, getUserProgress, getUserSubscription, getUserStreak } from "@/db/queries";
+import { getLesson, getNextLesson, getUserProgress, getUserSubscription, getUserStreak } from "@/db/queries";
 import { startPractice } from "@/actions/practice";
 
 export async function getQuizProps(lessonId?: number) {
@@ -16,6 +16,9 @@ export async function getQuizProps(lessonId?: number) {
   if (!lesson || !userProgress) {
     redirect("/learn");
   }
+
+  // Fetch next lesson in parallel-safe way (after we know lesson.id)
+  const nextLesson = await getNextLesson(lesson.id);
 
   const reviewCardId =
     practiceStart?.type === "challenge" &&
@@ -38,5 +41,6 @@ export async function getQuizProps(lessonId?: number) {
     courseLanguage: userProgress.activeCourse?.title ?? "English",
     reviewCardId,
     userSubscription,
+    nextLessonId: nextLesson?.id ?? null,
   };
 }
