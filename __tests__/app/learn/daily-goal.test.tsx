@@ -15,8 +15,6 @@ describe("DailyGoal", () => {
     render(
       <DailyGoal
         todayLessonCount={0}
-        completedLessons={0}
-        totalLessons={10}
         dailyGoal={3}
       />,
     );
@@ -28,8 +26,6 @@ describe("DailyGoal", () => {
     render(
       <DailyGoal
         todayLessonCount={2}
-        completedLessons={5}
-        totalLessons={10}
         dailyGoal={3}
       />,
     );
@@ -41,8 +37,6 @@ describe("DailyGoal", () => {
     render(
       <DailyGoal
         todayLessonCount={3}
-        completedLessons={5}
-        totalLessons={10}
         dailyGoal={3}
       />,
     );
@@ -57,8 +51,6 @@ describe("DailyGoal", () => {
     render(
       <DailyGoal
         todayLessonCount={1}
-        completedLessons={1}
-        totalLessons={10}
         dailyGoal={1}
       />,
     );
@@ -73,8 +65,6 @@ describe("DailyGoal", () => {
     render(
       <DailyGoal
         todayLessonCount={0}
-        completedLessons={5}
-        totalLessons={10}
         dailyGoal={3}
       />,
     );
@@ -89,8 +79,6 @@ describe("DailyGoal", () => {
     render(
       <DailyGoal
         todayLessonCount={0}
-        completedLessons={0}
-        totalLessons={10}
         dailyGoal={1}
       />,
     );
@@ -102,8 +90,6 @@ describe("DailyGoal", () => {
     render(
       <DailyGoal
         todayLessonCount={0}
-        completedLessons={0}
-        totalLessons={10}
         dailyGoal={5}
       />,
     );

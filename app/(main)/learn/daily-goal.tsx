@@ -4,15 +4,11 @@ import { Progress } from "@/components/ui/progress";
 
 type Props = {
   todayLessonCount: number;
-  completedLessons: number;
-  totalLessons: number;
   dailyGoal: number;
 };
 
 export const DailyGoal = ({
   todayLessonCount,
-  completedLessons,
-  totalLessons,
   dailyGoal,
 }: Props) => {
   const goal = dailyGoal;

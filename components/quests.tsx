@@ -12,10 +12,10 @@ import { claimQuestReward } from "@/actions/quest-rewards";
 
 type Props = {
   points: number;
-  claimedQuestValues: number[];
+  claimedQuestValues?: number[];
 };
 
-export const Quests = ({ points, claimedQuestValues }: Props) => {
+export const Quests = ({ points, claimedQuestValues = [] }: Props) => {
   const [claimedQuests, setClaimedQuests] = useState<Set<number>>(
     () => new Set(claimedQuestValues),
   );
