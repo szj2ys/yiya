@@ -19,8 +19,12 @@ vi.mock("@/actions/review", () => ({
   submitReview: (...args: unknown[]) => submitReviewSpy(...args),
 }));
 
-vi.mock("@/store/use-practice-modal", () => ({ usePracticeModal: () => ({ open: vi.fn() }) }));
-vi.mock("@/store/use-hearts-modal", () => ({ useHeartsModal: () => ({ open: vi.fn() }) }));
+vi.mock("@/store/use-practice-modal", () => ({
+  usePracticeModal: () => ({ open: vi.fn() }),
+}));
+vi.mock("@/store/use-hearts-modal", () => ({
+  useHeartsModal: () => ({ open: vi.fn() }),
+}));
 vi.mock("@/lib/analytics", () => ({
   buildTrackPayload: (event: string, properties: any) => ({ event, properties }),
   trackPayload: vi.fn().mockResolvedValue(undefined),
@@ -40,15 +44,9 @@ vi.mock("react-use", () => ({
 
 vi.mock("@/app/lesson/header", () => ({ Header: () => null }));
 vi.mock("@/app/lesson/footer", () => ({
-  Footer: ({ onCheck, disabled, status }: any) => (
-    <button type="button" onClick={onCheck} disabled={disabled}>
-      {status === "none"
-        ? "Check"
-        : status === "correct"
-          ? "Next"
-          : status === "wrong"
-            ? "Retry"
-            : "Continue"}
+  Footer: ({ onCheck, disabled }: any) => (
+    <button type="button" disabled={disabled} onClick={onCheck}>
+      Check
     </button>
   ),
 }));
@@ -113,40 +111,41 @@ describe("Quiz review rating mapping", () => {
   });
 
   it("should map slow correct to Good rating", async () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-02-15T00:00:00.000Z"));
+    const nowSpy = vi.spyOn(Date, "now");
+    let now = 1_000;
+    nowSpy.mockImplementation(() => now);
 
-    render(
-      <Quiz
-        {...buildBaseProps()}
-        initialLessonChallenges={[
-          {
-            id: 1,
-            lessonId: 1,
-            type: "SELECT" as any,
-            question: "Q",
-            order: 1,
-            completed: false,
-            challengeOptions: [
-              { id: 1, challengeId: 1, text: "A", correct: true },
-              { id: 2, challengeId: 1, text: "B", correct: false },
-            ],
-          } as any,
-        ]}
-      />,
-    );
+    try {
+      render(
+        <Quiz
+          {...buildBaseProps()}
+          initialLessonChallenges={[
+            {
+              id: 1,
+              lessonId: 1,
+              type: "SELECT" as any,
+              question: "Q",
+              order: 1,
+              completed: false,
+              challengeOptions: [
+                { id: 1, challengeId: 1, text: "A", correct: true },
+                { id: 2, challengeId: 1, text: "B", correct: false },
+              ],
+            } as any,
+          ]}
+        />,
+      );
 
-    fireEvent.click(screen.getByText("A"));
-    vi.advanceTimersByTime(11_000);
-    fireEvent.click(screen.getByText("Check"));
+      fireEvent.click(screen.getByText("A"));
+      now += 11_000;
+      fireEvent.click(screen.getByText("Check"));
 
-    // Flush the promise chain (upsertChallengeProgress -> submitReviewIfNeeded)
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(submitReviewSpy).toHaveBeenCalledWith(123, 3);
-
-    vi.useRealTimers();
+      await waitFor(() => {
+        expect(submitReviewSpy).toHaveBeenCalledWith(123, 3);
+      });
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 
   it("should map wrong to Again rating", async () => {

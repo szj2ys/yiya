@@ -27,8 +27,12 @@ vi.mock("react-use", () => ({
   useMedia: () => false,
 }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
-vi.mock("@/store/use-practice-modal", () => ({ usePracticeModal: () => ({ open: vi.fn() }) }));
-vi.mock("@/store/use-hearts-modal", () => ({ useHeartsModal: () => ({ open: vi.fn() }) }));
+vi.mock("@/store/use-practice-modal", () => ({
+  usePracticeModal: () => ({ open: vi.fn() }),
+}));
+vi.mock("@/store/use-hearts-modal", () => ({
+  useHeartsModal: () => ({ open: vi.fn() }),
+}));
 vi.mock("@/actions/challenge-progress", () => ({ upsertChallengeProgress: vi.fn() }));
 vi.mock("@/actions/user-progress", () => ({ reduceHearts: vi.fn() }));
 vi.mock("@/actions/review", () => ({ submitReview: vi.fn() }));
@@ -50,7 +54,7 @@ describe("Quiz analytics", () => {
         courseLanguage="Spanish"
         initialLessonChallenges={[]}
         userSubscription={null}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -76,7 +80,7 @@ describe("Quiz analytics", () => {
         courseLanguage="Spanish"
         initialLessonChallenges={[]}
         userSubscription={null}
-      />
+      />,
     );
 
     await waitFor(() => {

@@ -28,9 +28,7 @@ vi.mock("@/store/use-practice-modal", () => ({
 
 vi.mock("@/store/use-hearts-modal", () => ({ useHeartsModal: () => ({ open: vi.fn() }) }));
 vi.mock("@/actions/challenge-progress", () => ({
-  upsertChallengeProgress: vi
-    .fn()
-    .mockResolvedValue({}),
+  upsertChallengeProgress: vi.fn().mockResolvedValue({}),
 }));
 vi.mock("@/actions/user-progress", () => ({ reduceHearts: vi.fn().mockResolvedValue({}) }));
 
@@ -83,24 +81,22 @@ describe("Quiz completion summary", () => {
       />,
     );
 
-    // Q1: wrong once, then correct
+    // Q1: get it wrong once, then correct
     fireEvent.click(screen.getByText("Wrong 1"));
     fireEvent.click(screen.getByRole("button", { name: "Check" }));
-    await screen.findByRole("button", { name: "Retry" });
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Retry" }));
 
     fireEvent.click(screen.getByText("Right 1"));
     fireEvent.click(screen.getByRole("button", { name: "Check" }));
-    await screen.findByRole("button", { name: "Next" });
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Next" }));
 
     // Q2 correct
+    expect(await screen.findByText("Q2?")).toBeInTheDocument();
     fireEvent.click(screen.getByText("Right 2"));
     fireEvent.click(screen.getByRole("button", { name: "Check" }));
-    await screen.findByRole("button", { name: "Next" });
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Next" }));
 
-    expect(screen.getByText("Lesson complete")).toBeInTheDocument();
+    expect(await screen.findByText("Lesson complete")).toBeInTheDocument();
     expect(screen.getByText("2/2 correct")).toBeInTheDocument();
 
     expect(screen.getByText("Review these")).toBeInTheDocument();

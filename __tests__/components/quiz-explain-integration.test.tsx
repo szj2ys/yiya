@@ -44,6 +44,7 @@ describe("Quiz explain integration", () => {
   beforeEach(() => {
     fetchSpy.mockReset();
   });
+
   it("should show ExplanationPanel after wrong answer", async () => {
     fetchSpy.mockResolvedValueOnce({
       ok: true,
@@ -183,11 +184,12 @@ describe("Quiz explain integration", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Got it" }));
 
-    const sheet = screen.getByText("Why it’s wrong").closest("[aria-hidden]");
-    if (!sheet) throw new Error("Explanation sheet not found");
-
     await waitFor(() => {
-      expect(sheet).toHaveAttribute("aria-hidden", "true");
+      const panelRoot = screen
+        .getByText("Why it’s wrong")
+        .closest("[aria-hidden]") as HTMLElement | null;
+
+      expect(panelRoot).toHaveAttribute("aria-hidden", "true");
     });
   });
 });
