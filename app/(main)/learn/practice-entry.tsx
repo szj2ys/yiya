@@ -2,10 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-import { toast } from "sonner";
 
-import { startPractice } from "@/actions/practice";
 import { Button } from "@/components/ui/button";
 
 type PracticeEntryProps = {
@@ -15,32 +12,17 @@ type PracticeEntryProps = {
 
 export const PracticeEntry = ({ reviewItemCount, dueCount }: PracticeEntryProps) => {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
 
-  const onPractice = () => {
-    if (pending) {
-      return;
-    }
-
-    startTransition(() => {
-      startPractice()
-        .then((result) => {
-          if (result.type === "empty") {
-            toast.message("No practice items for today yet.");
-            return;
-          }
-          router.push(`/lesson/${result.lessonId}`);
-        })
-        .catch(() => toast.error("Something went wrong. Please try again."));
-    });
-  };
-
-  const label = "Today\u2019s practice";
+  const hasItems = dueCount > 0 || reviewItemCount > 0;
   const itemsDue = dueCount > 0 ? dueCount : reviewItemCount;
   const summary =
     itemsDue > 0
       ? `${itemsDue} items due \u00b7 ~${Math.max(1, Math.ceil(itemsDue / 4))} min`
-      : "No items to review";
+      : "All caught up!";
+
+  const onPractice = () => {
+    router.push("/practice");
+  };
 
   return (
     <div className="mb-6 rounded-2xl border bg-white p-5">
@@ -50,7 +32,7 @@ export const PracticeEntry = ({ reviewItemCount, dueCount }: PracticeEntryProps)
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-neutral-800">{label}</p>
+            <p className="text-sm font-semibold text-neutral-800">Today&apos;s practice</p>
             {itemsDue > 0 && (
               <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-semibold text-white">
                 {itemsDue}
@@ -59,7 +41,7 @@ export const PracticeEntry = ({ reviewItemCount, dueCount }: PracticeEntryProps)
           </div>
           <p className="text-xs text-neutral-600">{summary}</p>
         </div>
-        <Button onClick={onPractice} disabled={pending}>
+        <Button onClick={onPractice} disabled={!hasItems}>
           Practice
         </Button>
       </div>

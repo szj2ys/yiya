@@ -41,6 +41,8 @@ type Props = {
     challengeOptions: typeof challengeOptions.$inferSelect[];
   })[];
   reviewCardId?: number;
+  /** Map of challengeId → reviewCardId for multi-card practice sessions */
+  reviewCardIds?: Record<number, number>;
   userSubscription: typeof userSubscription.$inferSelect & {
     isActive: boolean;
   } | null;
@@ -56,6 +58,7 @@ export const Quiz = ({
   initialStreak,
   courseLanguage,
   reviewCardId,
+  reviewCardIds,
   userSubscription,
   nextLessonId,
   nextLessonTitle,
@@ -109,14 +112,21 @@ export const Quiz = ({
   const isPractice = initialPercentage === 100;
 
   const submitReviewIfNeeded = async (params: { correct: boolean }) => {
-    if (!isPractice || !reviewCardId) {
-      return;
-    }
+    if (!isPractice) return;
+
+    // Resolve the reviewCardId for the current challenge:
+    // prefer per-challenge map, fall back to single reviewCardId prop
+    const currentChallengeId = challenges[activeIndex]?.id;
+    const resolvedCardId =
+      (currentChallengeId && reviewCardIds?.[currentChallengeId]) ||
+      reviewCardId;
+
+    if (!resolvedCardId) return;
 
     const durationMs = Date.now() - questionStartedAtMs;
     const rating = params.correct ? (durationMs <= 10_000 ? 4 : 3) : 1;
 
-    await submitReview(reviewCardId, rating);
+    await submitReview(resolvedCardId, rating);
 
     setReviewedCount((prev) => prev + 1);
     if (rating === 1) {
@@ -134,7 +144,9 @@ export const Quiz = ({
     if (isPractice) {
       trackPayload(
         buildTrackPayload("review_session_start", {
-          due_count: 1,
+          due_count: reviewCardIds
+            ? Object.keys(reviewCardIds).length
+            : 1,
         }),
       ).catch(() => undefined);
     }
@@ -332,6 +344,9 @@ export const Quiz = ({
     ).catch(() => undefined);
 
     const isPerfect = wrongAnswers.length === 0;
+    const accuracyPercent = challenges.length > 0
+      ? Math.round((correctCount / challenges.length) * 100)
+      : 0;
 
     return (
       <>
@@ -368,47 +383,83 @@ export const Quiz = ({
               className="w-16 h-16 lg:w-20 lg:h-20"
             />
             <h1 className="text-2xl lg:text-3xl font-bold text-neutral-700">
-              Lesson complete
+              {isPractice ? "Review complete" : "Lesson complete"}
             </h1>
             <p className="text-base lg:text-lg text-neutral-600">
-              {isPerfect
-                ? "Perfect run — nice work."
-                : "Here’s what you nailed and what to review."}
+              {isPractice
+                ? isPerfect
+                  ? "All cards reviewed — excellent memory."
+                  : "Keep it up, spaced repetition works best with consistency."
+                : isPerfect
+                  ? "Perfect run — nice work."
+                  : "Here’s what you nailed and what to review."}
             </p>
           </div>
 
           {/* 2. Core Stats */}
           <div className="w-full rounded-2xl bg-white/70 border border-neutral-200 p-5 lg:p-6 flex flex-col gap-y-5 mb-5">
-            <div className="flex flex-col gap-y-2">
-              <p className="text-sm font-medium text-neutral-500">Accuracy</p>
-              <p className="text-xl font-semibold text-neutral-700">
-                {correctCount}/{challenges.length} correct
-              </p>
-              <p className="text-sm text-neutral-600">
-                {wrongAnswers.length} wrong • {challenges.length} total challenges
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-y-3">
-              <p className="text-sm font-medium text-neutral-500">Stats</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
-                  <p className="text-sm text-neutral-500">Streak</p>
-                  <p className="text-lg font-semibold text-neutral-700">
-                    {streak > 0 ? `🔥 ${streak}` : "—"}
+            {isPractice ? (
+              <>
+                {/* Practice-specific review stats */}
+                <div className="flex flex-col gap-y-2">
+                  <p className="text-sm font-medium text-neutral-500">Review Summary</p>
+                  <p className="text-xl font-semibold text-neutral-700">
+                    {reviewedCount} {reviewedCount === 1 ? "card" : "cards"} reviewed
+                  </p>
+                  <p className="text-sm text-neutral-600">
+                    {accuracyPercent}% accuracy
                   </p>
                 </div>
-                <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
-                  <p className="text-sm text-neutral-500">Hearts</p>
-                  <p className="text-lg font-semibold text-neutral-700">{hearts}</p>
-                </div>
-              </div>
 
-              <div className="flex items-center gap-x-4 w-full">
-                <ResultCard variant="points" value={challenges.length * 10} />
-                <ResultCard variant="hearts" value={hearts} />
-              </div>
-            </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
+                    <p className="text-sm text-neutral-500">Correct</p>
+                    <p className="text-lg font-semibold text-emerald-600">{correctCount}</p>
+                  </div>
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
+                    <p className="text-sm text-neutral-500">Again</p>
+                    <p className="text-lg font-semibold text-amber-600">{againCount}</p>
+                  </div>
+                  <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
+                    <p className="text-sm text-neutral-500">Total</p>
+                    <p className="text-lg font-semibold text-neutral-700">{challenges.length}</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex flex-col gap-y-2">
+                  <p className="text-sm font-medium text-neutral-500">Accuracy</p>
+                  <p className="text-xl font-semibold text-neutral-700">
+                    {correctCount}/{challenges.length} correct
+                  </p>
+                  <p className="text-sm text-neutral-600">
+                    {wrongAnswers.length} wrong • {challenges.length} total challenges
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-y-3">
+                  <p className="text-sm font-medium text-neutral-500">Stats</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
+                      <p className="text-sm text-neutral-500">Streak</p>
+                      <p className="text-lg font-semibold text-neutral-700">
+                        {streak > 0 ? `\uD83D\uDD25 ${streak}` : "\u2014"}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
+                      <p className="text-sm text-neutral-500">Hearts</p>
+                      <p className="text-lg font-semibold text-neutral-700">{hearts}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-x-4 w-full">
+                    <ResultCard variant="points" value={challenges.length * 10} />
+                    <ResultCard variant="hearts" value={hearts} />
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* 3. Wrong Answers Review */}
             {wrongAnswers.length > 0 && (
@@ -432,7 +483,7 @@ export const Quiz = ({
           </div>
 
           {/* 4. All Lessons Complete celebration (inline, non-sticky) */}
-          {!nextLessonId && (
+          {!isPractice && !nextLessonId && (
             <div className="w-full rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center mb-5">
               <p className="text-lg font-bold text-emerald-700">All lessons complete!</p>
               <p className="text-sm text-emerald-600 mt-1">
@@ -442,21 +493,10 @@ export const Quiz = ({
           )}
         </div>
 
-        {/* 4. Sticky bottom CTAs on mobile */}
+        {/* 5. Sticky bottom CTAs on mobile */}
         <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-neutral-200 p-4 lg:static lg:border-t-0 lg:bg-transparent lg:backdrop-blur-none lg:p-0 z-10">
           <div className="max-w-lg mx-auto flex flex-col gap-y-3 lg:px-0">
-            {nextLessonId ? (
-              <button
-                type="button"
-                className="w-full rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition py-3"
-                onClick={() => router.push(`/lesson/${nextLessonId}`)}
-              >
-                <span>Next Lesson</span>
-                {nextLessonTitle && (
-                  <span className="block text-sm text-emerald-200 font-normal mt-0.5">{nextLessonTitle}</span>
-                )}
-              </button>
-            ) : (
+            {isPractice ? (
               <button
                 type="button"
                 className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition"
@@ -464,26 +504,49 @@ export const Quiz = ({
               >
                 Back to Learn
               </button>
-            )}
+            ) : (
+              <>
+                {nextLessonId ? (
+                  <button
+                    type="button"
+                    className="w-full rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition py-3"
+                    onClick={() => router.push(`/lesson/${nextLessonId}`)}
+                  >
+                    <span>Next Lesson</span>
+                    {nextLessonTitle && (
+                      <span className="block text-sm text-emerald-200 font-normal mt-0.5">{nextLessonTitle}</span>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition"
+                    onClick={() => router.push("/learn")}
+                  >
+                    Back to Learn
+                  </button>
+                )}
 
-            {wrongAnswers.length > 0 && (
-              <button
-                type="button"
-                className="w-full h-12 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-semibold hover:bg-neutral-50 active:bg-neutral-100 transition"
-                onClick={() => openPracticeModal()}
-              >
-                Practice weak items
-              </button>
-            )}
+                {wrongAnswers.length > 0 && (
+                  <button
+                    type="button"
+                    className="w-full h-12 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-semibold hover:bg-neutral-50 active:bg-neutral-100 transition"
+                    onClick={() => openPracticeModal()}
+                  >
+                    Practice weak items
+                  </button>
+                )}
 
-            {nextLessonId && (
-              <button
-                type="button"
-                className="w-full h-12 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-semibold hover:bg-neutral-50 active:bg-neutral-100 transition"
-                onClick={() => router.push("/learn")}
-              >
-                Back to Learn
-              </button>
+                {nextLessonId && (
+                  <button
+                    type="button"
+                    className="w-full h-12 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-semibold hover:bg-neutral-50 active:bg-neutral-100 transition"
+                    onClick={() => router.push("/learn")}
+                  >
+                    Back to Learn
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
