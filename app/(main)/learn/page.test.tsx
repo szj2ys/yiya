@@ -75,6 +75,17 @@ vi.mock("./weekly-activity", () => ({
   WeeklyActivity: () => <div>WeeklyActivity</div>,
 }));
 
+vi.mock("./continue-cta", () => ({
+  ContinueCta: ({ lessonTitle, unitDescription, lessonPercentage }: { lessonTitle: string; unitDescription: string; lessonPercentage: number }) => (
+    <div>
+      <span>{unitDescription}</span>
+      <span>{lessonTitle}</span>
+      <span>{lessonPercentage}%</span>
+      <span>Continue</span>
+    </div>
+  ),
+}));
+
 vi.mock("@/components/ui/progress", () => ({
   Progress: ({ value, className }: { value: number; className?: string }) => (
     <div data-testid="progress-bar" data-value={value} className={className} />

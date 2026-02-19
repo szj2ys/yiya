@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Quests } from "@/components/quests";
@@ -7,7 +6,6 @@ import { UserProgress } from "@/components/user-progress";
 import { Streak } from "@/components/streak";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { lessons, units as unitsSchema } from "@/db/schema";
 import {
   getCourseProgress,
@@ -24,6 +22,7 @@ import { getReviewDueCount } from "@/actions/review";
 
 import { Unit } from "./unit";
 import { Header } from "./header";
+import { ContinueCta } from "./continue-cta";
 import { DailyGoal } from "./daily-goal";
 import { PracticeEntry } from "./practice-entry";
 import { StartFirstLesson } from "./start-first-lesson";
@@ -92,30 +91,11 @@ const LearnPage = async () => {
         <Header title={userProgress.activeCourse.title} />
 
         {courseProgress.activeLesson && (
-          <div className="mb-6 rounded-2xl border border-green-200 bg-green-50/60 p-5">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1 space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-green-700">
-                  {courseProgress.activeLesson.unit.description}
-                </p>
-                <h2 className="text-lg font-bold text-neutral-800">
-                  {courseProgress.activeLesson.title}
-                </h2>
-              </div>
-            </div>
-            <div className="mt-3 space-y-2">
-              <div className="flex items-center justify-between text-xs text-neutral-500">
-                <span>Progress</span>
-                <span>{lessonPercentage}%</span>
-              </div>
-              <Progress value={lessonPercentage} className="h-2" />
-            </div>
-            <Link href="/lesson">
-              <Button size="lg" variant="primary" className="mt-4 w-full">
-                Continue
-              </Button>
-            </Link>
-          </div>
+          <ContinueCta
+            lessonTitle={courseProgress.activeLesson.title}
+            unitDescription={courseProgress.activeLesson.unit.description}
+            lessonPercentage={lessonPercentage}
+          />
         )}
 
         {shouldShowStartCta && (

@@ -184,7 +184,7 @@ describe("Quiz completion screen enhancements", () => {
     const colorsEl = screen.getByText("Colors");
     expect(colorsEl.closest("button")).not.toBeNull();
     expect(colorsEl.className).toContain("text-sm");
-    expect(colorsEl.className).toContain("text-neutral-500");
+    expect(colorsEl.className).toContain("text-emerald-200");
   });
 
   it("should not show next lesson title when nextLessonTitle is null", () => {
