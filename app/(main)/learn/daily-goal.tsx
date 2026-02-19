@@ -2,25 +2,30 @@ import { CheckCircle2, Target } from "lucide-react";
 
 import { Progress } from "@/components/ui/progress";
 
-const DAILY_GOAL = 1; // lessons per day, hardcoded for now
-
 type Props = {
   lastLessonAt: Date | null;
   completedLessons: number;
   totalLessons: number;
+  dailyGoal: number;
 };
 
 /**
  * Counts how many lessons the user completed "today" by comparing
- * completedLessons count and lastLessonAt timestamp. Since we don't
- * have per-lesson timestamps, we approximate: if the user had a
- * lesson today, count min(completedLessons, DAILY_GOAL) as today's.
+ * the lastLessonAt timestamp to the current date.
+ *
+ * Approximation: since we only store a single `lastLessonAt` timestamp
+ * (not per-lesson timestamps), we can only know whether the user had
+ * *at least one* lesson today. We therefore show min(1, dailyGoal)
+ * when a lesson was completed today. This will be more accurate once
+ * per-lesson completion timestamps are tracked.
  */
 export const DailyGoal = ({
   lastLessonAt,
   completedLessons,
   totalLessons,
+  dailyGoal,
 }: Props) => {
+  const goal = dailyGoal;
   const today = new Date();
   const hadLessonToday =
     lastLessonAt !== null &&
@@ -28,11 +33,11 @@ export const DailyGoal = ({
     lastLessonAt.getMonth() === today.getMonth() &&
     lastLessonAt.getDate() === today.getDate();
 
-  // If the user completed a lesson today, count at least 1 toward the daily goal.
-  // We cap at DAILY_GOAL because we only track a single timestamp.
-  const todayCount = hadLessonToday ? Math.min(completedLessons, DAILY_GOAL) : 0;
-  const isGoalMet = todayCount >= DAILY_GOAL;
-  const progressPercent = Math.round((todayCount / DAILY_GOAL) * 100);
+  // Approximation: we only know "at least 1 lesson today" from lastLessonAt.
+  // TODO: Replace with accurate per-lesson timestamp counting when available.
+  const todayCount = hadLessonToday ? Math.min(1, goal) : 0;
+  const isGoalMet = todayCount >= goal;
+  const progressPercent = Math.round((todayCount / goal) * 100);
 
   return (
     <div
@@ -68,7 +73,7 @@ export const DailyGoal = ({
                 isGoalMet ? "text-green-600" : "text-neutral-500",
               ].join(" ")}
             >
-              {todayCount}/{DAILY_GOAL} lesson{DAILY_GOAL > 1 ? "s" : ""}
+              {todayCount}/{goal} lesson{goal > 1 ? "s" : ""}
             </span>
           </div>
           <Progress value={progressPercent} className="h-2" />

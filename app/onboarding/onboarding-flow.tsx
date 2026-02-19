@@ -48,12 +48,12 @@ export const OnboardingFlow = ({ courses }: Props) => {
     setStep(3);
 
     startTransition(() => {
-      upsertUserProgress(selectedCourseId).catch(() => {
+      upsertUserProgress(selectedCourseId, selectedGoal ?? 1).catch(() => {
         toast.error("Something went wrong. Please try again.");
         setStep(2);
       });
     });
-  }, [selectedCourseId, startTransition]);
+  }, [selectedCourseId, selectedGoal, startTransition]);
 
   return (
     <div className="flex min-h-screen flex-col">

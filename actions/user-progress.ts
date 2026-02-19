@@ -16,7 +16,10 @@ import {
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 import { createReviewCard } from "@/actions/review";
 
-export const upsertUserProgress = async (courseId: number) => {
+export const upsertUserProgress = async (
+  courseId: number,
+  dailyGoal?: number,
+) => {
   const userId = await getAuthUserId();
   const user = await currentUser();
 
@@ -43,6 +46,7 @@ export const upsertUserProgress = async (courseId: number) => {
         activeCourseId: courseId,
         userName: user.firstName || "User",
         userImageSrc: user.imageUrl || "/mascot.svg",
+        ...(dailyGoal !== undefined && { dailyGoal }),
       })
       .where(eq(userProgress.userId, userId));
 
@@ -56,6 +60,7 @@ export const upsertUserProgress = async (courseId: number) => {
     activeCourseId: courseId,
     userName: user.firstName || "User",
     userImageSrc: user.imageUrl || "/mascot.svg",
+    ...(dailyGoal !== undefined && { dailyGoal }),
   });
 
   revalidatePath("/courses");
