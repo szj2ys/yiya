@@ -5,9 +5,9 @@ import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { getUserProgress, getUserSubscription } from "@/db/queries";
-import { Progress } from "@/components/ui/progress";
 import { Promo } from "@/components/promo";
 import { quests } from "@/constants";
+import { QuestItem } from "@/components/quest-item";
 
 const QuestsPage = async () => {
   const userProgressData = getUserProgress();
@@ -27,7 +27,7 @@ const QuestsPage = async () => {
 
   const isPro = !!userSubscription?.isActive;
 
-  return ( 
+  return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
       <StickyWrapper>
         <UserProgress
@@ -55,34 +55,20 @@ const QuestsPage = async () => {
             Complete quests by earning points.
           </p>
           <ul className="w-full">
-            {quests.map((quest) => {
-              const progress = (userProgress.points / quest.value) * 100;
-
-              return (
-                <div
-                  className="flex items-center w-full p-4 gap-x-4 border-t-2"
-                  key={quest.title}
-                >
-                  <Image
-                    src="/points.svg"
-                    alt="Points"
-                    width={60}
-                    height={60}
-                  />
-                  <div className="flex flex-col gap-y-2 w-full">
-                    <p className="text-neutral-700 text-xl font-bold">
-                      {quest.title}
-                    </p>
-                    <Progress value={progress} className="h-3" />
-                  </div>
-                </div>
-              )
-            })}
+            {quests.map((quest) => (
+              <QuestItem
+                key={quest.title}
+                title={quest.title}
+                value={quest.value}
+                reward={quest.reward}
+                points={userProgress.points}
+              />
+            ))}
           </ul>
         </div>
       </FeedWrapper>
     </div>
   );
 };
- 
+
 export default QuestsPage;
