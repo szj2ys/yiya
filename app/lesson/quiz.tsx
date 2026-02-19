@@ -16,6 +16,7 @@ import { upsertChallengeProgress } from "@/actions/challenge-progress";
 import { buildTrackPayload, trackPayload } from "@/lib/analytics";
 import { submitReview } from "@/actions/review";
 import type { ExplanationResult } from "@/lib/ai/explain";
+import type { VariantQuestion } from "@/lib/ai/variants";
 import { ExplanationPanel } from "@/components/explanation-panel";
 
 import { Header } from "./header";
@@ -43,6 +44,8 @@ type Props = {
   reviewCardId?: number;
   /** Map of challengeId → reviewCardId for multi-card practice sessions */
   reviewCardIds?: Record<number, number>;
+  /** Map of challengeId → AI-generated variant question (practice mode only). */
+  variantData?: Record<number, VariantQuestion>;
   userSubscription: typeof userSubscription.$inferSelect & {
     isActive: boolean;
   } | null;
@@ -59,6 +62,7 @@ export const Quiz = ({
   courseLanguage,
   reviewCardId,
   reviewCardIds,
+  variantData,
   userSubscription,
   nextLessonId,
   nextLessonTitle,
@@ -153,16 +157,47 @@ export const Quiz = ({
   });
 
   const challenge = challenges[activeIndex];
-  const options = challenge?.challengeOptions ?? [];
+
+  const activeVariant = isPractice && challenge ? variantData?.[challenge.id] : undefined;
+  const isVariant = !!activeVariant;
+
+  const questionText = activeVariant?.question ?? challenge?.question ?? "";
+
+  const options = (() => {
+    if (!challenge) return [];
+
+    if (
+      isPractice &&
+      activeVariant?.type === "SELECT" &&
+      Array.isArray(activeVariant.options) &&
+      activeVariant.options.length === 4
+    ) {
+      return activeVariant.options.map((opt, index) => ({
+        id: -(index + 1),
+        challengeId: challenge.id,
+        text: opt.text,
+        correct: opt.correct,
+        imageSrc: null,
+        audioSrc: null,
+      }));
+    }
+
+    return challenge.challengeOptions ?? [];
+  })();
+
+  const correctAnswerText =
+    isPractice && activeVariant?.type === "TYPE" && activeVariant.expectedAnswer
+      ? activeVariant.expectedAnswer
+      : options.find((option) => option.correct)?.text;
 
   // Auto-speak question text for ASSIST and TYPE challenges (target-language prompts).
   // SELECT questions use English prompts ("Which one of these is ..."), so skip those.
   useEffect(() => {
     if (!challenge) return;
     if (challenge.type === "ASSIST" || challenge.type === "TYPE") {
-      speak(challenge.question, courseLanguage);
+      speak(questionText, courseLanguage);
     }
-  }, [activeIndex, challenge, courseLanguage]);
+  }, [activeIndex, challenge, courseLanguage, questionText]);
 
   const onNext = () => {
     setActiveIndex((current) => current + 1);
@@ -218,9 +253,11 @@ export const Quiz = ({
       return;
     }
 
+    const expectedAnswer = correctAnswerText ?? correctOption.text;
+
     // Determine whether the answer is correct
     const isCorrect = isType
-      ? normalizeForComparison(typedAnswer) === normalizeForComparison(correctOption.text)
+      ? normalizeForComparison(typedAnswer) === normalizeForComparison(expectedAnswer)
       : correctOption.id === selectedOption;
 
     if (isCorrect) {
@@ -269,8 +306,8 @@ export const Quiz = ({
                 ...prev,
                 {
                   challengeId: challenge.id,
-                  question: challenge.question,
-                  correctAnswer: correctOption.text,
+                  question: questionText,
+                  correctAnswer: correctAnswerText ?? correctOption.text,
                 },
               ];
             });
@@ -560,7 +597,7 @@ export const Quiz = ({
     ? "Select the correct meaning"
     : challenge.type === "TYPE"
       ? "Type the translation"
-      : challenge.question;
+      : questionText;
 
   return (
     <>
@@ -574,12 +611,17 @@ export const Quiz = ({
       <div className="flex-1">
         <div className="h-full flex items-center justify-center">
           <div className="lg:min-h-[350px] lg:w-[600px] w-full px-6 lg:px-0 flex flex-col gap-y-12">
-            <h1 className="text-lg lg:text-3xl text-center lg:text-start font-bold text-neutral-700">
-              {title}
+            <h1 className="text-lg lg:text-3xl text-center lg:text-start font-bold text-neutral-700 flex items-center justify-center lg:justify-start gap-x-2">
+              <span>{title}</span>
+              {isVariant && (
+                <span className="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600">
+                  Variant
+                </span>
+              )}
             </h1>
             <div>
               {(challenge.type === "ASSIST" || challenge.type === "TYPE") && (
-                <QuestionBubble question={challenge.question} courseLanguage={courseLanguage} />
+                <QuestionBubble question={questionText} courseLanguage={courseLanguage} />
               )}
               <Challenge
                 options={options}
@@ -615,9 +657,7 @@ export const Quiz = ({
         disabled={pending || (challenge.type === "TYPE" ? typedAnswer.trim().length === 0 : !selectedOption)}
         status={status}
         onCheck={onContinue}
-        correctAnswerText={
-          status === "wrong" ? options.find((o) => o.correct)?.text : undefined
-        }
+        correctAnswerText={status === "wrong" ? correctAnswerText : undefined}
         reserveBottomSpacePx={!isPractice && status === "wrong" ? 340 : 0}
       />
     </>

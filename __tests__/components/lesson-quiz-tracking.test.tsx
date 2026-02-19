@@ -3,8 +3,6 @@ import { render, waitFor } from "@testing-library/react";
 
 import { Quiz } from "@/app/lesson/quiz";
 
-const trackPayloadSpy = vi.fn().mockResolvedValue(undefined);
-
 vi.mock("@/lib/analytics", async () => {
   const actual = await vi.importActual<typeof import("@/lib/analytics")>(
     "@/lib/analytics",
@@ -12,9 +10,13 @@ vi.mock("@/lib/analytics", async () => {
 
   return {
     ...actual,
-    trackPayload: (...args: unknown[]) => trackPayloadSpy(...args),
+    trackPayload: vi.fn().mockResolvedValue(undefined),
   };
 });
+
+import { trackPayload } from "@/lib/analytics";
+
+const trackPayloadSpy = vi.mocked(trackPayload);
 
 // Keep these lightweight: the test only asserts tracking behavior.
 vi.mock("next/image", () => ({ default: (props: any) => <img {...props} /> }));
@@ -90,10 +92,15 @@ describe("Quiz analytics", () => {
           properties: expect.objectContaining({ due_count: 1 }),
         }),
       );
+
       expect(trackPayloadSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           event: "review_session_complete",
-          properties: expect.objectContaining({ reviewed_count: 0, again_count: 0 }),
+          properties: expect.objectContaining({
+            reviewed_count: 0,
+            again_count: 0,
+            duration_ms: expect.any(Number),
+          }),
         }),
       );
     });
