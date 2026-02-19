@@ -34,6 +34,8 @@ vi.mock("react-use", () => ({
   useMount: (fn: any) => fn(),
   useWindowSize: () => ({ width: 0, height: 0 }),
   useAudio: () => [null, null, { play: vi.fn() }],
+  useKey: vi.fn(),
+  useMedia: () => false,
 }));
 
 vi.mock("@/app/lesson/header", () => ({ Header: () => null }));

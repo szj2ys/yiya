@@ -13,6 +13,7 @@ type Props = {
   type: typeof challenges.$inferSelect["type"];
   typedAnswer?: string;
   onTypedAnswerChange?: (value: string) => void;
+  courseLanguage?: string;
 };
 
 export const Challenge = ({
@@ -24,6 +25,7 @@ export const Challenge = ({
   type,
   typedAnswer,
   onTypedAnswerChange,
+  courseLanguage,
 }: Props) => {
   if (type === "TYPE") {
     const correctOption = options.find((o) => o.correct);
@@ -58,6 +60,7 @@ export const Challenge = ({
           audioSrc={option.audioSrc}
           disabled={disabled}
           type={type}
+          courseLanguage={courseLanguage}
         />
       ))}
     </div>

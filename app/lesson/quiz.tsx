@@ -4,10 +4,11 @@ import { toast } from "sonner";
 import Image from "next/image";
 import Confetti from "react-confetti";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useAudio, useWindowSize, useMount } from "react-use";
 
 import { reduceHearts } from "@/actions/user-progress";
+import { speak } from "@/lib/tts";
 import { useHeartsModal } from "@/store/use-hearts-modal";
 import { challengeOptions, challenges, userSubscription } from "@/db/schema";
 import { usePracticeModal } from "@/store/use-practice-modal";
@@ -137,6 +138,15 @@ export const Quiz = ({
 
   const challenge = challenges[activeIndex];
   const options = challenge?.challengeOptions ?? [];
+
+  // Auto-speak question text for ASSIST and TYPE challenges (target-language prompts).
+  // SELECT questions use English prompts ("Which one of these is ..."), so skip those.
+  useEffect(() => {
+    if (!challenge) return;
+    if (challenge.type === "ASSIST" || challenge.type === "TYPE") {
+      speak(challenge.question, courseLanguage);
+    }
+  }, [activeIndex, challenge, courseLanguage]);
 
   const onNext = () => {
     setActiveIndex((current) => current + 1);
@@ -447,7 +457,7 @@ export const Quiz = ({
             </h1>
             <div>
               {(challenge.type === "ASSIST" || challenge.type === "TYPE") && (
-                <QuestionBubble question={challenge.question} />
+                <QuestionBubble question={challenge.question} courseLanguage={courseLanguage} />
               )}
               <Challenge
                 options={options}
@@ -458,6 +468,7 @@ export const Quiz = ({
                 type={challenge.type}
                 typedAnswer={typedAnswer}
                 onTypedAnswerChange={setTypedAnswer}
+                courseLanguage={courseLanguage}
               />
             </div>
           </div>
