@@ -25,6 +25,27 @@ vi.mock("@/db/queries", () => ({
     { date: "2026-02-19", count: 0 },
   ]),
   getTodayLessonCount: vi.fn().mockResolvedValue(0),
+  getCourseStats: vi.fn().mockResolvedValue({
+    totalLessons: 10,
+    completedLessons: 0,
+    totalChallenges: 50,
+    completedChallenges: 0,
+    wordsLearned: 0,
+  }),
+  getMemoryStrength: vi.fn().mockResolvedValue({
+    total: 0,
+    mastered: 0,
+    strong: 0,
+    weak: 0,
+    newCount: 0,
+  }),
+  getLearningStats: vi.fn().mockResolvedValue({
+    currentStreak: 0,
+    longestStreak: 0,
+    totalWordsLearned: 0,
+    totalLessonsCompleted: 0,
+    averageAccuracy: 0,
+  }),
 }));
 
 vi.mock("@/actions/review", () => ({
@@ -51,8 +72,12 @@ vi.mock("./header", () => ({
   Header: () => <div>Header</div>,
 }));
 
-vi.mock("./unit", () => ({
-  Unit: () => <div>Unit</div>,
+vi.mock("./unit-with-progress", () => ({
+  UnitWithProgress: () => <div>Unit</div>,
+}));
+
+vi.mock("./learning-progress", () => ({
+  LearningProgress: () => <div>LearningProgress</div>,
 }));
 
 vi.mock("./practice-entry", () => ({

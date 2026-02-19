@@ -3,10 +3,16 @@ import { render, waitFor } from "@testing-library/react";
 
 import { Quiz } from "@/app/lesson/quiz";
 
-vi.mock("@/lib/analytics", () => ({
-  buildTrackPayload: (event: string, properties: any) => ({ event, properties }),
-  trackPayload: vi.fn().mockResolvedValue(undefined),
-}));
+vi.mock("@/lib/analytics", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/analytics")>(
+    "@/lib/analytics",
+  );
+
+  return {
+    ...actual,
+    trackPayload: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 import { trackPayload } from "@/lib/analytics";
 
@@ -23,8 +29,12 @@ vi.mock("react-use", () => ({
   useMedia: () => false,
 }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
-vi.mock("@/store/use-practice-modal", () => ({ usePracticeModal: () => ({ open: vi.fn() }) }));
-vi.mock("@/store/use-hearts-modal", () => ({ useHeartsModal: () => ({ open: vi.fn() }) }));
+vi.mock("@/store/use-practice-modal", () => ({
+  usePracticeModal: () => ({ open: vi.fn() }),
+}));
+vi.mock("@/store/use-hearts-modal", () => ({
+  useHeartsModal: () => ({ open: vi.fn() }),
+}));
 vi.mock("@/actions/challenge-progress", () => ({ upsertChallengeProgress: vi.fn() }));
 vi.mock("@/actions/user-progress", () => ({ reduceHearts: vi.fn() }));
 vi.mock("@/actions/review", () => ({ submitReview: vi.fn() }));
@@ -46,17 +56,19 @@ describe("Quiz analytics", () => {
         courseLanguage="Spanish"
         initialLessonChallenges={[]}
         userSubscription={null}
-      />
+      />,
     );
 
     await waitFor(() => {
-      expect(trackPayloadSpy).toHaveBeenCalledWith({
-        event: "lesson_complete",
-        properties: {
-          lesson_id: 1,
-          hearts_remaining: 5,
-        },
-      });
+      expect(trackPayloadSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: "lesson_complete",
+          properties: expect.objectContaining({
+            lesson_id: 1,
+            hearts_remaining: 5,
+          }),
+        }),
+      );
     });
   });
 
@@ -70,25 +82,27 @@ describe("Quiz analytics", () => {
         courseLanguage="Spanish"
         initialLessonChallenges={[]}
         userSubscription={null}
-      />
+      />,
     );
 
     await waitFor(() => {
-      expect(trackPayloadSpy).toHaveBeenCalledWith({
-        event: "review_session_start",
-        properties: {
-          due_count: 1,
-        },
-      });
-
-      expect(trackPayloadSpy).toHaveBeenCalledWith({
-        event: "review_session_complete",
-        properties: expect.objectContaining({
-          reviewed_count: 0,
-          again_count: 0,
-          duration_ms: expect.any(Number),
+      expect(trackPayloadSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: "review_session_start",
+          properties: expect.objectContaining({ due_count: 1 }),
         }),
-      });
+      );
+
+      expect(trackPayloadSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: "review_session_complete",
+          properties: expect.objectContaining({
+            reviewed_count: 0,
+            again_count: 0,
+            duration_ms: expect.any(Number),
+          }),
+        }),
+      );
     });
   });
 });

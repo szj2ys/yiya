@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { and, count, countDistinct, eq, gte, gt, inArray, lte, sql } from "drizzle-orm";
+import { and, count, countDistinct, eq, gte, gt, inArray, lte } from "drizzle-orm";
 
 import db from "@/db/drizzle";
 import { getAuthUserId } from "@/lib/auth-utils";
@@ -720,5 +720,58 @@ export const getLearningStats = cache(async (): Promise<LearningStatsData | null
     totalWordsLearned,
     totalLessonsCompleted,
     averageAccuracy,
+  };
+});
+
+export type MemoryStrengthData = {
+  total: number;
+  mastered: number;
+  strong: number;
+  weak: number;
+  newCount: number;
+};
+
+export const getMemoryStrength = cache(async (): Promise<MemoryStrengthData> => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return { total: 0, mastered: 0, strong: 0, weak: 0, newCount: 0 };
+  }
+
+  const cards = await db.query.reviewCards.findMany({
+    where: eq(reviewCards.userId, userId),
+    columns: {
+      state: true,
+      stability: true,
+    },
+  });
+
+  let mastered = 0;
+  let strong = 0;
+  let weak = 0;
+  let newCount = 0;
+
+  for (const card of cards) {
+    if (card.state === "new") {
+      newCount++;
+    } else if (card.state === "learning" || card.state === "relearning") {
+      weak++;
+    } else if (card.state === "review") {
+      if (card.stability >= 10) {
+        mastered++;
+      } else if (card.stability >= 3) {
+        strong++;
+      } else {
+        weak++;
+      }
+    }
+  }
+
+  return {
+    total: cards.length,
+    mastered,
+    strong,
+    weak,
+    newCount,
   };
 });

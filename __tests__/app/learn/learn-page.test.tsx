@@ -38,9 +38,14 @@ describe("LearnPage integration", () => {
     expect(pageSource).not.toContain("<Promo");
   });
 
-  it("should not call getCourseStats or getLearningStats or getClaimedQuests", () => {
-    expect(pageSource).not.toContain("getCourseStats");
-    expect(pageSource).not.toContain("getLearningStats");
+  it("should fetch progress stats for LearningProgress", () => {
+    expect(pageSource).toContain("getCourseStats");
+    expect(pageSource).toContain("getMemoryStrength");
+    expect(pageSource).toContain("getLearningStats");
+    expect(pageSource).toContain("<LearningProgress");
+  });
+
+  it("should not call getClaimedQuests", () => {
     expect(pageSource).not.toContain("getClaimedQuests");
   });
 

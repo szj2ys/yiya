@@ -19,8 +19,12 @@ vi.mock("@/actions/review", () => ({
   submitReview: (...args: unknown[]) => submitReviewSpy(...args),
 }));
 
-vi.mock("@/store/use-practice-modal", () => ({ usePracticeModal: () => ({ open: vi.fn() }) }));
-vi.mock("@/store/use-hearts-modal", () => ({ useHeartsModal: () => ({ open: vi.fn() }) }));
+vi.mock("@/store/use-practice-modal", () => ({
+  usePracticeModal: () => ({ open: vi.fn() }),
+}));
+vi.mock("@/store/use-hearts-modal", () => ({
+  useHeartsModal: () => ({ open: vi.fn() }),
+}));
 vi.mock("@/lib/analytics", () => ({
   buildTrackPayload: (event: string, properties: any) => ({ event, properties }),
   trackPayload: vi.fn().mockResolvedValue(undefined),

@@ -1,16 +1,20 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { ExplanationPanel } from "@/components/explanation-panel";
 
 const trackSpy = vi.fn().mockResolvedValue(undefined);
 
-vi.mock("@/lib/analytics", () => ({
-  track: (...args: unknown[]) => {
-    trackSpy(...args);
-    return Promise.resolve(undefined);
-  },
-}));
+vi.mock("@/lib/analytics", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/analytics")>(
+    "@/lib/analytics",
+  );
+
+  return {
+    ...actual,
+    track: (...args: unknown[]) => trackSpy(...args),
+  };
+});
 
 describe("ExplanationPanel tracking", () => {
   it("should track explanation_view on render", async () => {
@@ -30,9 +34,11 @@ describe("ExplanationPanel tracking", () => {
       />,
     );
 
-    expect(trackSpy).toHaveBeenCalledWith("explanation_view", {
-      challenge_id: 42,
-      cached: true,
+    await waitFor(() => {
+      expect(trackSpy).toHaveBeenCalledWith("explanation_view", {
+        challenge_id: 42,
+        cached: true,
+      });
     });
   });
 
@@ -57,8 +63,10 @@ describe("ExplanationPanel tracking", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Practice this rule →" }));
 
-    expect(trackSpy).toHaveBeenCalledWith("explanation_practice_click", {
-      challenge_id: 42,
+    await waitFor(() => {
+      expect(trackSpy).toHaveBeenCalledWith("explanation_practice_click", {
+        challenge_id: 42,
+      });
     });
     expect(onPractice).toHaveBeenCalledTimes(1);
   });

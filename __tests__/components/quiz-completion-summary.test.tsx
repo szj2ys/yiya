@@ -28,9 +28,7 @@ vi.mock("@/store/use-practice-modal", () => ({
 
 vi.mock("@/store/use-hearts-modal", () => ({ useHeartsModal: () => ({ open: vi.fn() }) }));
 vi.mock("@/actions/challenge-progress", () => ({
-  upsertChallengeProgress: vi
-    .fn()
-    .mockResolvedValue({}),
+  upsertChallengeProgress: vi.fn().mockResolvedValue({}),
 }));
 vi.mock("@/actions/user-progress", () => ({ reduceHearts: vi.fn().mockResolvedValue({}) }));
 

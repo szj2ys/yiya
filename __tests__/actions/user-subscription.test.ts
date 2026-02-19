@@ -3,9 +3,16 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 const billingPortalCreateSpy = vi.fn();
 const checkoutCreateSpy = vi.fn();
 
-vi.mock("@/lib/analytics", () => ({
-  track: vi.fn().mockResolvedValue(undefined),
-}));
+vi.mock("@/lib/analytics", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/analytics")>(
+    "@/lib/analytics",
+  );
+
+  return {
+    ...actual,
+    track: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 vi.mock("@clerk/nextjs", () => ({
   auth: vi.fn().mockResolvedValue({ userId: "user_a" }),

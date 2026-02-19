@@ -5,7 +5,16 @@ const trackSpy = vi.fn().mockResolvedValue(undefined);
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
-vi.mock("@/lib/analytics", () => ({ track: trackSpy }));
+vi.mock("@/lib/analytics", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/analytics")>(
+    "@/lib/analytics",
+  );
+
+  return {
+    ...actual,
+    track: trackSpy,
+  };
+});
 
 vi.mock("@/store/use-hearts-modal", () => ({
   useHeartsModal: () => ({ isOpen: true, close: vi.fn() }),

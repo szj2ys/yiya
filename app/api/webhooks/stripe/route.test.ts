@@ -11,7 +11,16 @@ vi.mock("next/headers", () => ({
   headers: () => new Map([["Stripe-Signature", "sig"]]),
 }));
 
-vi.mock("@/lib/analytics", () => ({ track: mockTrack }));
+vi.mock("@/lib/analytics", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/analytics")>(
+    "@/lib/analytics",
+  );
+
+  return {
+    ...actual,
+    track: mockTrack,
+  };
+});
 
 vi.mock("@/lib/stripe", () => ({
   stripe: {

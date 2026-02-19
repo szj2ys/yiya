@@ -7,6 +7,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushSpy }),
 }));
 
+vi.mock("@/actions/practice", () => ({
+  startPractice: vi.fn(),
+}));
+
 vi.mock("sonner", () => ({
   toast: { error: vi.fn(), message: vi.fn() },
 }));
