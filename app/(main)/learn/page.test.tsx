@@ -38,6 +38,8 @@ vi.mock("@/db/queries", () => ({
     totalLessonsCompleted: 10,
     averageAccuracy: 85,
   }),
+  getTodayLessonCount: vi.fn().mockResolvedValue(0),
+  getClaimedQuests: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/actions/review", () => ({

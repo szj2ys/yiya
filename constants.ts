@@ -27,7 +27,3 @@ export const quests = [
     reward: 100,
   },
 ];
-
-/** localStorage key for tracking claimed quest rewards */
-export const getQuestClaimedKey = (questValue: number) =>
-  `yiya_claimed_quests_${questValue}`;

@@ -3,39 +3,20 @@ import { CheckCircle2, Target } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 type Props = {
-  lastLessonAt: Date | null;
+  todayLessonCount: number;
   completedLessons: number;
   totalLessons: number;
   dailyGoal: number;
 };
 
-/**
- * Counts how many lessons the user completed "today" by comparing
- * the lastLessonAt timestamp to the current date.
- *
- * Approximation: since we only store a single `lastLessonAt` timestamp
- * (not per-lesson timestamps), we can only know whether the user had
- * *at least one* lesson today. We therefore show min(1, dailyGoal)
- * when a lesson was completed today. This will be more accurate once
- * per-lesson completion timestamps are tracked.
- */
 export const DailyGoal = ({
-  lastLessonAt,
+  todayLessonCount,
   completedLessons,
   totalLessons,
   dailyGoal,
 }: Props) => {
   const goal = dailyGoal;
-  const today = new Date();
-  const hadLessonToday =
-    lastLessonAt !== null &&
-    lastLessonAt.getFullYear() === today.getFullYear() &&
-    lastLessonAt.getMonth() === today.getMonth() &&
-    lastLessonAt.getDate() === today.getDate();
-
-  // Approximation: we only know "at least 1 lesson today" from lastLessonAt.
-  // TODO: Replace with accurate per-lesson timestamp counting when available.
-  const todayCount = hadLessonToday ? Math.min(1, goal) : 0;
+  const todayCount = todayLessonCount;
   const isGoalMet = todayCount >= goal;
   const progressPercent = Math.round((todayCount / goal) * 100);
 

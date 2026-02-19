@@ -9,10 +9,12 @@ import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Button } from "@/components/ui/button";
 import { lessons, units as unitsSchema } from "@/db/schema";
 import {
+  getClaimedQuests,
   getCourseProgress,
   getCourseStats,
   getLearningStats,
   getLessonPercentage,
+  getTodayLessonCount,
   getTodayReviewItems,
   getUnits,
   getUserProgress,
@@ -43,6 +45,8 @@ const LearnPage = async () => {
   const courseStatsData = getCourseStats();
   const weeklyActivityData = getWeeklyActivity();
   const learningStatsData = getLearningStats();
+  const todayLessonCountData = getTodayLessonCount();
+  const claimedQuestsData = getClaimedQuests();
 
   const [
     userProgress,
@@ -56,6 +60,8 @@ const LearnPage = async () => {
     courseStats,
     weeklyActivity,
     learningStats,
+    todayLessonCount,
+    claimedQuests,
   ] = await Promise.all([
     userProgressData,
     unitsData,
@@ -68,6 +74,8 @@ const LearnPage = async () => {
     courseStatsData,
     weeklyActivityData,
     learningStatsData,
+    todayLessonCountData,
+    claimedQuestsData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -106,7 +114,7 @@ const LearnPage = async () => {
         {!isPro && (
           <Promo />
         )}
-        <Quests points={userProgress.points} />
+        <Quests points={userProgress.points} claimedQuestValues={claimedQuests} />
       </StickyWrapper>
       <FeedWrapper>
         <Header title={userProgress.activeCourse.title} />
@@ -131,7 +139,7 @@ const LearnPage = async () => {
 
         {courseStats && (
           <DailyGoal
-            lastLessonAt={userProgress.lastLessonAt ?? null}
+            todayLessonCount={todayLessonCount}
             completedLessons={courseStats.completedLessons}
             totalLessons={courseStats.totalLessons}
             dailyGoal={userProgress.dailyGoal ?? 1}

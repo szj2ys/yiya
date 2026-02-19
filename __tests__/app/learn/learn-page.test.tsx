@@ -45,4 +45,18 @@ describe("LearnPage integration", () => {
     expect(pageSource).toContain("getLearningStats");
     expect(pageSource).toContain("learningStatsData");
   });
+
+  it("should pass todayLessonCount to DailyGoal instead of lastLessonAt", () => {
+    expect(pageSource).toContain("todayLessonCount={todayLessonCount}");
+    expect(pageSource).not.toContain("lastLessonAt={userProgress.lastLessonAt");
+  });
+
+  it("should fetch today lesson count and claimed quests", () => {
+    expect(pageSource).toContain("getTodayLessonCount");
+    expect(pageSource).toContain("getClaimedQuests");
+  });
+
+  it("should pass claimedQuestValues to Quests", () => {
+    expect(pageSource).toContain("claimedQuestValues={claimedQuests}");
+  });
 });

@@ -14,7 +14,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
   const userId = await getAuthUserId();
 
   if (!userId) {
-    throw new Error("Unauthorized"); 
+    throw new Error("Unauthorized");
   }
 
   const currentUserProgress = await getUserProgress();
@@ -44,8 +44,8 @@ export const upsertChallengeProgress = async (challengeId: number) => {
   const isPractice = !!existingChallengeProgress;
 
   if (
-    currentUserProgress.hearts === 0 && 
-    !isPractice && 
+    currentUserProgress.hearts === 0 &&
+    !isPractice &&
     !userSubscription?.isActive
   ) {
     return { error: "hearts" };
@@ -80,19 +80,10 @@ export const upsertChallengeProgress = async (challengeId: number) => {
 
   await createReviewCard(userId, challengeId, "correct");
 
-  const now = new Date();
-
-  const { streak: nextStreak, shouldUpdateStreak } = computeNextStreak({
-    currentStreak: currentUserProgress.streak ?? 0,
-    lastLessonAt: currentUserProgress.lastLessonAt ?? null,
-    now,
-  });
-
+  // Per-challenge: only update points (XP)
   await db.update(userProgress)
     .set({
       points: currentUserProgress.points + 10,
-      ...(shouldUpdateStreak ? { streak: nextStreak } : {}),
-      lastLessonAt: now,
     })
     .where(eq(userProgress.userId, userId));
 
@@ -120,6 +111,22 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     totalResult.value > 0 &&
     completedResult.value >= totalResult.value
   ) {
+    const now = new Date();
+
+    const { streak: nextStreak, shouldUpdateStreak, longestStreak } = computeNextStreak({
+      currentStreak: currentUserProgress.streak ?? 0,
+      lastLessonAt: currentUserProgress.lastLessonAt ?? null,
+      now,
+      currentLongestStreak: currentUserProgress.longestStreak ?? 0,
+    });
+
+    await db.update(userProgress)
+      .set({
+        ...(shouldUpdateStreak ? { streak: nextStreak, longestStreak } : {}),
+        lastLessonAt: now,
+      })
+      .where(eq(userProgress.userId, userId));
+
     await db.insert(lessonCompletions).values({
       userId,
       lessonId,

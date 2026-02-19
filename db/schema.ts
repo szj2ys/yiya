@@ -129,6 +129,7 @@ export const userProgress = pgTable("user_progress", {
   hearts: integer("hearts").notNull().default(5),
   points: integer("points").notNull().default(0),
   streak: integer("streak").notNull().default(0),
+  longestStreak: integer("longest_streak").notNull().default(0),
   dailyGoal: integer("daily_goal").notNull().default(1),
   lastLessonAt: timestamp("last_lesson_at"),
 });
@@ -148,6 +149,15 @@ export const userSubscription = pgTable("user_subscription", {
   stripePriceId: text("stripe_price_id").notNull(),
   stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(),
 });
+
+export const questClaims = pgTable("quest_claims", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  questValue: integer("quest_value").notNull(),
+  claimedAt: timestamp("claimed_at").notNull().defaultNow(),
+}, (t) => ({
+  userQuestUnique: uniqueIndex("quest_claims_user_id_quest_value_unique").on(t.userId, t.questValue),
+}));
 
 export const reviewCardStateEnum = pgEnum("review_card_state", [
   "new",

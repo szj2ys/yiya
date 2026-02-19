@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { quests, getQuestClaimedKey } from "@/constants";
+import { quests } from "@/constants";
 
 describe("quest constants", () => {
   it("should have reward field on each quest", () => {
@@ -16,10 +16,5 @@ describe("quest constants", () => {
     for (let i = 1; i < rewards.length; i++) {
       expect(rewards[i]).toBeGreaterThanOrEqual(rewards[i - 1]);
     }
-  });
-
-  it("should generate correct localStorage keys", () => {
-    expect(getQuestClaimedKey(20)).toBe("yiya_claimed_quests_20");
-    expect(getQuestClaimedKey(1000)).toBe("yiya_claimed_quests_1000");
   });
 });

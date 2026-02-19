@@ -32,8 +32,8 @@ describe("getLearningStats", () => {
     selectFromWhereSpy.mockClear();
   });
 
-  it("should return structured learning stats", async () => {
-    userProgressFindFirstSpy.mockResolvedValue({ streak: 5 });
+  it("should return structured learning stats with longestStreak from DB", async () => {
+    userProgressFindFirstSpy.mockResolvedValue({ streak: 5, longestStreak: 12 });
 
     // Mock the 4 select queries: wordsLearned, totalLessons, completedCount, wrongCount
     let callCount = 0;
@@ -60,7 +60,7 @@ describe("getLearningStats", () => {
     expect(result).toHaveProperty("averageAccuracy");
 
     expect(result!.currentStreak).toBe(5);
-    expect(result!.longestStreak).toBe(5); // proxy for now
+    expect(result!.longestStreak).toBe(12); // from DB, not proxy
     expect(typeof result!.totalWordsLearned).toBe("number");
     expect(typeof result!.totalLessonsCompleted).toBe("number");
     expect(typeof result!.averageAccuracy).toBe("number");

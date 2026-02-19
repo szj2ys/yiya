@@ -1,10 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { Check } from "lucide-react";
 
-import { getQuestClaimedKey } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { claimQuestReward } from "@/actions/quest-rewards";
@@ -14,28 +13,22 @@ type Props = {
   value: number;
   reward: number;
   points: number;
+  claimed: boolean;
 };
 
-export const QuestItem = ({ title, value, reward, points }: Props) => {
+export const QuestItem = ({ title, value, reward, points, claimed }: Props) => {
   const progress = Math.min((points / value) * 100, 100);
   const isComplete = progress >= 100;
 
-  const [isClaimed, setIsClaimed] = useState(false);
+  const [isClaimed, setIsClaimed] = useState(claimed);
   const [isCelebrating, setIsCelebrating] = useState(false);
   const [pending, startTransition] = useTransition();
-
-  useEffect(() => {
-    if (localStorage.getItem(getQuestClaimedKey(value)) === "true") {
-      setIsClaimed(true);
-    }
-  }, [value]);
 
   const handleClaim = useCallback(() => {
     startTransition(async () => {
       const result = await claimQuestReward(value, reward);
 
       if ("success" in result) {
-        localStorage.setItem(getQuestClaimedKey(value), "true");
         setIsClaimed(true);
         setIsCelebrating(true);
         setTimeout(() => setIsCelebrating(false), 1000);

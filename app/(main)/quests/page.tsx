@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import { StickyWrapper } from "@/components/sticky-wrapper";
-import { getUserProgress, getUserSubscription } from "@/db/queries";
+import { getClaimedQuests, getUserProgress, getUserSubscription } from "@/db/queries";
 import { Promo } from "@/components/promo";
 import { quests } from "@/constants";
 import { QuestItem } from "@/components/quest-item";
@@ -12,13 +12,16 @@ import { QuestItem } from "@/components/quest-item";
 const QuestsPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();
+  const claimedQuestsData = getClaimedQuests();
 
   const [
     userProgress,
     userSubscription,
+    claimedQuests,
   ] = await Promise.all([
     userProgressData,
     userSubscriptionData,
+    claimedQuestsData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -62,6 +65,7 @@ const QuestsPage = async () => {
                 value={quest.value}
                 reward={quest.reward}
                 points={userProgress.points}
+                claimed={claimedQuests.includes(quest.value)}
               />
             ))}
           </ul>

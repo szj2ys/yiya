@@ -5,22 +5,42 @@ export const computeNextStreak = (params: {
   currentStreak: number;
   lastLessonAt: Date | null;
   now: Date;
+  currentLongestStreak?: number;
 }) => {
-  const { currentStreak, lastLessonAt, now } = params;
+  const { currentStreak, lastLessonAt, now, currentLongestStreak = 0 } = params;
 
   if (!lastLessonAt) {
-    return { streak: 1, shouldUpdateStreak: true };
+    const streak = 1;
+    return {
+      streak,
+      shouldUpdateStreak: true,
+      longestStreak: Math.max(streak, currentLongestStreak),
+    };
   }
 
   const elapsedMs = now.getTime() - lastLessonAt.getTime();
 
   if (elapsedMs > TWO_DAYS_IN_MS) {
-    return { streak: 1, shouldUpdateStreak: true };
+    const streak = 1;
+    return {
+      streak,
+      shouldUpdateStreak: true,
+      longestStreak: Math.max(streak, currentLongestStreak),
+    };
   }
 
   if (elapsedMs >= DAY_IN_MS) {
-    return { streak: currentStreak + 1, shouldUpdateStreak: true };
+    const streak = currentStreak + 1;
+    return {
+      streak,
+      shouldUpdateStreak: true,
+      longestStreak: Math.max(streak, currentLongestStreak),
+    };
   }
 
-  return { streak: currentStreak, shouldUpdateStreak: false };
+  return {
+    streak: currentStreak,
+    shouldUpdateStreak: false,
+    longestStreak: currentLongestStreak,
+  };
 };

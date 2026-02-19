@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 import { DailyGoal } from "@/app/(main)/learn/daily-goal";
@@ -14,7 +14,7 @@ describe("DailyGoal", () => {
   it("should display correct goal count from prop", () => {
     render(
       <DailyGoal
-        lastLessonAt={null}
+        todayLessonCount={0}
         completedLessons={0}
         totalLessons={10}
         dailyGoal={3}
@@ -24,28 +24,39 @@ describe("DailyGoal", () => {
     expect(screen.getByText("0/3 lessons")).toBeInTheDocument();
   });
 
-  it("should show 1/3 lessons when dailyGoal=3 and lastLessonAt is today", () => {
-    const today = new Date();
-
+  it("should show accurate lesson count from lessonCompletions table", () => {
     render(
       <DailyGoal
-        lastLessonAt={today}
+        todayLessonCount={2}
         completedLessons={5}
         totalLessons={10}
         dailyGoal={3}
       />,
     );
 
-    // Approximation: only 1 lesson counted since we only track lastLessonAt
-    expect(screen.getByText("1/3 lessons")).toBeInTheDocument();
+    expect(screen.getByText("2/3 lessons")).toBeInTheDocument();
   });
 
-  it("should show goal met when dailyGoal=1 and lastLessonAt is today", () => {
-    const today = new Date();
-
+  it("should show goal met when todayLessonCount >= dailyGoal", () => {
     render(
       <DailyGoal
-        lastLessonAt={today}
+        todayLessonCount={3}
+        completedLessons={5}
+        totalLessons={10}
+        dailyGoal={3}
+      />,
+    );
+
+    expect(screen.getByText("3/3 lessons")).toBeInTheDocument();
+    expect(
+      screen.getByText("Great job! You hit your daily goal."),
+    ).toBeInTheDocument();
+  });
+
+  it("should show goal met when dailyGoal=1 and todayLessonCount=1", () => {
+    render(
+      <DailyGoal
+        todayLessonCount={1}
         completedLessons={1}
         totalLessons={10}
         dailyGoal={1}
@@ -58,13 +69,10 @@ describe("DailyGoal", () => {
     ).toBeInTheDocument();
   });
 
-  it("should show 0 progress when lastLessonAt is not today", () => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-
+  it("should show 0 progress when no lessons completed today", () => {
     render(
       <DailyGoal
-        lastLessonAt={yesterday}
+        todayLessonCount={0}
         completedLessons={5}
         totalLessons={10}
         dailyGoal={3}
@@ -80,7 +88,7 @@ describe("DailyGoal", () => {
   it("should use singular 'lesson' when dailyGoal is 1", () => {
     render(
       <DailyGoal
-        lastLessonAt={null}
+        todayLessonCount={0}
         completedLessons={0}
         totalLessons={10}
         dailyGoal={1}
@@ -93,7 +101,7 @@ describe("DailyGoal", () => {
   it("should use plural 'lessons' when dailyGoal is greater than 1", () => {
     render(
       <DailyGoal
-        lastLessonAt={null}
+        todayLessonCount={0}
         completedLessons={0}
         totalLessons={10}
         dailyGoal={5}
