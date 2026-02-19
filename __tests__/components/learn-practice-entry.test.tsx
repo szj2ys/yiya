@@ -27,7 +27,7 @@ describe("PracticeEntry", () => {
     fireEvent.click(screen.getByRole("button", { name: "Practice" }));
     await waitFor(() => {});
 
-    expect(pushSpy).toHaveBeenCalledWith("/lesson/42");
+    expect(pushSpy).toHaveBeenCalledWith("/practice");
   });
 });
 

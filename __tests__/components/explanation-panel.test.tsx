@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 
 import { ExplanationPanel } from "@/components/explanation-panel";
 
-const trackSpy = vi.fn();
+const trackSpy = vi.fn().mockResolvedValue(undefined);
 
 vi.mock("@/lib/analytics", () => ({
   track: (...args: unknown[]) => trackSpy(...args),

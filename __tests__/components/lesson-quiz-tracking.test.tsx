@@ -6,7 +6,11 @@ import { Quiz } from "@/app/lesson/quiz";
 const trackSpy = vi.fn();
 
 vi.mock("@/lib/analytics", () => ({
-  track: (...args: unknown[]) => trackSpy(...args),
+  buildTrackPayload: (event: string, properties: any) => ({ event, properties }),
+  trackPayload: (payload: { event: string; properties: any }) => {
+    trackSpy(payload.event, payload.properties);
+    return Promise.resolve(undefined);
+  },
 }));
 
 // Keep these lightweight: the test only asserts tracking behavior.
