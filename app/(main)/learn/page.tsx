@@ -89,7 +89,7 @@ const LearnPage = async () => {
             wordsLearned={courseStats.wordsLearned}
           />
         )}
-        <Streak streak={userStreak?.streak ?? 0} />
+        <Streak streak={userStreak?.streak ?? 0} lastLessonAt={userStreak?.lastLessonAt ?? null} />
         {!isPro && (
           <Promo />
         )}
