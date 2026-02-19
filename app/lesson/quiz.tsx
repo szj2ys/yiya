@@ -453,7 +453,7 @@ export const Quiz = ({
               >
                 <span>Next Lesson</span>
                 {nextLessonTitle && (
-                  <span className="block text-sm text-neutral-500 font-normal mt-0.5">{nextLessonTitle}</span>
+                  <span className="block text-sm text-emerald-200 font-normal mt-0.5">{nextLessonTitle}</span>
                 )}
               </button>
             ) : (

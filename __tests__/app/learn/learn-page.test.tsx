@@ -54,11 +54,12 @@ describe("LearnPage integration", () => {
     expect(pageSource).not.toContain("lastLessonAt={userProgress.lastLessonAt");
   });
 
-  it("should render Continue Learning hero CTA when active lesson exists", () => {
-    expect(pageSource).toContain("courseProgress.activeLesson.title");
-    expect(pageSource).toContain("courseProgress.activeLesson.unit.description");
-    expect(pageSource).toContain("Continue");
-    expect(pageSource).toContain('href="/lesson"');
+  it("should render ContinueCta with correct props when active lesson exists", () => {
+    expect(pageSource).toContain('import { ContinueCta }');
+    expect(pageSource).toContain("<ContinueCta");
+    expect(pageSource).toContain("lessonTitle={courseProgress.activeLesson.title}");
+    expect(pageSource).toContain("unitDescription={courseProgress.activeLesson.unit.description}");
+    expect(pageSource).toContain("lessonPercentage={lessonPercentage}");
   });
 
   it("should keep only UserProgress, Streak, and Quests in sidebar", () => {
