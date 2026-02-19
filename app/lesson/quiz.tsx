@@ -45,6 +45,7 @@ type Props = {
     isActive: boolean;
   } | null;
   nextLessonId?: number | null;
+  nextLessonTitle?: string | null;
 };
 
 export const Quiz = ({
@@ -57,6 +58,7 @@ export const Quiz = ({
   reviewCardId,
   userSubscription,
   nextLessonId,
+  nextLessonTitle,
 }: Props) => {
   const { open: openHeartsModal } = useHeartsModal();
   const { open: openPracticeModal } = usePracticeModal();
@@ -446,10 +448,13 @@ export const Quiz = ({
             {nextLessonId ? (
               <button
                 type="button"
-                className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition"
+                className="w-full rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition py-3"
                 onClick={() => router.push(`/lesson/${nextLessonId}`)}
               >
-                Next Lesson
+                <span>Next Lesson</span>
+                {nextLessonTitle && (
+                  <span className="block text-sm text-neutral-500 font-normal mt-0.5">{nextLessonTitle}</span>
+                )}
               </button>
             ) : (
               <button
