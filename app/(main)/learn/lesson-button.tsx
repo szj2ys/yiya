@@ -16,6 +16,7 @@ type Props = {
   locked?: boolean;
   current?: boolean;
   percentage: number;
+  title: string;
 };
 
 export const LessonButton = ({
@@ -24,7 +25,8 @@ export const LessonButton = ({
   totalCount,
   locked,
   current,
-  percentage
+  percentage,
+  title,
 }: Props) => {
   const cycleLength = 8;
   const cycleIndex = index % cycleLength;
@@ -58,7 +60,7 @@ export const LessonButton = ({
       style={{ pointerEvents: locked ? "none" : "auto" }}
     >
       <div
-        className="relative"
+        className="relative flex flex-col items-center"
         style={{
           right: `${rightPosition}px`,
           marginTop: isFirst && !isCompleted ? 60 : 24,
@@ -117,6 +119,16 @@ export const LessonButton = ({
             />
           </Button>
         )}
+        <span
+          className={cn(
+            "mt-1 truncate max-w-[100px] text-center",
+            locked
+              ? "text-xs font-medium text-neutral-500"
+              : "text-xs font-semibold text-neutral-700"
+          )}
+        >
+          {title}
+        </span>
       </div>
     </Link>
   );
