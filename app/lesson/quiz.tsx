@@ -18,6 +18,7 @@ import { submitReview } from "@/actions/review";
 import type { ExplanationResult } from "@/lib/ai/explain";
 import type { VariantQuestion } from "@/lib/ai/variants";
 import { ExplanationPanel } from "@/components/explanation-panel";
+import { ShareCard } from "@/components/share-card";
 
 import { Header } from "./header";
 import { Footer } from "./footer";
@@ -51,6 +52,9 @@ type Props = {
   } | null;
   nextLessonId?: number | null;
   nextLessonTitle?: string | null;
+  todayLessonCount?: number;
+  dailyGoal?: number;
+  wordsLearned?: number;
 };
 
 export const Quiz = ({
@@ -66,6 +70,9 @@ export const Quiz = ({
   userSubscription,
   nextLessonId,
   nextLessonTitle,
+  todayLessonCount,
+  dailyGoal,
+  wordsLearned,
 }: Props) => {
   const { open: openHeartsModal } = useHeartsModal();
   const { open: openPracticeModal } = usePracticeModal();
@@ -112,6 +119,7 @@ export const Quiz = ({
 
   const [explanationLoading, setExplanationLoading] = useState(false);
   const [explanationData, setExplanationData] = useState<ExplanationResult | null>(null);
+  const [showShareCard, setShowShareCard] = useState(false);
 
   const isPractice = initialPercentage === 100;
 
@@ -519,6 +527,25 @@ export const Quiz = ({
             )}
           </div>
 
+          {/* 3b. Share your progress (only when daily goal is met, non-practice) */}
+          {!isPractice &&
+            typeof todayLessonCount === "number" &&
+            typeof dailyGoal === "number" &&
+            todayLessonCount >= dailyGoal && (
+              <button
+                type="button"
+                className="w-full rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center mb-5 hover:bg-emerald-100 active:bg-emerald-200 transition"
+                onClick={() => setShowShareCard(true)}
+              >
+                <p className="text-base font-semibold text-emerald-700">
+                  Share your progress
+                </p>
+                <p className="text-sm text-emerald-600 mt-0.5">
+                  You hit your daily goal — celebrate it!
+                </p>
+              </button>
+            )}
+
           {/* 4. All Lessons Complete celebration (inline, non-sticky) */}
           {!isPractice && !nextLessonId && (
             <div className="w-full rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center mb-5">
@@ -587,6 +614,16 @@ export const Quiz = ({
             )}
           </div>
         </div>
+
+        {showShareCard && (
+          <ShareCard
+            streak={streak}
+            wordsLearned={wordsLearned ?? 0}
+            language={courseLanguage}
+            accuracy={accuracyPercent}
+            onClose={() => setShowShareCard(false)}
+          />
+        )}
       </>
     );
   }

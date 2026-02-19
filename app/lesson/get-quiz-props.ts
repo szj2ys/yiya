@@ -1,16 +1,18 @@
 import { redirect } from "next/navigation";
 
-import { getLesson, getNextLesson, getUserProgress, getUserSubscription, getUserStreak } from "@/db/queries";
+import { getCourseStats, getLesson, getNextLesson, getTodayLessonCount, getUserProgress, getUserSubscription, getUserStreak } from "@/db/queries";
 import { startPractice } from "@/actions/practice";
 
 export async function getQuizProps(lessonId?: number) {
-  const [practiceStart, lesson, userProgress, userSubscription, userStreak] =
+  const [practiceStart, lesson, userProgress, userSubscription, userStreak, todayLessonCount, courseStats] =
     await Promise.all([
       startPractice().catch(() => null),
       getLesson(lessonId),
       getUserProgress(),
       getUserSubscription(),
       getUserStreak(),
+      getTodayLessonCount(),
+      getCourseStats(),
     ]);
 
   if (!lesson || !userProgress) {
@@ -43,5 +45,8 @@ export async function getQuizProps(lessonId?: number) {
     userSubscription,
     nextLessonId: nextLesson?.id ?? null,
     nextLessonTitle: nextLesson?.title ?? null,
+    todayLessonCount,
+    dailyGoal: userProgress.dailyGoal ?? 1,
+    wordsLearned: courseStats?.wordsLearned ?? 0,
   };
 }
