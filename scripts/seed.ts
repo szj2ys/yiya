@@ -71,7 +71,7 @@ const UNIT_TEMPLATES: { title: string; description: string; lessonTitles: string
 
 // ---------------------------------------------------------------------------
 // Language data — each language has 5 units, each unit has 5 lessons,
-// each lesson has 2+ words → 50+ words per language
+// each lesson has 7-8 words → 175-200 words per language
 // ---------------------------------------------------------------------------
 
 function buildSpanish(): LanguageConfig {
@@ -90,6 +90,9 @@ function buildSpanish(): LanguageConfig {
             { word: "el niño", meaning: "the boy" },
             { word: "la niña", meaning: "the girl" },
             { word: "la madre", meaning: "the mother" },
+            { word: "el padre", meaning: "the father" },
+            { word: "el hermano", meaning: "the brother" },
+            { word: "la hermana", meaning: "the sister" },
           ],
           // Numbers
           [
@@ -98,6 +101,8 @@ function buildSpanish(): LanguageConfig {
             { word: "tres", meaning: "three" },
             { word: "cuatro", meaning: "four" },
             { word: "cinco", meaning: "five" },
+            { word: "seis", meaning: "six" },
+            { word: "siete", meaning: "seven" },
           ],
           // Colors
           [
@@ -106,6 +111,8 @@ function buildSpanish(): LanguageConfig {
             { word: "verde", meaning: "green" },
             { word: "amarillo", meaning: "yellow" },
             { word: "negro", meaning: "black" },
+            { word: "blanco", meaning: "white" },
+            { word: "morado", meaning: "purple" },
           ],
           // Common Objects
           [
@@ -114,6 +121,8 @@ function buildSpanish(): LanguageConfig {
             { word: "la silla", meaning: "the chair" },
             { word: "el teléfono", meaning: "the phone" },
             { word: "la llave", meaning: "the key" },
+            { word: "el reloj", meaning: "the clock" },
+            { word: "la ventana", meaning: "the window" },
           ],
           // Basic Adjectives
           [
@@ -122,6 +131,9 @@ function buildSpanish(): LanguageConfig {
             { word: "bueno", meaning: "good" },
             { word: "malo", meaning: "bad" },
             { word: "nuevo", meaning: "new" },
+            { word: "viejo", meaning: "old" },
+            { word: "bonito", meaning: "pretty" },
+            { word: "feo", meaning: "ugly" },
           ],
         ],
       },
@@ -136,6 +148,8 @@ function buildSpanish(): LanguageConfig {
             { word: "el baño", meaning: "the bathroom" },
             { word: "la cama", meaning: "the bed" },
             { word: "la puerta", meaning: "the door" },
+            { word: "la ventana", meaning: "the window" },
+            { word: "el jardín", meaning: "the garden" },
           ],
           // Actions & Verbs
           [
@@ -144,6 +158,9 @@ function buildSpanish(): LanguageConfig {
             { word: "dormir", meaning: "to sleep" },
             { word: "correr", meaning: "to run" },
             { word: "hablar", meaning: "to speak" },
+            { word: "leer", meaning: "to read" },
+            { word: "escribir", meaning: "to write" },
+            { word: "caminar", meaning: "to walk" },
           ],
           // Time & Days
           [
@@ -152,6 +169,8 @@ function buildSpanish(): LanguageConfig {
             { word: "hoy", meaning: "today" },
             { word: "mañana", meaning: "tomorrow" },
             { word: "la hora", meaning: "the hour" },
+            { word: "miércoles", meaning: "Wednesday" },
+            { word: "ayer", meaning: "yesterday" },
           ],
           // Clothing
           [
@@ -160,6 +179,8 @@ function buildSpanish(): LanguageConfig {
             { word: "el sombrero", meaning: "the hat" },
             { word: "la falda", meaning: "the skirt" },
             { word: "el abrigo", meaning: "the coat" },
+            { word: "los pantalones", meaning: "the pants" },
+            { word: "el vestido", meaning: "the dress" },
           ],
           // Body & Health
           [
@@ -168,6 +189,8 @@ function buildSpanish(): LanguageConfig {
             { word: "el ojo", meaning: "the eye" },
             { word: "el corazón", meaning: "the heart" },
             { word: "la boca", meaning: "the mouth" },
+            { word: "la nariz", meaning: "the nose" },
+            { word: "el brazo", meaning: "the arm" },
           ],
         ],
       },
@@ -182,6 +205,8 @@ function buildSpanish(): LanguageConfig {
             { word: "la naranja", meaning: "the orange" },
             { word: "la zanahoria", meaning: "the carrot" },
             { word: "la patata", meaning: "the potato" },
+            { word: "la fresa", meaning: "the strawberry" },
+            { word: "la cebolla", meaning: "the onion" },
           ],
           // Meals & Cooking
           [
@@ -190,6 +215,9 @@ function buildSpanish(): LanguageConfig {
             { word: "la cena", meaning: "dinner" },
             { word: "el arroz", meaning: "rice" },
             { word: "el pan", meaning: "bread" },
+            { word: "la sopa", meaning: "the soup" },
+            { word: "el huevo", meaning: "the egg" },
+            { word: "la sal", meaning: "the salt" },
           ],
           // Drinks
           [
@@ -198,6 +226,8 @@ function buildSpanish(): LanguageConfig {
             { word: "el café", meaning: "coffee" },
             { word: "el jugo", meaning: "juice" },
             { word: "el té", meaning: "tea" },
+            { word: "la cerveza", meaning: "the beer" },
+            { word: "el vino", meaning: "the wine" },
           ],
           // At the Restaurant
           [
@@ -206,6 +236,8 @@ function buildSpanish(): LanguageConfig {
             { word: "el camarero", meaning: "the waiter" },
             { word: "la propina", meaning: "the tip" },
             { word: "el plato", meaning: "the plate" },
+            { word: "el tenedor", meaning: "the fork" },
+            { word: "el cuchillo", meaning: "the knife" },
           ],
           // Tastes & Descriptions
           [
@@ -214,6 +246,9 @@ function buildSpanish(): LanguageConfig {
             { word: "picante", meaning: "spicy" },
             { word: "delicioso", meaning: "delicious" },
             { word: "fresco", meaning: "fresh" },
+            { word: "amargo", meaning: "bitter" },
+            { word: "caliente", meaning: "hot" },
+            { word: "frío", meaning: "cold" },
           ],
         ],
       },
@@ -228,6 +263,8 @@ function buildSpanish(): LanguageConfig {
             { word: "el autobús", meaning: "the bus" },
             { word: "el coche", meaning: "the car" },
             { word: "el barco", meaning: "the boat" },
+            { word: "la bicicleta", meaning: "the bicycle" },
+            { word: "el taxi", meaning: "the taxi" },
           ],
           // Directions
           [
@@ -236,6 +273,8 @@ function buildSpanish(): LanguageConfig {
             { word: "recto", meaning: "straight" },
             { word: "cerca", meaning: "near" },
             { word: "lejos", meaning: "far" },
+            { word: "aquí", meaning: "here" },
+            { word: "allí", meaning: "there" },
           ],
           // Places & Buildings
           [
@@ -244,14 +283,19 @@ function buildSpanish(): LanguageConfig {
             { word: "la escuela", meaning: "the school" },
             { word: "el banco", meaning: "the bank" },
             { word: "la tienda", meaning: "the shop" },
+            { word: "la iglesia", meaning: "the church" },
+            { word: "el museo", meaning: "the museum" },
+            { word: "la biblioteca", meaning: "the library" },
           ],
           // Hotel & Accommodation
           [
             { word: "el hotel", meaning: "the hotel" },
             { word: "la habitación", meaning: "the room" },
             { word: "la reserva", meaning: "the reservation" },
-            { word: "la llave", meaning: "the key" },
+            { word: "la recepción", meaning: "the reception" },
             { word: "el equipaje", meaning: "the luggage" },
+            { word: "el ascensor", meaning: "the elevator" },
+            { word: "la piscina", meaning: "the pool" },
           ],
           // Nature & Weather
           [
@@ -260,6 +304,8 @@ function buildSpanish(): LanguageConfig {
             { word: "el viento", meaning: "the wind" },
             { word: "la montaña", meaning: "the mountain" },
             { word: "el mar", meaning: "the sea" },
+            { word: "la nube", meaning: "the cloud" },
+            { word: "la nieve", meaning: "the snow" },
           ],
         ],
       },
@@ -274,6 +320,8 @@ function buildSpanish(): LanguageConfig {
             { word: "buenos días", meaning: "good morning" },
             { word: "buenas noches", meaning: "good night" },
             { word: "hasta luego", meaning: "see you later" },
+            { word: "buenas tardes", meaning: "good afternoon" },
+            { word: "hasta mañana", meaning: "see you tomorrow" },
           ],
           // Introductions
           [
@@ -282,6 +330,8 @@ function buildSpanish(): LanguageConfig {
             { word: "¿cómo estás?", meaning: "how are you?" },
             { word: "soy de", meaning: "I am from" },
             { word: "tengo … años", meaning: "I am … years old" },
+            { word: "¿y tú?", meaning: "and you?" },
+            { word: "vivo en", meaning: "I live in" },
           ],
           // Common Phrases
           [
@@ -290,6 +340,9 @@ function buildSpanish(): LanguageConfig {
             { word: "de nada", meaning: "you're welcome" },
             { word: "lo siento", meaning: "I'm sorry" },
             { word: "no entiendo", meaning: "I don't understand" },
+            { word: "claro", meaning: "of course" },
+            { word: "no sé", meaning: "I don't know" },
+            { word: "está bien", meaning: "it's okay" },
           ],
           // Feelings & Emotions
           [
@@ -298,6 +351,8 @@ function buildSpanish(): LanguageConfig {
             { word: "enojado", meaning: "angry" },
             { word: "cansado", meaning: "tired" },
             { word: "emocionado", meaning: "excited" },
+            { word: "nervioso", meaning: "nervous" },
+            { word: "sorprendido", meaning: "surprised" },
           ],
           // Polite Expressions
           [
@@ -306,6 +361,8 @@ function buildSpanish(): LanguageConfig {
             { word: "¡salud!", meaning: "bless you! / cheers!" },
             { word: "buen provecho", meaning: "enjoy your meal" },
             { word: "¡buena suerte!", meaning: "good luck!" },
+            { word: "con mucho gusto", meaning: "with pleasure" },
+            { word: "igualmente", meaning: "likewise" },
           ],
         ],
       },
@@ -328,6 +385,9 @@ function buildItalian(): LanguageConfig {
             { word: "il ragazzo", meaning: "the boy" },
             { word: "la ragazza", meaning: "the girl" },
             { word: "la madre", meaning: "the mother" },
+            { word: "il padre", meaning: "the father" },
+            { word: "il fratello", meaning: "the brother" },
+            { word: "la sorella", meaning: "the sister" },
           ],
           [
             { word: "uno", meaning: "one" },
@@ -335,6 +395,8 @@ function buildItalian(): LanguageConfig {
             { word: "tre", meaning: "three" },
             { word: "quattro", meaning: "four" },
             { word: "cinque", meaning: "five" },
+            { word: "sei", meaning: "six" },
+            { word: "sette", meaning: "seven" },
           ],
           [
             { word: "rosso", meaning: "red" },
@@ -342,6 +404,8 @@ function buildItalian(): LanguageConfig {
             { word: "verde", meaning: "green" },
             { word: "giallo", meaning: "yellow" },
             { word: "nero", meaning: "black" },
+            { word: "bianco", meaning: "white" },
+            { word: "viola", meaning: "purple" },
           ],
           [
             { word: "il libro", meaning: "the book" },
@@ -349,6 +413,8 @@ function buildItalian(): LanguageConfig {
             { word: "la sedia", meaning: "the chair" },
             { word: "il telefono", meaning: "the phone" },
             { word: "la chiave", meaning: "the key" },
+            { word: "l'orologio", meaning: "the clock" },
+            { word: "la finestra", meaning: "the window" },
           ],
           [
             { word: "grande", meaning: "big" },
@@ -356,6 +422,9 @@ function buildItalian(): LanguageConfig {
             { word: "buono", meaning: "good" },
             { word: "cattivo", meaning: "bad" },
             { word: "nuovo", meaning: "new" },
+            { word: "vecchio", meaning: "old" },
+            { word: "bello", meaning: "pretty" },
+            { word: "brutto", meaning: "ugly" },
           ],
         ],
       },
@@ -369,6 +438,8 @@ function buildItalian(): LanguageConfig {
             { word: "il bagno", meaning: "the bathroom" },
             { word: "il letto", meaning: "the bed" },
             { word: "la porta", meaning: "the door" },
+            { word: "la finestra", meaning: "the window" },
+            { word: "il giardino", meaning: "the garden" },
           ],
           [
             { word: "mangiare", meaning: "to eat" },
@@ -376,6 +447,9 @@ function buildItalian(): LanguageConfig {
             { word: "dormire", meaning: "to sleep" },
             { word: "correre", meaning: "to run" },
             { word: "parlare", meaning: "to speak" },
+            { word: "leggere", meaning: "to read" },
+            { word: "scrivere", meaning: "to write" },
+            { word: "camminare", meaning: "to walk" },
           ],
           [
             { word: "lunedì", meaning: "Monday" },
@@ -383,6 +457,8 @@ function buildItalian(): LanguageConfig {
             { word: "oggi", meaning: "today" },
             { word: "domani", meaning: "tomorrow" },
             { word: "l'ora", meaning: "the hour" },
+            { word: "mercoledì", meaning: "Wednesday" },
+            { word: "ieri", meaning: "yesterday" },
           ],
           [
             { word: "la camicia", meaning: "the shirt" },
@@ -390,6 +466,8 @@ function buildItalian(): LanguageConfig {
             { word: "il cappello", meaning: "the hat" },
             { word: "la gonna", meaning: "the skirt" },
             { word: "il cappotto", meaning: "the coat" },
+            { word: "i pantaloni", meaning: "the pants" },
+            { word: "il vestito", meaning: "the dress" },
           ],
           [
             { word: "la testa", meaning: "the head" },
@@ -397,6 +475,8 @@ function buildItalian(): LanguageConfig {
             { word: "l'occhio", meaning: "the eye" },
             { word: "il cuore", meaning: "the heart" },
             { word: "la bocca", meaning: "the mouth" },
+            { word: "il naso", meaning: "the nose" },
+            { word: "il braccio", meaning: "the arm" },
           ],
         ],
       },
@@ -410,6 +490,8 @@ function buildItalian(): LanguageConfig {
             { word: "l'arancia", meaning: "the orange" },
             { word: "la carota", meaning: "the carrot" },
             { word: "la patata", meaning: "the potato" },
+            { word: "la fragola", meaning: "the strawberry" },
+            { word: "la cipolla", meaning: "the onion" },
           ],
           [
             { word: "la colazione", meaning: "breakfast" },
@@ -417,6 +499,9 @@ function buildItalian(): LanguageConfig {
             { word: "la cena", meaning: "dinner" },
             { word: "il riso", meaning: "rice" },
             { word: "il pane", meaning: "bread" },
+            { word: "la zuppa", meaning: "the soup" },
+            { word: "l'uovo", meaning: "the egg" },
+            { word: "il sale", meaning: "the salt" },
           ],
           [
             { word: "l'acqua", meaning: "water" },
@@ -424,6 +509,8 @@ function buildItalian(): LanguageConfig {
             { word: "il caffè", meaning: "coffee" },
             { word: "il succo", meaning: "juice" },
             { word: "il tè", meaning: "tea" },
+            { word: "la birra", meaning: "the beer" },
+            { word: "il vino", meaning: "the wine" },
           ],
           [
             { word: "il menù", meaning: "the menu" },
@@ -431,6 +518,8 @@ function buildItalian(): LanguageConfig {
             { word: "il cameriere", meaning: "the waiter" },
             { word: "la mancia", meaning: "the tip" },
             { word: "il piatto", meaning: "the plate" },
+            { word: "la forchetta", meaning: "the fork" },
+            { word: "il coltello", meaning: "the knife" },
           ],
           [
             { word: "dolce", meaning: "sweet" },
@@ -438,6 +527,9 @@ function buildItalian(): LanguageConfig {
             { word: "piccante", meaning: "spicy" },
             { word: "delizioso", meaning: "delicious" },
             { word: "fresco", meaning: "fresh" },
+            { word: "amaro", meaning: "bitter" },
+            { word: "caldo", meaning: "hot" },
+            { word: "freddo", meaning: "cold" },
           ],
         ],
       },
@@ -451,6 +543,8 @@ function buildItalian(): LanguageConfig {
             { word: "l'autobus", meaning: "the bus" },
             { word: "la macchina", meaning: "the car" },
             { word: "la barca", meaning: "the boat" },
+            { word: "la bicicletta", meaning: "the bicycle" },
+            { word: "il taxi", meaning: "the taxi" },
           ],
           [
             { word: "sinistra", meaning: "left" },
@@ -458,6 +552,8 @@ function buildItalian(): LanguageConfig {
             { word: "dritto", meaning: "straight" },
             { word: "vicino", meaning: "near" },
             { word: "lontano", meaning: "far" },
+            { word: "qui", meaning: "here" },
+            { word: "là", meaning: "there" },
           ],
           [
             { word: "l'aeroporto", meaning: "the airport" },
@@ -465,13 +561,18 @@ function buildItalian(): LanguageConfig {
             { word: "la scuola", meaning: "the school" },
             { word: "la banca", meaning: "the bank" },
             { word: "il negozio", meaning: "the shop" },
+            { word: "la chiesa", meaning: "the church" },
+            { word: "il museo", meaning: "the museum" },
+            { word: "la biblioteca", meaning: "the library" },
           ],
           [
             { word: "l'albergo", meaning: "the hotel" },
             { word: "la camera", meaning: "the room" },
             { word: "la prenotazione", meaning: "the reservation" },
-            { word: "la chiave", meaning: "the key" },
+            { word: "la reception", meaning: "the reception" },
             { word: "il bagaglio", meaning: "the luggage" },
+            { word: "l'ascensore", meaning: "the elevator" },
+            { word: "la piscina", meaning: "the pool" },
           ],
           [
             { word: "il sole", meaning: "the sun" },
@@ -479,6 +580,8 @@ function buildItalian(): LanguageConfig {
             { word: "il vento", meaning: "the wind" },
             { word: "la montagna", meaning: "the mountain" },
             { word: "il mare", meaning: "the sea" },
+            { word: "la nuvola", meaning: "the cloud" },
+            { word: "la neve", meaning: "the snow" },
           ],
         ],
       },
@@ -492,6 +595,8 @@ function buildItalian(): LanguageConfig {
             { word: "buongiorno", meaning: "good morning" },
             { word: "buonanotte", meaning: "good night" },
             { word: "a dopo", meaning: "see you later" },
+            { word: "buon pomeriggio", meaning: "good afternoon" },
+            { word: "a domani", meaning: "see you tomorrow" },
           ],
           [
             { word: "mi chiamo", meaning: "my name is" },
@@ -499,6 +604,8 @@ function buildItalian(): LanguageConfig {
             { word: "come stai?", meaning: "how are you?" },
             { word: "sono di", meaning: "I am from" },
             { word: "ho … anni", meaning: "I am … years old" },
+            { word: "e tu?", meaning: "and you?" },
+            { word: "abito a", meaning: "I live in" },
           ],
           [
             { word: "per favore", meaning: "please" },
@@ -506,6 +613,9 @@ function buildItalian(): LanguageConfig {
             { word: "prego", meaning: "you're welcome" },
             { word: "mi dispiace", meaning: "I'm sorry" },
             { word: "non capisco", meaning: "I don't understand" },
+            { word: "certo", meaning: "of course" },
+            { word: "non lo so", meaning: "I don't know" },
+            { word: "va bene", meaning: "it's okay" },
           ],
           [
             { word: "felice", meaning: "happy" },
@@ -513,6 +623,8 @@ function buildItalian(): LanguageConfig {
             { word: "arrabbiato", meaning: "angry" },
             { word: "stanco", meaning: "tired" },
             { word: "emozionato", meaning: "excited" },
+            { word: "nervoso", meaning: "nervous" },
+            { word: "sorpreso", meaning: "surprised" },
           ],
           [
             { word: "permesso", meaning: "excuse me" },
@@ -520,6 +632,8 @@ function buildItalian(): LanguageConfig {
             { word: "salute!", meaning: "bless you! / cheers!" },
             { word: "buon appetito", meaning: "enjoy your meal" },
             { word: "in bocca al lupo!", meaning: "good luck!" },
+            { word: "con piacere", meaning: "with pleasure" },
+            { word: "altrettanto", meaning: "likewise" },
           ],
         ],
       },
@@ -542,6 +656,9 @@ function buildFrench(): LanguageConfig {
             { word: "le garçon", meaning: "the boy" },
             { word: "la fille", meaning: "the girl" },
             { word: "la mère", meaning: "the mother" },
+            { word: "le père", meaning: "the father" },
+            { word: "le frère", meaning: "the brother" },
+            { word: "la sœur", meaning: "the sister" },
           ],
           [
             { word: "un", meaning: "one" },
@@ -549,6 +666,8 @@ function buildFrench(): LanguageConfig {
             { word: "trois", meaning: "three" },
             { word: "quatre", meaning: "four" },
             { word: "cinq", meaning: "five" },
+            { word: "six", meaning: "six" },
+            { word: "sept", meaning: "seven" },
           ],
           [
             { word: "rouge", meaning: "red" },
@@ -556,6 +675,8 @@ function buildFrench(): LanguageConfig {
             { word: "vert", meaning: "green" },
             { word: "jaune", meaning: "yellow" },
             { word: "noir", meaning: "black" },
+            { word: "blanc", meaning: "white" },
+            { word: "violet", meaning: "purple" },
           ],
           [
             { word: "le livre", meaning: "the book" },
@@ -563,6 +684,8 @@ function buildFrench(): LanguageConfig {
             { word: "la chaise", meaning: "the chair" },
             { word: "le téléphone", meaning: "the phone" },
             { word: "la clé", meaning: "the key" },
+            { word: "l'horloge", meaning: "the clock" },
+            { word: "la fenêtre", meaning: "the window" },
           ],
           [
             { word: "grand", meaning: "big" },
@@ -570,6 +693,9 @@ function buildFrench(): LanguageConfig {
             { word: "bon", meaning: "good" },
             { word: "mauvais", meaning: "bad" },
             { word: "nouveau", meaning: "new" },
+            { word: "vieux", meaning: "old" },
+            { word: "joli", meaning: "pretty" },
+            { word: "laid", meaning: "ugly" },
           ],
         ],
       },
@@ -583,6 +709,8 @@ function buildFrench(): LanguageConfig {
             { word: "la salle de bain", meaning: "the bathroom" },
             { word: "le lit", meaning: "the bed" },
             { word: "la porte", meaning: "the door" },
+            { word: "la fenêtre", meaning: "the window" },
+            { word: "le jardin", meaning: "the garden" },
           ],
           [
             { word: "manger", meaning: "to eat" },
@@ -590,6 +718,9 @@ function buildFrench(): LanguageConfig {
             { word: "dormir", meaning: "to sleep" },
             { word: "courir", meaning: "to run" },
             { word: "parler", meaning: "to speak" },
+            { word: "lire", meaning: "to read" },
+            { word: "écrire", meaning: "to write" },
+            { word: "marcher", meaning: "to walk" },
           ],
           [
             { word: "lundi", meaning: "Monday" },
@@ -597,6 +728,8 @@ function buildFrench(): LanguageConfig {
             { word: "aujourd'hui", meaning: "today" },
             { word: "demain", meaning: "tomorrow" },
             { word: "l'heure", meaning: "the hour" },
+            { word: "mercredi", meaning: "Wednesday" },
+            { word: "hier", meaning: "yesterday" },
           ],
           [
             { word: "la chemise", meaning: "the shirt" },
@@ -604,6 +737,8 @@ function buildFrench(): LanguageConfig {
             { word: "le chapeau", meaning: "the hat" },
             { word: "la jupe", meaning: "the skirt" },
             { word: "le manteau", meaning: "the coat" },
+            { word: "le pantalon", meaning: "the pants" },
+            { word: "la robe", meaning: "the dress" },
           ],
           [
             { word: "la tête", meaning: "the head" },
@@ -611,6 +746,8 @@ function buildFrench(): LanguageConfig {
             { word: "l'œil", meaning: "the eye" },
             { word: "le cœur", meaning: "the heart" },
             { word: "la bouche", meaning: "the mouth" },
+            { word: "le nez", meaning: "the nose" },
+            { word: "le bras", meaning: "the arm" },
           ],
         ],
       },
@@ -624,6 +761,8 @@ function buildFrench(): LanguageConfig {
             { word: "l'orange", meaning: "the orange" },
             { word: "la carotte", meaning: "the carrot" },
             { word: "la pomme de terre", meaning: "the potato" },
+            { word: "la fraise", meaning: "the strawberry" },
+            { word: "l'oignon", meaning: "the onion" },
           ],
           [
             { word: "le petit déjeuner", meaning: "breakfast" },
@@ -631,6 +770,9 @@ function buildFrench(): LanguageConfig {
             { word: "le dîner", meaning: "dinner" },
             { word: "le riz", meaning: "rice" },
             { word: "le pain", meaning: "bread" },
+            { word: "la soupe", meaning: "the soup" },
+            { word: "l'œuf", meaning: "the egg" },
+            { word: "le sel", meaning: "the salt" },
           ],
           [
             { word: "l'eau", meaning: "water" },
@@ -638,6 +780,8 @@ function buildFrench(): LanguageConfig {
             { word: "le café", meaning: "coffee" },
             { word: "le jus", meaning: "juice" },
             { word: "le thé", meaning: "tea" },
+            { word: "la bière", meaning: "the beer" },
+            { word: "le vin", meaning: "the wine" },
           ],
           [
             { word: "le menu", meaning: "the menu" },
@@ -645,6 +789,8 @@ function buildFrench(): LanguageConfig {
             { word: "le serveur", meaning: "the waiter" },
             { word: "le pourboire", meaning: "the tip" },
             { word: "l'assiette", meaning: "the plate" },
+            { word: "la fourchette", meaning: "the fork" },
+            { word: "le couteau", meaning: "the knife" },
           ],
           [
             { word: "sucré", meaning: "sweet" },
@@ -652,6 +798,9 @@ function buildFrench(): LanguageConfig {
             { word: "épicé", meaning: "spicy" },
             { word: "délicieux", meaning: "delicious" },
             { word: "frais", meaning: "fresh" },
+            { word: "amer", meaning: "bitter" },
+            { word: "chaud", meaning: "hot" },
+            { word: "froid", meaning: "cold" },
           ],
         ],
       },
@@ -665,6 +814,8 @@ function buildFrench(): LanguageConfig {
             { word: "le bus", meaning: "the bus" },
             { word: "la voiture", meaning: "the car" },
             { word: "le bateau", meaning: "the boat" },
+            { word: "le vélo", meaning: "the bicycle" },
+            { word: "le taxi", meaning: "the taxi" },
           ],
           [
             { word: "à gauche", meaning: "left" },
@@ -672,6 +823,8 @@ function buildFrench(): LanguageConfig {
             { word: "tout droit", meaning: "straight" },
             { word: "près", meaning: "near" },
             { word: "loin", meaning: "far" },
+            { word: "ici", meaning: "here" },
+            { word: "là-bas", meaning: "there" },
           ],
           [
             { word: "l'aéroport", meaning: "the airport" },
@@ -679,13 +832,18 @@ function buildFrench(): LanguageConfig {
             { word: "l'école", meaning: "the school" },
             { word: "la banque", meaning: "the bank" },
             { word: "le magasin", meaning: "the shop" },
+            { word: "l'église", meaning: "the church" },
+            { word: "le musée", meaning: "the museum" },
+            { word: "la bibliothèque", meaning: "the library" },
           ],
           [
             { word: "l'hôtel", meaning: "the hotel" },
             { word: "la chambre", meaning: "the room" },
             { word: "la réservation", meaning: "the reservation" },
-            { word: "la clé", meaning: "the key" },
+            { word: "la réception", meaning: "the reception" },
             { word: "les bagages", meaning: "the luggage" },
+            { word: "l'ascenseur", meaning: "the elevator" },
+            { word: "la piscine", meaning: "the pool" },
           ],
           [
             { word: "le soleil", meaning: "the sun" },
@@ -693,6 +851,8 @@ function buildFrench(): LanguageConfig {
             { word: "le vent", meaning: "the wind" },
             { word: "la montagne", meaning: "the mountain" },
             { word: "la mer", meaning: "the sea" },
+            { word: "le nuage", meaning: "the cloud" },
+            { word: "la neige", meaning: "the snow" },
           ],
         ],
       },
@@ -706,6 +866,8 @@ function buildFrench(): LanguageConfig {
             { word: "bon matin", meaning: "good morning" },
             { word: "bonne nuit", meaning: "good night" },
             { word: "à plus tard", meaning: "see you later" },
+            { word: "bon après-midi", meaning: "good afternoon" },
+            { word: "à demain", meaning: "see you tomorrow" },
           ],
           [
             { word: "je m'appelle", meaning: "my name is" },
@@ -713,6 +875,8 @@ function buildFrench(): LanguageConfig {
             { word: "comment allez-vous?", meaning: "how are you?" },
             { word: "je viens de", meaning: "I am from" },
             { word: "j'ai … ans", meaning: "I am … years old" },
+            { word: "et vous?", meaning: "and you?" },
+            { word: "j'habite à", meaning: "I live in" },
           ],
           [
             { word: "s'il vous plaît", meaning: "please" },
@@ -720,6 +884,9 @@ function buildFrench(): LanguageConfig {
             { word: "de rien", meaning: "you're welcome" },
             { word: "je suis désolé", meaning: "I'm sorry" },
             { word: "je ne comprends pas", meaning: "I don't understand" },
+            { word: "bien sûr", meaning: "of course" },
+            { word: "je ne sais pas", meaning: "I don't know" },
+            { word: "ça va", meaning: "it's okay" },
           ],
           [
             { word: "heureux", meaning: "happy" },
@@ -727,6 +894,8 @@ function buildFrench(): LanguageConfig {
             { word: "en colère", meaning: "angry" },
             { word: "fatigué", meaning: "tired" },
             { word: "excité", meaning: "excited" },
+            { word: "nerveux", meaning: "nervous" },
+            { word: "surpris", meaning: "surprised" },
           ],
           [
             { word: "excusez-moi", meaning: "excuse me" },
@@ -734,6 +903,8 @@ function buildFrench(): LanguageConfig {
             { word: "à vos souhaits!", meaning: "bless you! / cheers!" },
             { word: "bon appétit", meaning: "enjoy your meal" },
             { word: "bonne chance!", meaning: "good luck!" },
+            { word: "avec plaisir", meaning: "with pleasure" },
+            { word: "également", meaning: "likewise" },
           ],
         ],
       },
@@ -756,6 +927,9 @@ function buildJapanese(): LanguageConfig {
             { word: "男の子 (おとこのこ)", meaning: "the boy" },
             { word: "女の子 (おんなのこ)", meaning: "the girl" },
             { word: "お母さん (おかあさん)", meaning: "the mother" },
+            { word: "お父さん (おとうさん)", meaning: "the father" },
+            { word: "兄 (あに)", meaning: "the brother" },
+            { word: "姉 (あね)", meaning: "the sister" },
           ],
           [
             { word: "一 (いち)", meaning: "one" },
@@ -763,6 +937,8 @@ function buildJapanese(): LanguageConfig {
             { word: "三 (さん)", meaning: "three" },
             { word: "四 (よん)", meaning: "four" },
             { word: "五 (ご)", meaning: "five" },
+            { word: "六 (ろく)", meaning: "six" },
+            { word: "七 (なな)", meaning: "seven" },
           ],
           [
             { word: "赤 (あか)", meaning: "red" },
@@ -770,6 +946,8 @@ function buildJapanese(): LanguageConfig {
             { word: "緑 (みどり)", meaning: "green" },
             { word: "黄色 (きいろ)", meaning: "yellow" },
             { word: "黒 (くろ)", meaning: "black" },
+            { word: "白 (しろ)", meaning: "white" },
+            { word: "紫 (むらさき)", meaning: "purple" },
           ],
           [
             { word: "本 (ほん)", meaning: "the book" },
@@ -777,6 +955,8 @@ function buildJapanese(): LanguageConfig {
             { word: "椅子 (いす)", meaning: "the chair" },
             { word: "電話 (でんわ)", meaning: "the phone" },
             { word: "鍵 (かぎ)", meaning: "the key" },
+            { word: "時計 (とけい)", meaning: "the clock" },
+            { word: "窓 (まど)", meaning: "the window" },
           ],
           [
             { word: "大きい (おおきい)", meaning: "big" },
@@ -784,6 +964,9 @@ function buildJapanese(): LanguageConfig {
             { word: "良い (よい)", meaning: "good" },
             { word: "悪い (わるい)", meaning: "bad" },
             { word: "新しい (あたらしい)", meaning: "new" },
+            { word: "古い (ふるい)", meaning: "old" },
+            { word: "きれい", meaning: "pretty" },
+            { word: "醜い (みにくい)", meaning: "ugly" },
           ],
         ],
       },
@@ -797,6 +980,8 @@ function buildJapanese(): LanguageConfig {
             { word: "お風呂 (おふろ)", meaning: "the bathroom" },
             { word: "ベッド", meaning: "the bed" },
             { word: "ドア", meaning: "the door" },
+            { word: "窓 (まど)", meaning: "the window" },
+            { word: "庭 (にわ)", meaning: "the garden" },
           ],
           [
             { word: "食べる (たべる)", meaning: "to eat" },
@@ -804,6 +989,9 @@ function buildJapanese(): LanguageConfig {
             { word: "寝る (ねる)", meaning: "to sleep" },
             { word: "走る (はしる)", meaning: "to run" },
             { word: "話す (はなす)", meaning: "to speak" },
+            { word: "読む (よむ)", meaning: "to read" },
+            { word: "書く (かく)", meaning: "to write" },
+            { word: "歩く (あるく)", meaning: "to walk" },
           ],
           [
             { word: "月曜日 (げつようび)", meaning: "Monday" },
@@ -811,6 +999,8 @@ function buildJapanese(): LanguageConfig {
             { word: "今日 (きょう)", meaning: "today" },
             { word: "明日 (あした)", meaning: "tomorrow" },
             { word: "時間 (じかん)", meaning: "the hour" },
+            { word: "水曜日 (すいようび)", meaning: "Wednesday" },
+            { word: "昨日 (きのう)", meaning: "yesterday" },
           ],
           [
             { word: "シャツ", meaning: "the shirt" },
@@ -818,6 +1008,8 @@ function buildJapanese(): LanguageConfig {
             { word: "帽子 (ぼうし)", meaning: "the hat" },
             { word: "スカート", meaning: "the skirt" },
             { word: "コート", meaning: "the coat" },
+            { word: "ズボン", meaning: "the pants" },
+            { word: "ワンピース", meaning: "the dress" },
           ],
           [
             { word: "頭 (あたま)", meaning: "the head" },
@@ -825,6 +1017,8 @@ function buildJapanese(): LanguageConfig {
             { word: "目 (め)", meaning: "the eye" },
             { word: "心 (こころ)", meaning: "the heart" },
             { word: "口 (くち)", meaning: "the mouth" },
+            { word: "鼻 (はな)", meaning: "the nose" },
+            { word: "腕 (うで)", meaning: "the arm" },
           ],
         ],
       },
@@ -838,6 +1032,8 @@ function buildJapanese(): LanguageConfig {
             { word: "オレンジ", meaning: "the orange" },
             { word: "にんじん", meaning: "the carrot" },
             { word: "じゃがいも", meaning: "the potato" },
+            { word: "いちご", meaning: "the strawberry" },
+            { word: "玉ねぎ (たまねぎ)", meaning: "the onion" },
           ],
           [
             { word: "朝ごはん (あさごはん)", meaning: "breakfast" },
@@ -845,6 +1041,9 @@ function buildJapanese(): LanguageConfig {
             { word: "晩ごはん (ばんごはん)", meaning: "dinner" },
             { word: "ご飯 (ごはん)", meaning: "rice" },
             { word: "パン", meaning: "bread" },
+            { word: "スープ", meaning: "the soup" },
+            { word: "卵 (たまご)", meaning: "the egg" },
+            { word: "塩 (しお)", meaning: "the salt" },
           ],
           [
             { word: "水 (みず)", meaning: "water" },
@@ -852,6 +1051,8 @@ function buildJapanese(): LanguageConfig {
             { word: "コーヒー", meaning: "coffee" },
             { word: "ジュース", meaning: "juice" },
             { word: "お茶 (おちゃ)", meaning: "tea" },
+            { word: "ビール", meaning: "the beer" },
+            { word: "ワイン", meaning: "the wine" },
           ],
           [
             { word: "メニュー", meaning: "the menu" },
@@ -859,6 +1060,8 @@ function buildJapanese(): LanguageConfig {
             { word: "ウェイター", meaning: "the waiter" },
             { word: "チップ", meaning: "the tip" },
             { word: "お皿 (おさら)", meaning: "the plate" },
+            { word: "フォーク", meaning: "the fork" },
+            { word: "ナイフ", meaning: "the knife" },
           ],
           [
             { word: "甘い (あまい)", meaning: "sweet" },
@@ -866,6 +1069,9 @@ function buildJapanese(): LanguageConfig {
             { word: "辛い (からい)", meaning: "spicy" },
             { word: "美味しい (おいしい)", meaning: "delicious" },
             { word: "新鮮 (しんせん)", meaning: "fresh" },
+            { word: "苦い (にがい)", meaning: "bitter" },
+            { word: "熱い (あつい)", meaning: "hot" },
+            { word: "冷たい (つめたい)", meaning: "cold" },
           ],
         ],
       },
@@ -879,6 +1085,8 @@ function buildJapanese(): LanguageConfig {
             { word: "バス", meaning: "the bus" },
             { word: "車 (くるま)", meaning: "the car" },
             { word: "船 (ふね)", meaning: "the boat" },
+            { word: "自転車 (じてんしゃ)", meaning: "the bicycle" },
+            { word: "タクシー", meaning: "the taxi" },
           ],
           [
             { word: "左 (ひだり)", meaning: "left" },
@@ -886,6 +1094,8 @@ function buildJapanese(): LanguageConfig {
             { word: "まっすぐ", meaning: "straight" },
             { word: "近い (ちかい)", meaning: "near" },
             { word: "遠い (とおい)", meaning: "far" },
+            { word: "ここ", meaning: "here" },
+            { word: "あそこ", meaning: "there" },
           ],
           [
             { word: "空港 (くうこう)", meaning: "the airport" },
@@ -893,13 +1103,18 @@ function buildJapanese(): LanguageConfig {
             { word: "学校 (がっこう)", meaning: "the school" },
             { word: "銀行 (ぎんこう)", meaning: "the bank" },
             { word: "店 (みせ)", meaning: "the shop" },
+            { word: "教会 (きょうかい)", meaning: "the church" },
+            { word: "美術館 (びじゅつかん)", meaning: "the museum" },
+            { word: "図書館 (としょかん)", meaning: "the library" },
           ],
           [
             { word: "ホテル", meaning: "the hotel" },
             { word: "部屋 (へや)", meaning: "the room" },
             { word: "予約 (よやく)", meaning: "the reservation" },
-            { word: "鍵 (かぎ)", meaning: "the key" },
+            { word: "フロント", meaning: "the reception" },
             { word: "荷物 (にもつ)", meaning: "the luggage" },
+            { word: "エレベーター", meaning: "the elevator" },
+            { word: "プール", meaning: "the pool" },
           ],
           [
             { word: "太陽 (たいよう)", meaning: "the sun" },
@@ -907,6 +1122,8 @@ function buildJapanese(): LanguageConfig {
             { word: "風 (かぜ)", meaning: "the wind" },
             { word: "山 (やま)", meaning: "the mountain" },
             { word: "海 (うみ)", meaning: "the sea" },
+            { word: "雲 (くも)", meaning: "the cloud" },
+            { word: "雪 (ゆき)", meaning: "the snow" },
           ],
         ],
       },
@@ -920,6 +1137,8 @@ function buildJapanese(): LanguageConfig {
             { word: "おはようございます", meaning: "good morning" },
             { word: "おやすみなさい", meaning: "good night" },
             { word: "また後で (またあとで)", meaning: "see you later" },
+            { word: "こんばんは", meaning: "good evening" },
+            { word: "また明日 (またあした)", meaning: "see you tomorrow" },
           ],
           [
             { word: "私の名前は (わたしのなまえは)", meaning: "my name is" },
@@ -927,6 +1146,8 @@ function buildJapanese(): LanguageConfig {
             { word: "お元気ですか (おげんきですか)", meaning: "how are you?" },
             { word: "出身は (しゅっしんは)", meaning: "I am from" },
             { word: "…歳です (…さいです)", meaning: "I am … years old" },
+            { word: "あなたは？", meaning: "and you?" },
+            { word: "…に住んでいます (…にすんでいます)", meaning: "I live in" },
           ],
           [
             { word: "お願いします (おねがいします)", meaning: "please" },
@@ -934,6 +1155,9 @@ function buildJapanese(): LanguageConfig {
             { word: "どういたしまして", meaning: "you're welcome" },
             { word: "すみません", meaning: "I'm sorry" },
             { word: "分かりません (わかりません)", meaning: "I don't understand" },
+            { word: "もちろん", meaning: "of course" },
+            { word: "知りません (しりません)", meaning: "I don't know" },
+            { word: "大丈夫 (だいじょうぶ)", meaning: "it's okay" },
           ],
           [
             { word: "嬉しい (うれしい)", meaning: "happy" },
@@ -941,6 +1165,8 @@ function buildJapanese(): LanguageConfig {
             { word: "怒っている (おこっている)", meaning: "angry" },
             { word: "疲れた (つかれた)", meaning: "tired" },
             { word: "わくわくする", meaning: "excited" },
+            { word: "緊張する (きんちょうする)", meaning: "nervous" },
+            { word: "驚いた (おどろいた)", meaning: "surprised" },
           ],
           [
             { word: "失礼します (しつれいします)", meaning: "excuse me" },
@@ -948,6 +1174,8 @@ function buildJapanese(): LanguageConfig {
             { word: "乾杯 (かんぱい)", meaning: "bless you! / cheers!" },
             { word: "いただきます", meaning: "enjoy your meal" },
             { word: "頑張って (がんばって)", meaning: "good luck!" },
+            { word: "喜んで (よろこんで)", meaning: "with pleasure" },
+            { word: "こちらこそ", meaning: "likewise" },
           ],
         ],
       },
@@ -970,6 +1198,9 @@ function buildEnglish(): LanguageConfig {
             { word: "boy", meaning: "男孩" },
             { word: "girl", meaning: "女孩" },
             { word: "mother", meaning: "母亲" },
+            { word: "father", meaning: "父亲" },
+            { word: "brother", meaning: "兄弟" },
+            { word: "sister", meaning: "姐妹" },
           ],
           [
             { word: "one", meaning: "一" },
@@ -977,6 +1208,8 @@ function buildEnglish(): LanguageConfig {
             { word: "three", meaning: "三" },
             { word: "four", meaning: "四" },
             { word: "five", meaning: "五" },
+            { word: "six", meaning: "六" },
+            { word: "seven", meaning: "七" },
           ],
           [
             { word: "red", meaning: "红色" },
@@ -984,6 +1217,8 @@ function buildEnglish(): LanguageConfig {
             { word: "green", meaning: "绿色" },
             { word: "yellow", meaning: "黄色" },
             { word: "black", meaning: "黑色" },
+            { word: "white", meaning: "白色" },
+            { word: "purple", meaning: "紫色" },
           ],
           [
             { word: "book", meaning: "书" },
@@ -991,6 +1226,8 @@ function buildEnglish(): LanguageConfig {
             { word: "chair", meaning: "椅子" },
             { word: "phone", meaning: "电话" },
             { word: "key", meaning: "钥匙" },
+            { word: "clock", meaning: "时钟" },
+            { word: "window", meaning: "窗户" },
           ],
           [
             { word: "big", meaning: "大" },
@@ -998,6 +1235,9 @@ function buildEnglish(): LanguageConfig {
             { word: "good", meaning: "好" },
             { word: "bad", meaning: "坏" },
             { word: "new", meaning: "新" },
+            { word: "old", meaning: "旧" },
+            { word: "pretty", meaning: "漂亮" },
+            { word: "ugly", meaning: "丑" },
           ],
         ],
       },
@@ -1011,6 +1251,8 @@ function buildEnglish(): LanguageConfig {
             { word: "bathroom", meaning: "浴室" },
             { word: "bed", meaning: "床" },
             { word: "door", meaning: "门" },
+            { word: "window", meaning: "窗户" },
+            { word: "garden", meaning: "花园" },
           ],
           [
             { word: "eat", meaning: "吃" },
@@ -1018,6 +1260,9 @@ function buildEnglish(): LanguageConfig {
             { word: "sleep", meaning: "睡觉" },
             { word: "run", meaning: "跑" },
             { word: "speak", meaning: "说" },
+            { word: "read", meaning: "读" },
+            { word: "write", meaning: "写" },
+            { word: "walk", meaning: "走路" },
           ],
           [
             { word: "Monday", meaning: "星期一" },
@@ -1025,6 +1270,8 @@ function buildEnglish(): LanguageConfig {
             { word: "today", meaning: "今天" },
             { word: "tomorrow", meaning: "明天" },
             { word: "hour", meaning: "小时" },
+            { word: "Wednesday", meaning: "星期三" },
+            { word: "yesterday", meaning: "昨天" },
           ],
           [
             { word: "shirt", meaning: "衬衫" },
@@ -1032,6 +1279,8 @@ function buildEnglish(): LanguageConfig {
             { word: "hat", meaning: "帽子" },
             { word: "skirt", meaning: "裙子" },
             { word: "coat", meaning: "外套" },
+            { word: "pants", meaning: "裤子" },
+            { word: "dress", meaning: "连衣裙" },
           ],
           [
             { word: "head", meaning: "头" },
@@ -1039,6 +1288,8 @@ function buildEnglish(): LanguageConfig {
             { word: "eye", meaning: "眼睛" },
             { word: "heart", meaning: "心脏" },
             { word: "mouth", meaning: "嘴" },
+            { word: "nose", meaning: "鼻子" },
+            { word: "arm", meaning: "手臂" },
           ],
         ],
       },
@@ -1052,6 +1303,8 @@ function buildEnglish(): LanguageConfig {
             { word: "orange", meaning: "橙子" },
             { word: "carrot", meaning: "胡萝卜" },
             { word: "potato", meaning: "土豆" },
+            { word: "strawberry", meaning: "草莓" },
+            { word: "onion", meaning: "洋葱" },
           ],
           [
             { word: "breakfast", meaning: "早餐" },
@@ -1059,6 +1312,9 @@ function buildEnglish(): LanguageConfig {
             { word: "dinner", meaning: "晚餐" },
             { word: "rice", meaning: "米饭" },
             { word: "bread", meaning: "面包" },
+            { word: "soup", meaning: "汤" },
+            { word: "egg", meaning: "鸡蛋" },
+            { word: "salt", meaning: "盐" },
           ],
           [
             { word: "water", meaning: "水" },
@@ -1066,6 +1322,8 @@ function buildEnglish(): LanguageConfig {
             { word: "coffee", meaning: "咖啡" },
             { word: "juice", meaning: "果汁" },
             { word: "tea", meaning: "茶" },
+            { word: "beer", meaning: "啤酒" },
+            { word: "wine", meaning: "葡萄酒" },
           ],
           [
             { word: "menu", meaning: "菜单" },
@@ -1073,6 +1331,8 @@ function buildEnglish(): LanguageConfig {
             { word: "waiter", meaning: "服务员" },
             { word: "tip", meaning: "小费" },
             { word: "plate", meaning: "盘子" },
+            { word: "fork", meaning: "叉子" },
+            { word: "knife", meaning: "刀" },
           ],
           [
             { word: "sweet", meaning: "甜的" },
@@ -1080,6 +1340,9 @@ function buildEnglish(): LanguageConfig {
             { word: "spicy", meaning: "辣的" },
             { word: "delicious", meaning: "美味的" },
             { word: "fresh", meaning: "新鲜的" },
+            { word: "bitter", meaning: "苦的" },
+            { word: "hot", meaning: "热的" },
+            { word: "cold", meaning: "冷的" },
           ],
         ],
       },
@@ -1093,6 +1356,8 @@ function buildEnglish(): LanguageConfig {
             { word: "bus", meaning: "公共汽车" },
             { word: "car", meaning: "汽车" },
             { word: "boat", meaning: "船" },
+            { word: "bicycle", meaning: "自行车" },
+            { word: "taxi", meaning: "出租车" },
           ],
           [
             { word: "left", meaning: "左" },
@@ -1100,6 +1365,8 @@ function buildEnglish(): LanguageConfig {
             { word: "straight", meaning: "直行" },
             { word: "near", meaning: "近" },
             { word: "far", meaning: "远" },
+            { word: "here", meaning: "这里" },
+            { word: "there", meaning: "那里" },
           ],
           [
             { word: "airport", meaning: "机场" },
@@ -1107,13 +1374,18 @@ function buildEnglish(): LanguageConfig {
             { word: "school", meaning: "学校" },
             { word: "bank", meaning: "银行" },
             { word: "shop", meaning: "商店" },
+            { word: "church", meaning: "教堂" },
+            { word: "museum", meaning: "博物馆" },
+            { word: "library", meaning: "图书馆" },
           ],
           [
             { word: "hotel", meaning: "酒店" },
             { word: "room", meaning: "房间" },
             { word: "reservation", meaning: "预订" },
-            { word: "key", meaning: "钥匙" },
+            { word: "reception", meaning: "前台" },
             { word: "luggage", meaning: "行李" },
+            { word: "elevator", meaning: "电梯" },
+            { word: "pool", meaning: "游泳池" },
           ],
           [
             { word: "sun", meaning: "太阳" },
@@ -1121,6 +1393,8 @@ function buildEnglish(): LanguageConfig {
             { word: "wind", meaning: "风" },
             { word: "mountain", meaning: "山" },
             { word: "sea", meaning: "海" },
+            { word: "cloud", meaning: "云" },
+            { word: "snow", meaning: "雪" },
           ],
         ],
       },
@@ -1134,6 +1408,8 @@ function buildEnglish(): LanguageConfig {
             { word: "good morning", meaning: "早上好" },
             { word: "good night", meaning: "晚安" },
             { word: "see you later", meaning: "回头见" },
+            { word: "good afternoon", meaning: "下午好" },
+            { word: "see you tomorrow", meaning: "明天见" },
           ],
           [
             { word: "my name is", meaning: "我叫" },
@@ -1141,6 +1417,8 @@ function buildEnglish(): LanguageConfig {
             { word: "how are you?", meaning: "你好吗？" },
             { word: "I am from", meaning: "我来自" },
             { word: "I am … years old", meaning: "我…岁了" },
+            { word: "and you?", meaning: "你呢？" },
+            { word: "I live in", meaning: "我住在" },
           ],
           [
             { word: "please", meaning: "请" },
@@ -1148,6 +1426,9 @@ function buildEnglish(): LanguageConfig {
             { word: "you're welcome", meaning: "不客气" },
             { word: "I'm sorry", meaning: "对不起" },
             { word: "I don't understand", meaning: "我不明白" },
+            { word: "of course", meaning: "当然" },
+            { word: "I don't know", meaning: "我不知道" },
+            { word: "it's okay", meaning: "没关系" },
           ],
           [
             { word: "happy", meaning: "高兴" },
@@ -1155,6 +1436,8 @@ function buildEnglish(): LanguageConfig {
             { word: "angry", meaning: "生气" },
             { word: "tired", meaning: "累" },
             { word: "excited", meaning: "兴奋" },
+            { word: "nervous", meaning: "紧张" },
+            { word: "surprised", meaning: "惊讶" },
           ],
           [
             { word: "excuse me", meaning: "打扰一下" },
@@ -1162,6 +1445,8 @@ function buildEnglish(): LanguageConfig {
             { word: "cheers!", meaning: "干杯！" },
             { word: "enjoy your meal", meaning: "请慢用" },
             { word: "good luck!", meaning: "祝你好运！" },
+            { word: "with pleasure", meaning: "乐意效劳" },
+            { word: "likewise", meaning: "彼此彼此" },
           ],
         ],
       },
@@ -1184,6 +1469,9 @@ function buildChinese(): LanguageConfig {
             { word: "男孩 (nánhái)", meaning: "the boy" },
             { word: "女孩 (nǚhái)", meaning: "the girl" },
             { word: "妈妈 (māma)", meaning: "the mother" },
+            { word: "爸爸 (bàba)", meaning: "the father" },
+            { word: "哥哥 (gēge)", meaning: "the brother" },
+            { word: "姐姐 (jiějie)", meaning: "the sister" },
           ],
           [
             { word: "一 (yī)", meaning: "one" },
@@ -1191,6 +1479,8 @@ function buildChinese(): LanguageConfig {
             { word: "三 (sān)", meaning: "three" },
             { word: "四 (sì)", meaning: "four" },
             { word: "五 (wǔ)", meaning: "five" },
+            { word: "六 (liù)", meaning: "six" },
+            { word: "七 (qī)", meaning: "seven" },
           ],
           [
             { word: "红色 (hóngsè)", meaning: "red" },
@@ -1198,6 +1488,8 @@ function buildChinese(): LanguageConfig {
             { word: "绿色 (lǜsè)", meaning: "green" },
             { word: "黄色 (huángsè)", meaning: "yellow" },
             { word: "黑色 (hēisè)", meaning: "black" },
+            { word: "白色 (báisè)", meaning: "white" },
+            { word: "紫色 (zǐsè)", meaning: "purple" },
           ],
           [
             { word: "书 (shū)", meaning: "the book" },
@@ -1205,6 +1497,8 @@ function buildChinese(): LanguageConfig {
             { word: "椅子 (yǐzi)", meaning: "the chair" },
             { word: "电话 (diànhuà)", meaning: "the phone" },
             { word: "钥匙 (yàoshi)", meaning: "the key" },
+            { word: "时钟 (shízhōng)", meaning: "the clock" },
+            { word: "窗户 (chuānghù)", meaning: "the window" },
           ],
           [
             { word: "大 (dà)", meaning: "big" },
@@ -1212,6 +1506,9 @@ function buildChinese(): LanguageConfig {
             { word: "好 (hǎo)", meaning: "good" },
             { word: "坏 (huài)", meaning: "bad" },
             { word: "新 (xīn)", meaning: "new" },
+            { word: "旧 (jiù)", meaning: "old" },
+            { word: "漂亮 (piàoliang)", meaning: "pretty" },
+            { word: "丑 (chǒu)", meaning: "ugly" },
           ],
         ],
       },
@@ -1225,6 +1522,8 @@ function buildChinese(): LanguageConfig {
             { word: "浴室 (yùshì)", meaning: "the bathroom" },
             { word: "床 (chuáng)", meaning: "the bed" },
             { word: "门 (mén)", meaning: "the door" },
+            { word: "窗户 (chuānghù)", meaning: "the window" },
+            { word: "花园 (huāyuán)", meaning: "the garden" },
           ],
           [
             { word: "吃 (chī)", meaning: "to eat" },
@@ -1232,6 +1531,9 @@ function buildChinese(): LanguageConfig {
             { word: "睡觉 (shuìjiào)", meaning: "to sleep" },
             { word: "跑 (pǎo)", meaning: "to run" },
             { word: "说 (shuō)", meaning: "to speak" },
+            { word: "读 (dú)", meaning: "to read" },
+            { word: "写 (xiě)", meaning: "to write" },
+            { word: "走路 (zǒulù)", meaning: "to walk" },
           ],
           [
             { word: "星期一 (xīngqīyī)", meaning: "Monday" },
@@ -1239,6 +1541,8 @@ function buildChinese(): LanguageConfig {
             { word: "今天 (jīntiān)", meaning: "today" },
             { word: "明天 (míngtiān)", meaning: "tomorrow" },
             { word: "小时 (xiǎoshí)", meaning: "the hour" },
+            { word: "星期三 (xīngqīsān)", meaning: "Wednesday" },
+            { word: "昨天 (zuótiān)", meaning: "yesterday" },
           ],
           [
             { word: "衬衫 (chènshān)", meaning: "the shirt" },
@@ -1246,6 +1550,8 @@ function buildChinese(): LanguageConfig {
             { word: "帽子 (màozi)", meaning: "the hat" },
             { word: "裙子 (qúnzi)", meaning: "the skirt" },
             { word: "外套 (wàitào)", meaning: "the coat" },
+            { word: "裤子 (kùzi)", meaning: "the pants" },
+            { word: "连衣裙 (liányīqún)", meaning: "the dress" },
           ],
           [
             { word: "头 (tóu)", meaning: "the head" },
@@ -1253,6 +1559,8 @@ function buildChinese(): LanguageConfig {
             { word: "眼睛 (yǎnjing)", meaning: "the eye" },
             { word: "心脏 (xīnzàng)", meaning: "the heart" },
             { word: "嘴 (zuǐ)", meaning: "the mouth" },
+            { word: "鼻子 (bízi)", meaning: "the nose" },
+            { word: "手臂 (shǒubì)", meaning: "the arm" },
           ],
         ],
       },
@@ -1266,6 +1574,8 @@ function buildChinese(): LanguageConfig {
             { word: "橙子 (chéngzi)", meaning: "the orange" },
             { word: "胡萝卜 (húluóbo)", meaning: "the carrot" },
             { word: "土豆 (tǔdòu)", meaning: "the potato" },
+            { word: "草莓 (cǎoméi)", meaning: "the strawberry" },
+            { word: "洋葱 (yángcōng)", meaning: "the onion" },
           ],
           [
             { word: "早餐 (zǎocān)", meaning: "breakfast" },
@@ -1273,6 +1583,9 @@ function buildChinese(): LanguageConfig {
             { word: "晚餐 (wǎncān)", meaning: "dinner" },
             { word: "米饭 (mǐfàn)", meaning: "rice" },
             { word: "面包 (miànbāo)", meaning: "bread" },
+            { word: "汤 (tāng)", meaning: "the soup" },
+            { word: "鸡蛋 (jīdàn)", meaning: "the egg" },
+            { word: "盐 (yán)", meaning: "the salt" },
           ],
           [
             { word: "水 (shuǐ)", meaning: "water" },
@@ -1280,6 +1593,8 @@ function buildChinese(): LanguageConfig {
             { word: "咖啡 (kāfēi)", meaning: "coffee" },
             { word: "果汁 (guǒzhī)", meaning: "juice" },
             { word: "茶 (chá)", meaning: "tea" },
+            { word: "啤酒 (píjiǔ)", meaning: "the beer" },
+            { word: "葡萄酒 (pútaojiǔ)", meaning: "the wine" },
           ],
           [
             { word: "菜单 (càidān)", meaning: "the menu" },
@@ -1287,6 +1602,8 @@ function buildChinese(): LanguageConfig {
             { word: "服务员 (fúwùyuán)", meaning: "the waiter" },
             { word: "小费 (xiǎofèi)", meaning: "the tip" },
             { word: "盘子 (pánzi)", meaning: "the plate" },
+            { word: "叉子 (chāzi)", meaning: "the fork" },
+            { word: "刀 (dāo)", meaning: "the knife" },
           ],
           [
             { word: "甜 (tián)", meaning: "sweet" },
@@ -1294,6 +1611,9 @@ function buildChinese(): LanguageConfig {
             { word: "辣 (là)", meaning: "spicy" },
             { word: "美味 (měiwèi)", meaning: "delicious" },
             { word: "新鲜 (xīnxiān)", meaning: "fresh" },
+            { word: "苦 (kǔ)", meaning: "bitter" },
+            { word: "热 (rè)", meaning: "hot" },
+            { word: "冷 (lěng)", meaning: "cold" },
           ],
         ],
       },
@@ -1307,6 +1627,8 @@ function buildChinese(): LanguageConfig {
             { word: "公共汽车 (gōnggòng qìchē)", meaning: "the bus" },
             { word: "汽车 (qìchē)", meaning: "the car" },
             { word: "船 (chuán)", meaning: "the boat" },
+            { word: "自行车 (zìxíngchē)", meaning: "the bicycle" },
+            { word: "出租车 (chūzūchē)", meaning: "the taxi" },
           ],
           [
             { word: "左 (zuǒ)", meaning: "left" },
@@ -1314,6 +1636,8 @@ function buildChinese(): LanguageConfig {
             { word: "直走 (zhí zǒu)", meaning: "straight" },
             { word: "近 (jìn)", meaning: "near" },
             { word: "远 (yuǎn)", meaning: "far" },
+            { word: "这里 (zhèlǐ)", meaning: "here" },
+            { word: "那里 (nàlǐ)", meaning: "there" },
           ],
           [
             { word: "机场 (jīchǎng)", meaning: "the airport" },
@@ -1321,13 +1645,18 @@ function buildChinese(): LanguageConfig {
             { word: "学校 (xuéxiào)", meaning: "the school" },
             { word: "银行 (yínháng)", meaning: "the bank" },
             { word: "商店 (shāngdiàn)", meaning: "the shop" },
+            { word: "教堂 (jiàotáng)", meaning: "the church" },
+            { word: "博物馆 (bówùguǎn)", meaning: "the museum" },
+            { word: "图书馆 (túshūguǎn)", meaning: "the library" },
           ],
           [
             { word: "酒店 (jiǔdiàn)", meaning: "the hotel" },
             { word: "房间 (fángjiān)", meaning: "the room" },
             { word: "预订 (yùdìng)", meaning: "the reservation" },
-            { word: "钥匙 (yàoshi)", meaning: "the key" },
+            { word: "前台 (qiántái)", meaning: "the reception" },
             { word: "行李 (xíngli)", meaning: "the luggage" },
+            { word: "电梯 (diàntī)", meaning: "the elevator" },
+            { word: "游泳池 (yóuyǒngchí)", meaning: "the pool" },
           ],
           [
             { word: "太阳 (tàiyáng)", meaning: "the sun" },
@@ -1335,6 +1664,8 @@ function buildChinese(): LanguageConfig {
             { word: "风 (fēng)", meaning: "the wind" },
             { word: "山 (shān)", meaning: "the mountain" },
             { word: "海 (hǎi)", meaning: "the sea" },
+            { word: "云 (yún)", meaning: "the cloud" },
+            { word: "雪 (xuě)", meaning: "the snow" },
           ],
         ],
       },
@@ -1348,6 +1679,8 @@ function buildChinese(): LanguageConfig {
             { word: "早上好 (zǎoshang hǎo)", meaning: "good morning" },
             { word: "晚安 (wǎn'ān)", meaning: "good night" },
             { word: "回头见 (huítóu jiàn)", meaning: "see you later" },
+            { word: "下午好 (xiàwǔ hǎo)", meaning: "good afternoon" },
+            { word: "明天见 (míngtiān jiàn)", meaning: "see you tomorrow" },
           ],
           [
             { word: "我叫 (wǒ jiào)", meaning: "my name is" },
@@ -1355,6 +1688,8 @@ function buildChinese(): LanguageConfig {
             { word: "你好吗？(nǐ hǎo ma?)", meaning: "how are you?" },
             { word: "我来自 (wǒ lái zì)", meaning: "I am from" },
             { word: "我…岁 (wǒ … suì)", meaning: "I am … years old" },
+            { word: "你呢？(nǐ ne?)", meaning: "and you?" },
+            { word: "我住在 (wǒ zhù zài)", meaning: "I live in" },
           ],
           [
             { word: "请 (qǐng)", meaning: "please" },
@@ -1362,6 +1697,9 @@ function buildChinese(): LanguageConfig {
             { word: "不客气 (bú kèqi)", meaning: "you're welcome" },
             { word: "对不起 (duìbuqǐ)", meaning: "I'm sorry" },
             { word: "我不明白 (wǒ bù míngbai)", meaning: "I don't understand" },
+            { word: "当然 (dāngrán)", meaning: "of course" },
+            { word: "我不知道 (wǒ bù zhīdào)", meaning: "I don't know" },
+            { word: "没关系 (méi guānxi)", meaning: "it's okay" },
           ],
           [
             { word: "高兴 (gāoxìng)", meaning: "happy" },
@@ -1369,6 +1707,8 @@ function buildChinese(): LanguageConfig {
             { word: "生气 (shēngqì)", meaning: "angry" },
             { word: "累 (lèi)", meaning: "tired" },
             { word: "兴奋 (xīngfèn)", meaning: "excited" },
+            { word: "紧张 (jǐnzhāng)", meaning: "nervous" },
+            { word: "惊讶 (jīngyà)", meaning: "surprised" },
           ],
           [
             { word: "打扰一下 (dǎrǎo yīxià)", meaning: "excuse me" },
@@ -1376,6 +1716,8 @@ function buildChinese(): LanguageConfig {
             { word: "干杯 (gānbēi)", meaning: "bless you! / cheers!" },
             { word: "请慢用 (qǐng màn yòng)", meaning: "enjoy your meal" },
             { word: "祝你好运 (zhù nǐ hǎo yùn)", meaning: "good luck!" },
+            { word: "乐意效劳 (lèyì xiàoláo)", meaning: "with pleasure" },
+            { word: "彼此彼此 (bǐcǐ bǐcǐ)", meaning: "likewise" },
           ],
         ],
       },
@@ -1534,6 +1876,9 @@ const main = async () => {
     let lessonId = 1;
     let challengeId = 1;
 
+    // Track per-language word counts for summary
+    const languageWordCounts: { name: string; count: number }[] = [];
+
     for (const lang of LANGUAGES) {
       // --- Insert course ---
       await db.insert(schema.courses).values({
@@ -1544,6 +1889,7 @@ const main = async () => {
 
       console.log(`  Course: ${lang.title} (id=${courseId})`);
 
+      let langWordCount = 0;
       let unitOrder = 1;
       for (const unit of lang.units) {
         // --- Insert unit ---
@@ -1571,6 +1917,7 @@ const main = async () => {
 
           // Build challenges for this lesson using the corresponding word group
           const lessonWords = unit.words[li] || [];
+          langWordCount += lessonWords.length;
           const { challenges, options } = buildLessonChallenges(
             lessonWords,
             allUnitWords,
@@ -1611,6 +1958,7 @@ const main = async () => {
         unitOrder++;
       }
 
+      languageWordCounts.push({ name: lang.title, count: langWordCount });
       courseId++;
     }
 
@@ -1619,6 +1967,15 @@ const main = async () => {
     console.log(`  Total units: ${unitId - 1}`);
     console.log(`  Total lessons: ${lessonId - 1}`);
     console.log(`  Total challenges: ${challengeId - 1}`);
+
+    // --- Summary: per-language word counts ---
+    console.log("\n--- Vocabulary Summary ---");
+    for (const { name, count } of languageWordCounts) {
+      const status = count >= 100 ? "PASS" : "FAIL";
+      console.log(`  ${name}: ${count} words [${status}]`);
+    }
+    const totalWords = languageWordCounts.reduce((sum, l) => sum + l.count, 0);
+    console.log(`  Total across all languages: ${totalWords} words`);
   } catch (error) {
     console.error(error);
     throw new Error("Failed to seed the database");
