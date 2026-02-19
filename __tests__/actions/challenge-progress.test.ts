@@ -128,7 +128,7 @@ describe("upsertChallengeProgress streak timing", () => {
     await upsertChallengeProgress(1);
 
     // Per-challenge: only points should be updated, no streak or lastLessonAt
-    const setCalls = setSpy.mock.calls.map((c) => c[0]);
+    const setCalls = setSpy.mock.calls.map((c: any[]) => c[0]);
     expect(setCalls.length).toBe(1); // only one update call (points only)
     expect(setCalls[0]).toEqual({ points: 10 });
     expect(setCalls[0]).not.toHaveProperty("streak");
@@ -154,7 +154,7 @@ describe("upsertChallengeProgress streak timing", () => {
     await upsertChallengeProgress(1);
 
     // Two update calls: first for points, second for streak + lastLessonAt
-    const setCalls = setSpy.mock.calls.map((c) => c[0]);
+    const setCalls = setSpy.mock.calls.map((c: any[]) => c[0]);
     expect(setCalls.length).toBe(2);
 
     // First call: points only
@@ -162,7 +162,7 @@ describe("upsertChallengeProgress streak timing", () => {
 
     // Second call: streak + lastLessonAt
     expect(setCalls[1]).toMatchObject({ streak: 4, longestStreak: 5 });
-    expect(setCalls[1].lastLessonAt).toBeInstanceOf(Date);
+    expect(setCalls[1]!.lastLessonAt).toBeInstanceOf(Date);
   });
 
   it("should increment streak when last lesson was 24-48h ago and lesson completes", async () => {
@@ -183,8 +183,8 @@ describe("upsertChallengeProgress streak timing", () => {
 
     await upsertChallengeProgress(1);
 
-    const setCalls = setSpy.mock.calls.map((c) => c[0]);
-    const lastSet = setCalls[setCalls.length - 1];
+    const setCalls = setSpy.mock.calls.map((c: any[]) => c[0]);
+    const lastSet = setCalls[setCalls.length - 1]!;
 
     expect(lastSet).toMatchObject({ streak: 4, longestStreak: 4 });
     expect(lastSet.lastLessonAt).toBeInstanceOf(Date);
@@ -208,8 +208,8 @@ describe("upsertChallengeProgress streak timing", () => {
 
     await upsertChallengeProgress(1);
 
-    const setCalls = setSpy.mock.calls.map((c) => c[0]);
-    const lastSet = setCalls[setCalls.length - 1];
+    const setCalls = setSpy.mock.calls.map((c: any[]) => c[0]);
+    const lastSet = setCalls[setCalls.length - 1]!;
 
     expect(lastSet).toMatchObject({ streak: 1, longestStreak: 15 });
     expect(lastSet.lastLessonAt).toBeInstanceOf(Date);
@@ -233,8 +233,8 @@ describe("upsertChallengeProgress streak timing", () => {
 
     await upsertChallengeProgress(1);
 
-    const setCalls = setSpy.mock.calls.map((c) => c[0]);
-    const lastSet = setCalls[setCalls.length - 1];
+    const setCalls = setSpy.mock.calls.map((c: any[]) => c[0]);
+    const lastSet = setCalls[setCalls.length - 1]!;
 
     // shouldUpdateStreak is false, so no streak/longestStreak in set
     expect(lastSet).not.toHaveProperty("streak");

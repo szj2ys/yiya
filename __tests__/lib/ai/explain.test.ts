@@ -4,12 +4,20 @@ import { __testing__resetCache } from "@/lib/ai/cache";
 import { __testing__resetRateLimit } from "@/lib/ai/rate-limit";
 
 vi.mock("@/lib/ai/client", () => {
+  // Replicate AiConfigError in the mock so tests can reference it
+  class AiConfigError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = "AiConfigError";
+    }
+  }
   return {
     aiChat: vi.fn(),
+    AiConfigError,
   };
 });
 
-import { aiChat } from "@/lib/ai/client";
+import { aiChat, AiConfigError } from "@/lib/ai/client";
 
 const mockAiChat = vi.mocked(aiChat);
 
@@ -131,6 +139,47 @@ describe("getExplanation", () => {
     });
 
     expect(blocked).toBeNull();
+  });
+
+  it("should return fallback explanation when AI client env vars are missing", async () => {
+    mockAiChat.mockRejectedValueOnce(
+      new AiConfigError("Missing required env var: OPENAI_API_KEY"),
+    );
+
+    const { getExplanation, __testing__ } = await import("@/lib/ai/explain");
+
+    const result = await getExplanation({
+      userId: "user_1",
+      challengeId: 123,
+      question: "Q",
+      userAnswer: "UA",
+      correctAnswer: "CA",
+      challengeType: "translate",
+      courseLanguage: "English",
+    });
+
+    expect(result).not.toBeNull();
+    expect(result?.explanation).toBe(__testing__.FALLBACK_EXPLANATION.explanation);
+    expect(result?.rule).toBe(__testing__.FALLBACK_EXPLANATION.rule);
+    expect(result?.tip).toBe(__testing__.FALLBACK_EXPLANATION.tip);
+  });
+
+  it("should rethrow non-config errors from AI client", async () => {
+    mockAiChat.mockRejectedValueOnce(new Error("Network error"));
+
+    const { getExplanation } = await import("@/lib/ai/explain");
+
+    await expect(
+      getExplanation({
+        userId: "user_1",
+        challengeId: 456,
+        question: "Q",
+        userAnswer: "UA",
+        correctAnswer: "CA",
+        challengeType: "translate",
+        courseLanguage: "English",
+      }),
+    ).rejects.toThrow("Network error");
   });
 
   it("should return fallback on malformed LLM response", async () => {

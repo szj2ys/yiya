@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 const pushSpy = vi.fn();
 const startPracticeSpy = vi.fn();
@@ -23,9 +22,10 @@ describe("PracticeEntry", () => {
 
     const { PracticeEntry } = await import("@/app/(main)/learn/practice-entry");
 
-    render(<PracticeEntry />);
+    render(<PracticeEntry reviewItemCount={3} dueCount={2} />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Practice" }));
+    fireEvent.click(screen.getByRole("button", { name: "Practice" }));
+    await waitFor(() => {});
 
     expect(pushSpy).toHaveBeenCalledWith("/lesson/42");
   });

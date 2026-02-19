@@ -38,8 +38,7 @@ vi.mock("@/app/lesson/question-bubble", () => ({ QuestionBubble: () => null }));
 // We want the real Footer for correct-answer text assertions.
 
 const fetchSpy = vi.fn();
-// @ts-expect-error - test env
-global.fetch = fetchSpy;
+global.fetch = fetchSpy as unknown as typeof global.fetch;
 
 describe("Quiz explain integration", () => {
   it("should show ExplanationPanel after wrong answer", async () => {

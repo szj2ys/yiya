@@ -12,8 +12,8 @@ const getUserProgressSpy = vi.fn();
 
 vi.mock("@/db/drizzle", () => ({
   default: {
-    insert: (...args: any[]) => insertSpy(...args),
-    update: (...args: any[]) => updateSpy(...args),
+    insert: insertSpy,
+    update: updateSpy,
   },
 }));
 

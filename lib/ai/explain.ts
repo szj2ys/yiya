@@ -1,4 +1,4 @@
-import { aiChat } from "@/lib/ai/client";
+import { aiChat, AiConfigError } from "@/lib/ai/client";
 import { getCachedOrFetch, sha256 } from "@/lib/ai/cache";
 import { checkRateLimit } from "@/lib/ai/rate-limit";
 import { buildExplainPrompt } from "@/lib/ai/prompts/explain";
@@ -77,26 +77,34 @@ function makeExplainCacheKey(challengeId: number, userAnswer: string): string {
 async function fetchExplanationFromLlm(
   params: Omit<GetExplanationParams, "userId" | "challengeId">,
 ): Promise<Omit<ExplanationResult, "cached">> {
-  const messages = buildExplainPrompt(params);
+  try {
+    const messages = buildExplainPrompt(params);
 
-  // Hint JSON response formatting to the OpenAI API.
-  const content = await aiChat(messages, {
-    response_format: { type: "json_object" },
-    temperature: 0.2,
-    max_tokens: 350,
-  });
+    // Hint JSON response formatting to the OpenAI API.
+    const content = await aiChat(messages, {
+      response_format: { type: "json_object" },
+      temperature: 0.2,
+      max_tokens: 350,
+    });
 
-  const parsed = safeParseJson(content);
-  if (!isExplanationResultPayload(parsed)) {
-    return FALLBACK_EXPLANATION;
+    const parsed = safeParseJson(content);
+    if (!isExplanationResultPayload(parsed)) {
+      return FALLBACK_EXPLANATION;
+    }
+
+    return {
+      explanation: parsed.explanation,
+      rule: parsed.rule,
+      tip: parsed.tip,
+      examples: parsed.examples,
+    };
+  } catch (error) {
+    // Graceful degradation: when AI env vars are missing, return fallback
+    if (error instanceof AiConfigError) {
+      return FALLBACK_EXPLANATION;
+    }
+    throw error;
   }
-
-  return {
-    explanation: parsed.explanation,
-    rule: parsed.rule,
-    tip: parsed.tip,
-    examples: parsed.examples,
-  };
 }
 
 export async function getExplanation(

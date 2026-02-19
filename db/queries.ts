@@ -101,7 +101,7 @@ export const getClaimedQuests = cache(async () => {
     .from(questClaims)
     .where(eq(questClaims.userId, userId));
 
-  return rows.map((r) => r.questValue);
+  return rows.map((r: typeof rows[number]) => r.questValue);
 });
 
 export const getUnits = cache(async () => {
@@ -113,14 +113,14 @@ export const getUnits = cache(async () => {
   }
 
   const data = await db.query.units.findMany({
-    orderBy: (units, { asc }) => [asc(units.order)],
+    orderBy: (units: any, { asc }: any) => [asc(units.order)],
     where: eq(units.courseId, userProgress.activeCourseId),
     with: {
       lessons: {
-        orderBy: (lessons, { asc }) => [asc(lessons.order)],
+        orderBy: (lessons: any, { asc }: any) => [asc(lessons.order)],
         with: {
           challenges: {
-            orderBy: (challenges, { asc }) => [asc(challenges.order)],
+            orderBy: (challenges: any, { asc }: any) => [asc(challenges.order)],
             with: {
               challengeProgress: {
                 where: eq(
@@ -135,18 +135,18 @@ export const getUnits = cache(async () => {
     },
   });
 
-  const normalizedData = data.map((unit) => {
-    const lessonsWithCompletedStatus = unit.lessons.map((lesson) => {
+  const normalizedData = data.map((unit: typeof data[number]) => {
+    const lessonsWithCompletedStatus = unit.lessons.map((lesson: typeof unit.lessons[number]) => {
       if (
         lesson.challenges.length === 0
       ) {
         return { ...lesson, completed: false };
       }
 
-      const allCompletedChallenges = lesson.challenges.every((challenge) => {
+      const allCompletedChallenges = lesson.challenges.every((challenge: typeof lesson.challenges[number]) => {
         return challenge.challengeProgress
           && challenge.challengeProgress.length > 0
-          && challenge.challengeProgress.every((progress) => progress.completed);
+          && challenge.challengeProgress.every((progress: typeof challenge.challengeProgress[number]) => progress.completed);
       });
 
       return { ...lesson, completed: allCompletedChallenges };
@@ -169,10 +169,10 @@ export const getCourseById = cache(async (courseId: number) => {
     where: eq(courses.id, courseId),
     with: {
       units: {
-        orderBy: (units, { asc }) => [asc(units.order)],
+        orderBy: (units: any, { asc }: any) => [asc(units.order)],
         with: {
           lessons: {
-            orderBy: (lessons, { asc }) => [asc(lessons.order)],
+            orderBy: (lessons: any, { asc }: any) => [asc(lessons.order)],
           },
         },
       },
@@ -191,11 +191,11 @@ export const getCourseProgress = cache(async () => {
   }
 
   const unitsInActiveCourse = await db.query.units.findMany({
-    orderBy: (units, { asc }) => [asc(units.order)],
+    orderBy: (units: any, { asc }: any) => [asc(units.order)],
     where: eq(units.courseId, userProgress.activeCourseId),
     with: {
       lessons: {
-        orderBy: (lessons, { asc }) => [asc(lessons.order)],
+        orderBy: (lessons: any, { asc }: any) => [asc(lessons.order)],
         with: {
           unit: true,
           challenges: {
@@ -211,12 +211,12 @@ export const getCourseProgress = cache(async () => {
   });
 
   const firstUncompletedLesson = unitsInActiveCourse
-    .flatMap((unit) => unit.lessons)
-    .find((lesson) => {
-      return lesson.challenges.some((challenge) => {
-        return !challenge.challengeProgress 
-          || challenge.challengeProgress.length === 0 
-          || challenge.challengeProgress.some((progress) => progress.completed === false)
+    .flatMap((unit: typeof unitsInActiveCourse[number]) => unit.lessons)
+    .find((lesson: (typeof unitsInActiveCourse)[number]["lessons"][number]) => {
+      return lesson.challenges.some((challenge: (typeof lesson.challenges)[number]) => {
+        return !challenge.challengeProgress
+          || challenge.challengeProgress.length === 0
+          || challenge.challengeProgress.some((progress: (typeof challenge.challengeProgress)[number]) => progress.completed === false)
       });
     });
 
@@ -245,7 +245,7 @@ export const getLesson = cache(async (id?: number) => {
     where: eq(lessons.id, lessonId),
     with: {
       challenges: {
-        orderBy: (challenges, { asc }) => [asc(challenges.order)],
+        orderBy: (challenges: any, { asc }: any) => [asc(challenges.order)],
         with: {
           challengeOptions: true,
           challengeProgress: {
@@ -260,10 +260,10 @@ export const getLesson = cache(async (id?: number) => {
     return null;
   }
 
-  const normalizedChallenges = data.challenges.map((challenge) => {
-    const completed = challenge.challengeProgress 
+  const normalizedChallenges = data.challenges.map((challenge: typeof data.challenges[number]) => {
+    const completed = challenge.challengeProgress
       && challenge.challengeProgress.length > 0
-      && challenge.challengeProgress.every((progress) => progress.completed)
+      && challenge.challengeProgress.every((progress: typeof challenge.challengeProgress[number]) => progress.completed)
 
     return { ...challenge, completed };
   });
@@ -285,7 +285,7 @@ export const getLessonPercentage = cache(async () => {
   }
 
   const completedChallenges = lesson.challenges
-    .filter((challenge) => challenge.completed);
+    .filter((challenge: typeof lesson.challenges[number]) => challenge.completed);
   const percentage = Math.round(
     (completedChallenges.length / lesson.challenges.length) * 100,
   );
@@ -304,7 +304,7 @@ export const getTodayReviewItems = cache(async () => {
   const now = new Date();
   const dueCards = await db.query.reviewCards.findMany({
     where: and(eq(reviewCards.userId, userId), lte(reviewCards.due, now)),
-    orderBy: (reviewCards, { asc }) => [asc(reviewCards.due)],
+    orderBy: (reviewCards: any, { asc }: any) => [asc(reviewCards.due)],
     limit: MAX_REVIEW_ITEMS,
     columns: {
       id: true,
@@ -313,9 +313,9 @@ export const getTodayReviewItems = cache(async () => {
   });
 
   if (dueCards.length > 0) {
-    const dueChallengeIds = dueCards.map((c) => c.challengeId);
+    const dueChallengeIds = dueCards.map((c: typeof dueCards[number]) => c.challengeId);
     const challengeIdToReviewCardId = new Map(
-      dueCards.map((c) => [c.challengeId, c.id] as const),
+      dueCards.map((c: typeof dueCards[number]) => [c.challengeId, c.id] as const),
     );
     const dueChallenges = await db.query.challenges.findMany({
       where: inArray(challenges.id, dueChallengeIds),
@@ -323,15 +323,15 @@ export const getTodayReviewItems = cache(async () => {
     });
 
     const challengeIdToLessonId = new Map(
-      dueChallenges.map((c) => [c.id, c.lessonId] as const),
+      dueChallenges.map((c: typeof dueChallenges[number]) => [c.id, c.lessonId] as const),
     );
 
-    return dueChallengeIds.flatMap((challengeId) => {
+    return dueChallengeIds.flatMap((challengeId: number) => {
       const lessonId = challengeIdToLessonId.get(challengeId);
       if (!lessonId) return [];
       return [
         {
-          type: "challenge",
+          type: "challenge" as const,
           challengeId,
           lessonId,
           reviewCardId: challengeIdToReviewCardId.get(challengeId),
@@ -346,14 +346,14 @@ export const getTodayReviewItems = cache(async () => {
       eq(challengeProgress.userId, userId),
       eq(challengeProgress.completed, false),
     ),
-    orderBy: (challengeProgress, { desc }) => [desc(challengeProgress.id)],
+    orderBy: (challengeProgress: any, { desc }: any) => [desc(challengeProgress.id)],
     limit: MAX_REVIEW_ITEMS,
     columns: {
       challengeId: true,
     },
   });
 
-  const wrongChallengeIds = wrongChallengeProgress.map((row) => row.challengeId);
+  const wrongChallengeIds = wrongChallengeProgress.map((row: typeof wrongChallengeProgress[number]) => row.challengeId);
 
   const wrongChallenges = wrongChallengeIds.length
     ? await db.query.challenges.findMany({
@@ -363,13 +363,13 @@ export const getTodayReviewItems = cache(async () => {
     : [];
 
   const challengeIdToLessonId = new Map(
-    wrongChallenges.map((challenge) => [challenge.id, challenge.lessonId] as const),
+    wrongChallenges.map((challenge: typeof wrongChallenges[number]) => [challenge.id, challenge.lessonId] as const),
   );
 
-  const challengeItems: ReviewItem[] = wrongChallengeIds.flatMap((challengeId) => {
+  const challengeItems: ReviewItem[] = wrongChallengeIds.flatMap((challengeId: number) => {
     const lessonId = challengeIdToLessonId.get(challengeId);
     if (!lessonId) return [];
-    return [{ type: "challenge", challengeId, lessonId }];
+    return [{ type: "challenge" as const, challengeId, lessonId }];
   });
 
   // 2) Recently completed lessons for recap (by most recent completed challenge)
@@ -378,29 +378,29 @@ export const getTodayReviewItems = cache(async () => {
       eq(challengeProgress.userId, userId),
       eq(challengeProgress.completed, true),
     ),
-    orderBy: (challengeProgress, { desc }) => [desc(challengeProgress.id)],
+    orderBy: (challengeProgress: any, { desc }: any) => [desc(challengeProgress.id)],
     limit: MAX_LOOKBACK_ITEMS,
     columns: {
       challengeId: true,
     },
   });
 
-  const completedChallengeIds = completedChallengeProgress.map((row) => row.challengeId);
+  const completedChallengeIds = completedChallengeProgress.map((row: typeof completedChallengeProgress[number]) => row.challengeId);
 
   const completedChallenges = completedChallengeIds.length
     ? await db.query.challenges.findMany({
         where: inArray(challenges.id, completedChallengeIds),
         columns: { id: true, lessonId: true },
       })
-    : [];
+    : ([] as { id: number; lessonId: number }[]);
 
-  const completedChallengeIdToLessonId = new Map(
-    completedChallenges.map((challenge) => [challenge.id, challenge.lessonId] as const),
+  const completedChallengeIdToLessonId = new Map<number, number>(
+    completedChallenges.map((challenge: { id: number; lessonId: number }) => [challenge.id, challenge.lessonId] as const),
   );
 
   const recapLessonIds: number[] = [];
   const recapLessonIdsSet = new Set<number>();
-  const wrongLessonSet = new Set<number>(challengeItems.map((i) => i.lessonId));
+  const wrongLessonSet = new Set<number>(challengeItems.map((i: ReviewItem) => i.lessonId));
 
   for (const challengeId of completedChallengeIds) {
     const lessonId = completedChallengeIdToLessonId.get(challengeId);
@@ -414,8 +414,8 @@ export const getTodayReviewItems = cache(async () => {
     if (recapLessonIds.length >= MAX_REVIEW_ITEMS) break;
   }
 
-  const recapItems: ReviewItem[] = recapLessonIds.map((lessonId) => ({
-    type: "lesson",
+  const recapItems: ReviewItem[] = recapLessonIds.map((lessonId: number) => ({
+    type: "lesson" as const,
     lessonId,
   }));
 
@@ -434,7 +434,7 @@ export const getUserSubscription = cache(async () => {
 
   if (!data) return null;
 
-  const isActive = 
+  const isActive =
     data.stripePriceId &&
     data.stripeCurrentPeriodEnd?.getTime()! + DAY_IN_MS > Date.now();
 
@@ -469,27 +469,27 @@ export const getCourseStats = cache(async () => {
     },
   });
 
-  const allLessons = unitsInCourse.flatMap((unit) => unit.lessons);
-  const allChallenges = allLessons.flatMap((lesson) => lesson.challenges);
+  const allLessons = unitsInCourse.flatMap((unit: typeof unitsInCourse[number]) => unit.lessons);
+  const allChallenges = allLessons.flatMap((lesson: typeof allLessons[number]) => lesson.challenges);
 
   const totalLessons = allLessons.length;
   const totalChallenges = allChallenges.length;
 
-  const completedLessons = allLessons.filter((lesson) => {
+  const completedLessons = allLessons.filter((lesson: typeof allLessons[number]) => {
     if (lesson.challenges.length === 0) return false;
     return lesson.challenges.every(
-      (challenge) =>
+      (challenge: typeof lesson.challenges[number]) =>
         challenge.challengeProgress &&
         challenge.challengeProgress.length > 0 &&
-        challenge.challengeProgress.every((p) => p.completed),
+        challenge.challengeProgress.every((p: typeof challenge.challengeProgress[number]) => p.completed),
     );
   }).length;
 
   const completedChallenges = allChallenges.filter(
-    (challenge) =>
+    (challenge: typeof allChallenges[number]) =>
       challenge.challengeProgress &&
       challenge.challengeProgress.length > 0 &&
-      challenge.challengeProgress.every((p) => p.completed),
+      challenge.challengeProgress.every((p: typeof challenge.challengeProgress[number]) => p.completed),
   ).length;
 
   // Approximate words learned: count unique completed challenges
@@ -512,7 +512,7 @@ export const getTopTenUsers = cache(async () => {
   }
 
   const data = await db.query.userProgress.findMany({
-    orderBy: (userProgress, { desc }) => [desc(userProgress.points)],
+    orderBy: (userProgress: any, { desc }: any) => [desc(userProgress.points)],
     limit: 10,
     columns: {
       userId: true,
@@ -551,7 +551,7 @@ export const getNextLesson = cache(async (currentLessonId: number) => {
       eq(lessons.unitId, currentLesson.unitId),
       gt(lessons.order, currentLesson.order),
     ),
-    orderBy: (lessons, { asc }) => [asc(lessons.order)],
+    orderBy: (lessons: any, { asc }: any) => [asc(lessons.order)],
     columns: { id: true, title: true },
   });
 
@@ -575,7 +575,7 @@ export const getNextLesson = cache(async (currentLessonId: number) => {
       eq(units.courseId, currentUnit.courseId),
       gt(units.order, currentUnit.order),
     ),
-    orderBy: (units, { asc }) => [asc(units.order)],
+    orderBy: (units: any, { asc }: any) => [asc(units.order)],
     columns: { id: true },
   });
 
@@ -586,7 +586,7 @@ export const getNextLesson = cache(async (currentLessonId: number) => {
   // 5. Get the first lesson of the next unit
   const firstLessonOfNextUnit = await db.query.lessons.findFirst({
     where: eq(lessons.unitId, nextUnit.id),
-    orderBy: (lessons, { asc }) => [asc(lessons.order)],
+    orderBy: (lessons: any, { asc }: any) => [asc(lessons.order)],
     columns: { id: true, title: true },
   });
 

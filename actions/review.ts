@@ -41,7 +41,7 @@ export const getReviewSession = async () => {
 
   const cards = await db.query.reviewCards.findMany({
     where: and(eq(reviewCards.userId, userId), lte(reviewCards.due, now)),
-    orderBy: (reviewCards, { asc }) => [asc(reviewCards.due)],
+    orderBy: (reviewCards: any, { asc }: any) => [asc(reviewCards.due)],
     limit: MAX_SESSION_SIZE,
     with: {
       challenge: {
