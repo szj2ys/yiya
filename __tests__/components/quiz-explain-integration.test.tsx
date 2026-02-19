@@ -40,11 +40,11 @@ vi.mock("@/app/lesson/question-bubble", () => ({ QuestionBubble: () => null }));
 const fetchSpy = vi.fn();
 global.fetch = fetchSpy as unknown as typeof global.fetch;
 
-describe("Quiz explain integration", () => {
-  beforeEach(() => {
-    fetchSpy.mockReset();
-  });
+beforeEach(() => {
+  fetchSpy.mockReset();
+});
 
+describe("Quiz explain integration", () => {
   it("should show ExplanationPanel after wrong answer", async () => {
     fetchSpy.mockResolvedValueOnce({
       ok: true,
@@ -188,7 +188,7 @@ describe("Quiz explain integration", () => {
     await waitFor(() => {
       const panelRoot = screen
         .getByText("Why it’s wrong")
-        .closest("[aria-hidden]") as HTMLElement | null;
+        .closest("[aria-hidden]");
 
       expect(panelRoot).toHaveAttribute("aria-hidden", "true");
     });

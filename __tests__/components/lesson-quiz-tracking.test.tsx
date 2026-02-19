@@ -3,15 +3,14 @@ import { render, waitFor } from "@testing-library/react";
 
 import { Quiz } from "@/app/lesson/quiz";
 
-const trackSpy = vi.fn();
-
 vi.mock("@/lib/analytics", () => ({
   buildTrackPayload: (event: string, properties: any) => ({ event, properties }),
-  trackPayload: (payload: { event: string; properties: any }) => {
-    trackSpy(payload.event, payload.properties);
-    return Promise.resolve(undefined);
-  },
+  trackPayload: vi.fn().mockResolvedValue(undefined),
 }));
+
+import { trackPayload } from "@/lib/analytics";
+
+const trackPayloadSpy = vi.mocked(trackPayload);
 
 // Keep these lightweight: the test only asserts tracking behavior.
 vi.mock("next/image", () => ({ default: (props: any) => <img {...props} /> }));
@@ -51,9 +50,12 @@ describe("Quiz analytics", () => {
     );
 
     await waitFor(() => {
-      expect(trackSpy).toHaveBeenCalledWith("lesson_complete", {
-        lesson_id: 1,
-        hearts_remaining: 5,
+      expect(trackPayloadSpy).toHaveBeenCalledWith({
+        event: "lesson_complete",
+        properties: {
+          lesson_id: 1,
+          hearts_remaining: 5,
+        },
       });
     });
   });
@@ -72,13 +74,21 @@ describe("Quiz analytics", () => {
     );
 
     await waitFor(() => {
-      expect(trackSpy).toHaveBeenCalledWith("review_session_start", {
-        due_count: 1,
+      expect(trackPayloadSpy).toHaveBeenCalledWith({
+        event: "review_session_start",
+        properties: {
+          due_count: 1,
+        },
       });
-      expect(trackSpy).toHaveBeenCalledWith(
-        "review_session_complete",
-        expect.objectContaining({ reviewed_count: 0, again_count: 0 }),
-      );
+
+      expect(trackPayloadSpy).toHaveBeenCalledWith({
+        event: "review_session_complete",
+        properties: expect.objectContaining({
+          reviewed_count: 0,
+          again_count: 0,
+          duration_ms: expect.any(Number),
+        }),
+      });
     });
   });
 });

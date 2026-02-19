@@ -6,7 +6,10 @@ import { ExplanationPanel } from "@/components/explanation-panel";
 const trackSpy = vi.fn().mockResolvedValue(undefined);
 
 vi.mock("@/lib/analytics", () => ({
-  track: (...args: unknown[]) => trackSpy(...args),
+  track: (...args: unknown[]) => {
+    trackSpy(...args);
+    return Promise.resolve(undefined);
+  },
 }));
 
 describe("ExplanationPanel", () => {
