@@ -44,6 +44,27 @@ const STATS = [
   },
 ] as const;
 
+const LanguageCardContent = ({ name, code }: { name: string; code: string }) => (
+  <>
+    <div className="relative h-9 w-12 overflow-hidden rounded-lg ring-1 ring-black/10">
+      <Image
+        src={`/${code}.svg`}
+        alt={`${name} flag`}
+        fill
+        className="object-cover"
+      />
+    </div>
+    <div className="flex flex-col">
+      <span className="text-sm font-semibold text-neutral-900">
+        {name}
+      </span>
+      <span className="text-xs text-neutral-500 group-hover:text-green-600 transition-colors">
+        Start learning
+      </span>
+    </div>
+  </>
+);
+
 export default function Home() {
   return (
     <div className="w-full">
@@ -80,7 +101,7 @@ export default function Home() {
                       <SignUpButton
                         mode="modal"
                         afterSignInUrl="/learn"
-                        afterSignUpUrl="/learn"
+                        afterSignUpUrl="/onboarding"
                       >
                         <Button
                           size="lg"
@@ -94,7 +115,7 @@ export default function Home() {
                       <SignInButton
                         mode="modal"
                         afterSignInUrl="/learn"
-                        afterSignUpUrl="/learn"
+                        afterSignUpUrl="/onboarding"
                       >
                         <Button
                           size="lg"
@@ -178,27 +199,30 @@ export default function Home() {
 
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {LANGUAGES.map((language) => (
-              <div
-                key={language.code}
-                className="group flex items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/5 transition-colors hover:bg-neutral-50"
-              >
-                <div className="relative h-9 w-12 overflow-hidden rounded-lg ring-1 ring-black/10">
-                  <Image
-                    src={`/${language.code}.svg`}
-                    alt={`${language.name} flag`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-neutral-900">
-                    {language.name}
-                  </span>
-                  <span className="text-xs text-neutral-500 group-hover:text-neutral-600">
-                    Tap to explore
-                  </span>
-                </div>
-              </div>
+              <ClerkLoaded key={language.code}>
+                <SignedOut>
+                  <SignUpButton
+                    mode="modal"
+                    afterSignInUrl="/learn"
+                    afterSignUpUrl="/onboarding"
+                  >
+                    <button
+                      className="group flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/5 transition-all hover:bg-neutral-50 hover:ring-green-200 active:scale-[0.97]"
+                    >
+                      <LanguageCardContent name={language.name} code={language.code} />
+                    </button>
+                  </SignUpButton>
+                </SignedOut>
+                <SignedIn>
+                  <Link
+                    href="/onboarding"
+                    className="group flex items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/5 transition-all hover:bg-neutral-50 hover:ring-green-200 active:scale-[0.97]"
+                  >
+                    <LanguageCardContent name={language.name} code={language.code} />
+                  </Link>
+                </SignedIn>
+              </ClerkLoaded>
+
             ))}
           </div>
         </div>

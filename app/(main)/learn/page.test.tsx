@@ -1,16 +1,14 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 const mockGetCourseProgress = vi.fn();
+const mockGetUserProgress = vi.fn();
+const mockRedirect = vi.fn();
 
-vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
+vi.mock("next/navigation", () => ({ redirect: (...args: any[]) => mockRedirect(...args) }));
 
 vi.mock("@/db/queries", () => ({
-  getUserProgress: vi.fn().mockResolvedValue({
-    activeCourse: { title: "Spanish", imageSrc: "/course.svg" },
-    hearts: 5,
-    points: 10,
-  }),
+  getUserProgress: (...args: any[]) => mockGetUserProgress(...args),
   getCourseProgress: mockGetCourseProgress,
   getLessonPercentage: vi.fn().mockResolvedValue(0),
   getTodayReviewItems: vi.fn().mockResolvedValue([]),
@@ -76,6 +74,30 @@ vi.mock("./progress-stats", () => ({
 }));
 
 describe("LearnPage", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetUserProgress.mockResolvedValue({
+      activeCourse: { title: "Spanish", imageSrc: "/course.svg" },
+      hearts: 5,
+      points: 10,
+      lastLessonAt: null,
+    });
+  });
+
+  it("should redirect new users to onboarding when no userProgress", async () => {
+    mockGetUserProgress.mockResolvedValueOnce(null);
+    mockGetCourseProgress.mockResolvedValueOnce(null);
+    // redirect() in Next.js throws to halt execution; simulate that
+    mockRedirect.mockImplementation(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
+
+    const LearnPage = (await import("./page")).default;
+
+    await expect(LearnPage()).rejects.toThrow("NEXT_REDIRECT");
+    expect(mockRedirect).toHaveBeenCalledWith("/onboarding");
+  });
+
   it("should show primary start CTA when user has no progress", async () => {
     mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: null });
 
