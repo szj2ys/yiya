@@ -1,18 +1,16 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import { Streak } from "@/components/streak";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { lessons, units as unitsSchema } from "@/db/schema";
 import {
-  getClaimedQuests,
   getCourseProgress,
-  getCourseStats,
-  getLearningStats,
   getLessonPercentage,
   getTodayLessonCount,
   getTodayReviewItems,
@@ -27,9 +25,7 @@ import { getReviewDueCount } from "@/actions/review";
 import { Unit } from "./unit";
 import { Header } from "./header";
 import { DailyGoal } from "./daily-goal";
-import { LearningStats } from "./learning-stats";
 import { PracticeEntry } from "./practice-entry";
-import { ProgressStats } from "./progress-stats";
 import { StartFirstLesson } from "./start-first-lesson";
 import { WeeklyActivity } from "./weekly-activity";
 
@@ -42,11 +38,8 @@ const LearnPage = async () => {
   const userStreakData = getUserStreak();
   const todayReviewItemsData = getTodayReviewItems();
   const reviewDueCountData = getReviewDueCount();
-  const courseStatsData = getCourseStats();
   const weeklyActivityData = getWeeklyActivity();
-  const learningStatsData = getLearningStats();
   const todayLessonCountData = getTodayLessonCount();
-  const claimedQuestsData = getClaimedQuests();
 
   const [
     userProgress,
@@ -57,11 +50,8 @@ const LearnPage = async () => {
     userStreak,
     todayReviewItems,
     reviewDueCount,
-    courseStats,
     weeklyActivity,
-    learningStats,
     todayLessonCount,
-    claimedQuests,
   ] = await Promise.all([
     userProgressData,
     unitsData,
@@ -71,11 +61,8 @@ const LearnPage = async () => {
     userStreakData,
     todayReviewItemsData,
     reviewDueCountData,
-    courseStatsData,
     weeklyActivityData,
-    learningStatsData,
     todayLessonCountData,
-    claimedQuestsData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -98,26 +85,38 @@ const LearnPage = async () => {
           points={userProgress.points}
           hasActiveSubscription={isPro}
         />
-        {courseStats && (
-          <ProgressStats
-            totalLessons={courseStats.totalLessons}
-            completedLessons={courseStats.completedLessons}
-            totalChallenges={courseStats.totalChallenges}
-            completedChallenges={courseStats.completedChallenges}
-            wordsLearned={courseStats.wordsLearned}
-          />
-        )}
         <Streak streak={userStreak?.streak ?? 0} lastLessonAt={userStreak?.lastLessonAt ?? null} />
-        {learningStats && (
-          <LearningStats stats={learningStats} />
-        )}
-        {!isPro && (
-          <Promo />
-        )}
-        <Quests points={userProgress.points} claimedQuestValues={claimedQuests} />
+        <Quests points={userProgress.points} />
       </StickyWrapper>
       <FeedWrapper>
         <Header title={userProgress.activeCourse.title} />
+
+        {courseProgress.activeLesson && (
+          <div className="mb-6 rounded-2xl border border-green-200 bg-green-50/60 p-5">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1 space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-green-700">
+                  {courseProgress.activeLesson.unit.description}
+                </p>
+                <h2 className="text-lg font-bold text-neutral-800">
+                  {courseProgress.activeLesson.title}
+                </h2>
+              </div>
+            </div>
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center justify-between text-xs text-neutral-500">
+                <span>Progress</span>
+                <span>{lessonPercentage}%</span>
+              </div>
+              <Progress value={lessonPercentage} className="h-2" />
+            </div>
+            <Link href="/lesson">
+              <Button size="lg" variant="primary" className="mt-4 w-full">
+                Continue
+              </Button>
+            </Link>
+          </div>
+        )}
 
         {shouldShowStartCta && (
           <div className="mb-6 flex flex-col gap-3 rounded-2xl border bg-white p-5">
@@ -137,14 +136,10 @@ const LearnPage = async () => {
           </div>
         )}
 
-        {courseStats && (
-          <DailyGoal
-            todayLessonCount={todayLessonCount}
-            completedLessons={courseStats.completedLessons}
-            totalLessons={courseStats.totalLessons}
-            dailyGoal={userProgress.dailyGoal ?? 1}
-          />
-        )}
+        <DailyGoal
+          todayLessonCount={todayLessonCount}
+          dailyGoal={userProgress.dailyGoal ?? 1}
+        />
 
         {weeklyActivity.length > 0 && (
           <WeeklyActivity data={weeklyActivity} />
@@ -174,5 +169,5 @@ const LearnPage = async () => {
     </div>
   );
 };
- 
+
 export default LearnPage;

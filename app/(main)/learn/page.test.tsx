@@ -15,13 +15,6 @@ vi.mock("@/db/queries", () => ({
   getUnits: vi.fn().mockResolvedValue([]),
   getUserSubscription: vi.fn().mockResolvedValue({ isActive: true }),
   getUserStreak: vi.fn().mockResolvedValue({ streak: 7, lastLessonAt: new Date() }),
-  getCourseStats: vi.fn().mockResolvedValue({
-    totalLessons: 10,
-    completedLessons: 3,
-    totalChallenges: 50,
-    completedChallenges: 15,
-    wordsLearned: 20,
-  }),
   getWeeklyActivity: vi.fn().mockResolvedValue([
     { date: "2026-02-13", count: 0 },
     { date: "2026-02-14", count: 1 },
@@ -31,15 +24,7 @@ vi.mock("@/db/queries", () => ({
     { date: "2026-02-18", count: 1 },
     { date: "2026-02-19", count: 0 },
   ]),
-  getLearningStats: vi.fn().mockResolvedValue({
-    currentStreak: 7,
-    longestStreak: 7,
-    totalWordsLearned: 42,
-    totalLessonsCompleted: 10,
-    averageAccuracy: 85,
-  }),
   getTodayLessonCount: vi.fn().mockResolvedValue(0),
-  getClaimedQuests: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/actions/review", () => ({
@@ -80,23 +65,20 @@ vi.mock("./start-first-lesson", () => ({
   ),
 }));
 
-vi.mock("@/components/promo", () => ({ Promo: () => <div>Promo</div> }));
 vi.mock("@/components/quests", () => ({ Quests: () => <div>Quests</div> }));
 
 vi.mock("./daily-goal", () => ({
   DailyGoal: () => <div>DailyGoal</div>,
 }));
 
-vi.mock("./progress-stats", () => ({
-  ProgressStats: () => <div>ProgressStats</div>,
-}));
-
 vi.mock("./weekly-activity", () => ({
   WeeklyActivity: () => <div>WeeklyActivity</div>,
 }));
 
-vi.mock("./learning-stats", () => ({
-  LearningStats: () => <div>LearningStats</div>,
+vi.mock("@/components/ui/progress", () => ({
+  Progress: ({ value, className }: { value: number; className?: string }) => (
+    <div data-testid="progress-bar" data-value={value} className={className} />
+  ),
 }));
 
 describe("LearnPage", () => {
@@ -136,7 +118,7 @@ describe("LearnPage", () => {
   });
 
   it("should display streak in sidebar", async () => {
-    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1 } });
+    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
 
     const LearnPage = (await import("./page")).default;
 
@@ -144,5 +126,44 @@ describe("LearnPage", () => {
     render(element);
 
     expect(screen.getByText("7 day streak")).toBeInTheDocument();
+  });
+
+  it("should not render ProgressStats or LearningStats or Promo in sidebar", async () => {
+    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+
+    const LearnPage = (await import("./page")).default;
+
+    const element = await LearnPage();
+    render(element);
+
+    expect(screen.queryByText("ProgressStats")).not.toBeInTheDocument();
+    expect(screen.queryByText("LearningStats")).not.toBeInTheDocument();
+    expect(screen.queryByText("Promo")).not.toBeInTheDocument();
+  });
+
+  it("should render continue CTA with lesson title and progress when active lesson exists", async () => {
+    mockGetCourseProgress.mockResolvedValueOnce({
+      activeLesson: { id: 1, title: "Greetings", unit: { description: "Learn the basics" } },
+    });
+
+    const LearnPage = (await import("./page")).default;
+
+    const element = await LearnPage();
+    render(element);
+
+    expect(screen.getByText("Greetings")).toBeInTheDocument();
+    expect(screen.getByText("Learn the basics")).toBeInTheDocument();
+    expect(screen.getByText("Continue")).toBeInTheDocument();
+  });
+
+  it("should render DailyGoal with correct todayLessonCount and dailyGoal", async () => {
+    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+
+    const LearnPage = (await import("./page")).default;
+
+    const element = await LearnPage();
+    render(element);
+
+    expect(screen.getByText("DailyGoal")).toBeInTheDocument();
   });
 });
