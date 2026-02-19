@@ -96,6 +96,7 @@ describe("upsertChallengeProgress review card", () => {
       hearts: 5,
       points: 0,
       streak: 0,
+      longestStreak: 0,
       lastLessonAt: null,
     });
 
@@ -107,36 +108,101 @@ describe("upsertChallengeProgress review card", () => {
   });
 });
 
-describe("upsertChallengeProgress streak", () => {
-  it("should increment streak when last lesson was 24-48h ago", async () => {
+describe("upsertChallengeProgress streak timing", () => {
+  it("should only update streak when lesson is fully completed, not per challenge", async () => {
     getUserProgressSpy.mockResolvedValue({
       userId: "user_a",
       hearts: 5,
       points: 0,
       streak: 3,
+      longestStreak: 5,
       lastLessonAt: new Date(now.getTime() - 30 * 60 * 60 * 1000),
     });
+
+    // Lesson is NOT complete: 5 total, only 3 completed
+    selectQueryResults.length = 0;
+    selectQueryResults.push([{ value: 5 }], [{ value: 3 }]);
 
     const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
 
     await upsertChallengeProgress(1);
 
-    // last update call sets streak to 4
+    // Per-challenge: only points should be updated, no streak or lastLessonAt
+    const setCalls = setSpy.mock.calls.map((c) => c[0]);
+    expect(setCalls.length).toBe(1); // only one update call (points only)
+    expect(setCalls[0]).toEqual({ points: 10 });
+    expect(setCalls[0]).not.toHaveProperty("streak");
+    expect(setCalls[0]).not.toHaveProperty("lastLessonAt");
+  });
+
+  it("should update streak and lastLessonAt when lesson is fully completed", async () => {
+    getUserProgressSpy.mockResolvedValue({
+      userId: "user_a",
+      hearts: 5,
+      points: 0,
+      streak: 3,
+      longestStreak: 5,
+      lastLessonAt: new Date(now.getTime() - 30 * 60 * 60 * 1000),
+    });
+
+    // Lesson IS complete: 5 total, 5 completed
+    selectQueryResults.length = 0;
+    selectQueryResults.push([{ value: 5 }], [{ value: 5 }]);
+
+    const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
+
+    await upsertChallengeProgress(1);
+
+    // Two update calls: first for points, second for streak + lastLessonAt
+    const setCalls = setSpy.mock.calls.map((c) => c[0]);
+    expect(setCalls.length).toBe(2);
+
+    // First call: points only
+    expect(setCalls[0]).toEqual({ points: 10 });
+
+    // Second call: streak + lastLessonAt
+    expect(setCalls[1]).toMatchObject({ streak: 4, longestStreak: 5 });
+    expect(setCalls[1].lastLessonAt).toBeInstanceOf(Date);
+  });
+
+  it("should increment streak when last lesson was 24-48h ago and lesson completes", async () => {
+    getUserProgressSpy.mockResolvedValue({
+      userId: "user_a",
+      hearts: 5,
+      points: 0,
+      streak: 3,
+      longestStreak: 3,
+      lastLessonAt: new Date(now.getTime() - 30 * 60 * 60 * 1000),
+    });
+
+    // Lesson IS complete
+    selectQueryResults.length = 0;
+    selectQueryResults.push([{ value: 5 }], [{ value: 5 }]);
+
+    const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
+
+    await upsertChallengeProgress(1);
+
     const setCalls = setSpy.mock.calls.map((c) => c[0]);
     const lastSet = setCalls[setCalls.length - 1];
 
-    expect(lastSet).toMatchObject({ streak: 4 });
+    expect(lastSet).toMatchObject({ streak: 4, longestStreak: 4 });
     expect(lastSet.lastLessonAt).toBeInstanceOf(Date);
   });
 
-  it("should reset streak when last lesson was more than 48h ago", async () => {
+  it("should reset streak when last lesson was more than 48h ago and lesson completes", async () => {
     getUserProgressSpy.mockResolvedValue({
       userId: "user_a",
       hearts: 5,
       points: 0,
       streak: 9,
+      longestStreak: 15,
       lastLessonAt: new Date(now.getTime() - 49 * 60 * 60 * 1000),
     });
+
+    // Lesson IS complete
+    selectQueryResults.length = 0;
+    selectQueryResults.push([{ value: 5 }], [{ value: 5 }]);
 
     const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
 
@@ -145,18 +211,23 @@ describe("upsertChallengeProgress streak", () => {
     const setCalls = setSpy.mock.calls.map((c) => c[0]);
     const lastSet = setCalls[setCalls.length - 1];
 
-    expect(lastSet).toMatchObject({ streak: 1 });
+    expect(lastSet).toMatchObject({ streak: 1, longestStreak: 15 });
     expect(lastSet.lastLessonAt).toBeInstanceOf(Date);
   });
 
-  it("should not change streak when last lesson was within 24h", async () => {
+  it("should not change streak when last lesson was within 24h and lesson completes", async () => {
     getUserProgressSpy.mockResolvedValue({
       userId: "user_a",
       hearts: 5,
       points: 0,
       streak: 5,
+      longestStreak: 10,
       lastLessonAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
     });
+
+    // Lesson IS complete
+    selectQueryResults.length = 0;
+    selectQueryResults.push([{ value: 5 }], [{ value: 5 }]);
 
     const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
 
@@ -165,6 +236,7 @@ describe("upsertChallengeProgress streak", () => {
     const setCalls = setSpy.mock.calls.map((c) => c[0]);
     const lastSet = setCalls[setCalls.length - 1];
 
+    // shouldUpdateStreak is false, so no streak/longestStreak in set
     expect(lastSet).not.toHaveProperty("streak");
     expect(lastSet.lastLessonAt).toBeInstanceOf(Date);
   });

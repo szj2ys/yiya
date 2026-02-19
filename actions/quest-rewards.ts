@@ -1,12 +1,12 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import db from "@/db/drizzle";
 import { getAuthUserId } from "@/lib/auth-utils";
 import { getUserProgress } from "@/db/queries";
-import { userProgress } from "@/db/schema";
+import { questClaims, userProgress } from "@/db/schema";
 
 export const claimQuestReward = async (
   questValue: number,
@@ -28,12 +28,29 @@ export const claimQuestReward = async (
     return { error: "not_eligible" };
   }
 
+  // Check if already claimed
+  const existingClaim = await db.query.questClaims.findFirst({
+    where: and(
+      eq(questClaims.userId, userId),
+      eq(questClaims.questValue, questValue),
+    ),
+  });
+
+  if (existingClaim) {
+    return { error: "already_claimed" };
+  }
+
   const newPoints = currentUserProgress.points + reward;
 
   await db
     .update(userProgress)
     .set({ points: newPoints })
     .where(eq(userProgress.userId, userId));
+
+  await db.insert(questClaims).values({
+    userId,
+    questValue,
+  });
 
   revalidatePath("/learn");
   revalidatePath("/quests");

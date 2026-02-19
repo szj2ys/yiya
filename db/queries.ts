@@ -9,6 +9,7 @@ import {
   challenges,
   lessonCompletions,
   lessons,
+  questClaims,
   reviewCards,
   units,
   userProgress,
@@ -63,6 +64,44 @@ export const getUserStreak = cache(async () => {
   });
 
   return data;
+});
+
+export const getTodayLessonCount = cache(async () => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return 0;
+  }
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const [result] = await db
+    .select({ value: count() })
+    .from(lessonCompletions)
+    .where(
+      and(
+        eq(lessonCompletions.userId, userId),
+        gte(lessonCompletions.completedAt, startOfToday),
+      ),
+    );
+
+  return result?.value ?? 0;
+});
+
+export const getClaimedQuests = cache(async () => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return [] as number[];
+  }
+
+  const rows = await db
+    .select({ questValue: questClaims.questValue })
+    .from(questClaims)
+    .where(eq(questClaims.userId, userId));
+
+  return rows.map((r) => r.questValue);
 });
 
 export const getUnits = cache(async () => {
@@ -618,15 +657,14 @@ export const getLearningStats = cache(async (): Promise<LearningStatsData | null
     return null;
   }
 
-  // Get current streak
+  // Get current streak and longest streak
   const progress = await db.query.userProgress.findFirst({
     where: eq(userProgress.userId, userId),
-    columns: { streak: true },
+    columns: { streak: true, longestStreak: true },
   });
 
   const currentStreak = progress?.streak ?? 0;
-  // TODO: Track historical max streak separately — for now use currentStreak as proxy
-  const longestStreak = currentStreak;
+  const longestStreak = progress?.longestStreak ?? 0;
 
   // Total distinct challenges completed (words learned)
   const [wordsResult] = await db

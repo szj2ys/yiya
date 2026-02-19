@@ -2,33 +2,25 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { Check } from "lucide-react";
 
-import { quests, getQuestClaimedKey } from "@/constants";
+import { quests } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { claimQuestReward } from "@/actions/quest-rewards";
 
 type Props = {
   points: number;
+  claimedQuestValues: number[];
 };
 
-export const Quests = ({ points }: Props) => {
-  const [claimedQuests, setClaimedQuests] = useState<Set<number>>(new Set());
+export const Quests = ({ points, claimedQuestValues }: Props) => {
+  const [claimedQuests, setClaimedQuests] = useState<Set<number>>(
+    () => new Set(claimedQuestValues),
+  );
   const [celebratingQuest, setCelebratingQuest] = useState<number | null>(null);
   const [pending, startTransition] = useTransition();
-
-  // Load claimed state from localStorage on mount
-  useEffect(() => {
-    const claimed = new Set<number>();
-    for (const quest of quests) {
-      if (localStorage.getItem(getQuestClaimedKey(quest.value)) === "true") {
-        claimed.add(quest.value);
-      }
-    }
-    setClaimedQuests(claimed);
-  }, []);
 
   const handleClaim = useCallback(
     (questValue: number, reward: number) => {
@@ -36,7 +28,6 @@ export const Quests = ({ points }: Props) => {
         const result = await claimQuestReward(questValue, reward);
 
         if ("success" in result) {
-          localStorage.setItem(getQuestClaimedKey(questValue), "true");
           setClaimedQuests((prev) => new Set(prev).add(questValue));
           setCelebratingQuest(questValue);
           setTimeout(() => setCelebratingQuest(null), 1000);
