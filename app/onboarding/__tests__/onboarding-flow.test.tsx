@@ -115,6 +115,6 @@ describe("OnboardingFlow", () => {
     fireEvent.click(screen.getByText("Casual"));
     fireEvent.click(screen.getByRole("button", { name: /start learning/i }));
 
-    expect(upsertUserProgress).toHaveBeenCalledWith(3);
+    expect(upsertUserProgress).toHaveBeenCalledWith(3, 1);
   });
 });

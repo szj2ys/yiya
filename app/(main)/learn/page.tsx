@@ -121,6 +121,7 @@ const LearnPage = async () => {
             lastLessonAt={userProgress.lastLessonAt ?? null}
             completedLessons={courseStats.completedLessons}
             totalLessons={courseStats.totalLessons}
+            dailyGoal={userProgress.dailyGoal ?? 1}
           />
         )}
 
