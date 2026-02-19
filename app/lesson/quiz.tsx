@@ -523,6 +523,7 @@ export const Quiz = ({
                 typedAnswer={typedAnswer}
                 onTypedAnswerChange={setTypedAnswer}
                 courseLanguage={courseLanguage}
+                onSubmit={onContinue}
               />
             </div>
           </div>

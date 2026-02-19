@@ -14,6 +14,7 @@ type Props = {
   typedAnswer?: string;
   onTypedAnswerChange?: (value: string) => void;
   courseLanguage?: string;
+  onSubmit?: () => void;
 };
 
 export const Challenge = ({
@@ -26,6 +27,7 @@ export const Challenge = ({
   typedAnswer,
   onTypedAnswerChange,
   courseLanguage,
+  onSubmit,
 }: Props) => {
   if (type === "TYPE") {
     const correctOption = options.find((o) => o.correct);
@@ -37,6 +39,7 @@ export const Challenge = ({
         status={status}
         disabled={disabled}
         correctAnswer={correctOption?.text}
+        onSubmit={onSubmit}
       />
     );
   }
