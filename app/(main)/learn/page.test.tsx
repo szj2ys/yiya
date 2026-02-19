@@ -17,6 +17,13 @@ vi.mock("@/db/queries", () => ({
   getUnits: vi.fn().mockResolvedValue([]),
   getUserSubscription: vi.fn().mockResolvedValue({ isActive: true }),
   getUserStreak: vi.fn().mockResolvedValue({ streak: 7, lastLessonAt: new Date() }),
+  getCourseStats: vi.fn().mockResolvedValue({
+    totalLessons: 10,
+    completedLessons: 3,
+    totalChallenges: 50,
+    completedChallenges: 15,
+    wordsLearned: 20,
+  }),
 }));
 
 vi.mock("@/actions/review", () => ({
@@ -59,6 +66,14 @@ vi.mock("./start-first-lesson", () => ({
 
 vi.mock("@/components/promo", () => ({ Promo: () => <div>Promo</div> }));
 vi.mock("@/components/quests", () => ({ Quests: () => <div>Quests</div> }));
+
+vi.mock("./daily-goal", () => ({
+  DailyGoal: () => <div>DailyGoal</div>,
+}));
+
+vi.mock("./progress-stats", () => ({
+  ProgressStats: () => <div>ProgressStats</div>,
+}));
 
 describe("LearnPage", () => {
   it("should show primary start CTA when user has no progress", async () => {
