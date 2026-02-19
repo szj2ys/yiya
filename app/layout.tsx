@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ExitModal } from "@/components/modals/exit-modal";
 import { HeartsModal } from "@/components/modals/hearts-modal";
 import { PracticeModal } from "@/components/modals/practice-modal";
+import { PostHogProvider } from "@/components/posthog-provider";
 import { Analytics } from '@vercel/analytics/react';
 import "./globals.css";
 
@@ -28,7 +29,7 @@ export default function RootLayout({
           <ExitModal />
           <HeartsModal />
           <PracticeModal />
-          {children}
+          <PostHogProvider>{children}</PostHogProvider>
           <Analytics />
         </body>
       </html>
