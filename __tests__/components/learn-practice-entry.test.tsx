@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 const pushSpy = vi.fn();
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushSpy }),
 }));
@@ -17,9 +18,7 @@ describe("PracticeEntry", () => {
     render(<PracticeEntry reviewItemCount={3} dueCount={2} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Practice" }));
-    await waitFor(() => {
-      expect(pushSpy).toHaveBeenCalledWith("/practice");
-    });
+
+    expect(pushSpy).toHaveBeenCalledWith("/practice");
   });
 });
-

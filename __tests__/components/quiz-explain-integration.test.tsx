@@ -43,9 +43,8 @@ global.fetch = fetchSpy as unknown as typeof global.fetch;
 describe("Quiz explain integration", () => {
   beforeEach(() => {
     fetchSpy.mockReset();
-    pushSpy.mockReset();
-    openPracticeModalSpy.mockReset();
   });
+
   it("should show ExplanationPanel after wrong answer", async () => {
     fetchSpy.mockResolvedValueOnce({
       ok: true,
@@ -187,9 +186,11 @@ describe("Quiz explain integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "Got it" }));
 
     await waitFor(() => {
-      const heading = screen.getByText("Why it’s wrong");
-      const panel = heading.closest("div[aria-hidden]");
-      expect(panel).toHaveAttribute("aria-hidden", "true");
+      const panelRoot = screen
+        .getByText("Why it’s wrong")
+        .closest("[aria-hidden]") as HTMLElement | null;
+
+      expect(panelRoot).toHaveAttribute("aria-hidden", "true");
     });
   });
 });

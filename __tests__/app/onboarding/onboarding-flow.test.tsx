@@ -40,7 +40,10 @@ describe("OnboardingFlow", () => {
     fireEvent.click(screen.getByText("Spanish"));
     fireEvent.click(screen.getByText("Continue"));
 
-    // Step 2: Select a daily goal (Regular = 3 lessons/day)
+    // Step 2: Skip the sample challenge
+    fireEvent.click(screen.getByText("Skip"));
+
+    // Step 3: Select a daily goal (Regular = 3 lessons/day)
     // Click the parent button element containing the "Regular" text
     const regularButton = screen.getByText("Regular").closest("button")!;
     fireEvent.click(regularButton);
@@ -60,7 +63,10 @@ describe("OnboardingFlow", () => {
     fireEvent.click(screen.getByText("Spanish"));
     fireEvent.click(screen.getByText("Continue"));
 
-    // Step 2: Select "Casual" (1 lesson/day)
+    // Step 2: Skip the sample challenge
+    fireEvent.click(screen.getByText("Skip"));
+
+    // Step 3: Select "Casual" (1 lesson/day)
     const casualButton = screen.getByText("Casual").closest("button")!;
     fireEvent.click(casualButton);
 

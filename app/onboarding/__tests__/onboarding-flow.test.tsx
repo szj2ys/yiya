@@ -1,6 +1,6 @@
 import React from "react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
@@ -30,6 +30,10 @@ describe("OnboardingFlow", () => {
     vi.clearAllMocks();
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("should render language selection on step 1", () => {
     render(<OnboardingFlow courses={MOCK_COURSES} />);
 
@@ -42,12 +46,12 @@ describe("OnboardingFlow", () => {
     expect(screen.getByText("Japanese")).toBeInTheDocument();
   });
 
-  it("should show progress indicator with 3 steps", () => {
+  it("should show progress indicator with 4 steps", () => {
     const { container } = render(<OnboardingFlow courses={MOCK_COURSES} />);
 
-    // 3 progress dots
+    // 4 progress dots
     const dots = container.querySelectorAll(".rounded-full.transition-all");
-    expect(dots).toHaveLength(3);
+    expect(dots).toHaveLength(4);
   });
 
   it("should disable continue button when no language is selected", () => {
@@ -66,35 +70,107 @@ describe("OnboardingFlow", () => {
     expect(continueButton).not.toBeDisabled();
   });
 
-  it("should advance to step 2 on language select and continue", () => {
+  it("should show sample challenge after language selection", () => {
     render(<OnboardingFlow courses={MOCK_COURSES} />);
 
     fireEvent.click(screen.getByText("Spanish"));
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
+    expect(screen.getByText("Try it")).toBeInTheDocument();
+    expect(screen.getByTestId("try-it-question")).toHaveTextContent(
+      "Which one means 'hello'?",
+    );
+    expect(screen.getByRole("button", { name: "Hola" })).toBeInTheDocument();
+  });
+
+  it("should highlight correct answer on correct selection", async () => {
+    vi.useFakeTimers();
+
+    render(<OnboardingFlow courses={MOCK_COURSES} />);
+
+    fireEvent.click(screen.getByText("Spanish"));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    const holaButton = screen.getByRole("button", { name: "Hola" });
+    fireEvent.click(holaButton);
+
+    expect(holaButton).toHaveClass("border-green-600");
+    expect(screen.getByText("Nice!")).toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(1500);
+    });
+
     expect(screen.getByText("Set your daily goal")).toBeInTheDocument();
-    expect(screen.getByText("Casual")).toBeInTheDocument();
-    expect(screen.getByText("Regular")).toBeInTheDocument();
-    expect(screen.getByText("Intense")).toBeInTheDocument();
+  });
+
+  it("should show correct answer on wrong selection", async () => {
+    vi.useFakeTimers();
+
+    render(<OnboardingFlow courses={MOCK_COURSES} />);
+
+    fireEvent.click(screen.getByText("Spanish"));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    const wrongButton = screen.getByRole("button", { name: "Gracias" });
+    fireEvent.click(wrongButton);
+
+    expect(wrongButton).toHaveClass("border-rose-400");
+    expect(screen.getByRole("button", { name: "Hola" })).toHaveClass(
+      "border-green-600",
+    );
+    expect(screen.getByText("Almost!")).toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(2000);
+    });
+
+    expect(screen.getByText("Set your daily goal")).toBeInTheDocument();
+  });
+
+  it("should allow skipping", () => {
+    render(<OnboardingFlow courses={MOCK_COURSES} />);
+
+    fireEvent.click(screen.getByText("Spanish"));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.click(screen.getByRole("button", { name: /skip/i }));
+
+    expect(screen.getByText("Set your daily goal")).toBeInTheDocument();
+  });
+
+  it("should apply correct animation class on selection", () => {
+    render(<OnboardingFlow courses={MOCK_COURSES} />);
+
+    fireEvent.click(screen.getByText("Spanish"));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    const wrongButton = screen.getByRole("button", { name: "Gracias" });
+    fireEvent.click(wrongButton);
+
+    expect(wrongButton.className).toContain("animate-[ob-shake_300ms_ease-out]");
   });
 
   it("should disable start learning button when no goal is selected", () => {
     render(<OnboardingFlow courses={MOCK_COURSES} />);
 
-    // Go to step 2
+    // Go to goal step
     fireEvent.click(screen.getByText("Spanish"));
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    fireEvent.click(screen.getByRole("button", { name: /skip/i }));
 
     const startButton = screen.getByRole("button", { name: /start learning/i });
     expect(startButton).toBeDisabled();
   });
 
-  it("should allow navigating back from step 2 to step 1", () => {
+  it("should allow navigating back from goal step to step 1", () => {
     render(<OnboardingFlow courses={MOCK_COURSES} />);
 
-    // Go to step 2
+    // Go to goal step
     fireEvent.click(screen.getByText("Spanish"));
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    fireEvent.click(screen.getByRole("button", { name: /skip/i }));
+
     expect(screen.getByText("Set your daily goal")).toBeInTheDocument();
 
     // Go back
@@ -111,10 +187,15 @@ describe("OnboardingFlow", () => {
     fireEvent.click(screen.getByText("Spanish"));
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
-    // Step 2: select goal and finish
+    // Step 2: skip sample challenge
+    fireEvent.click(screen.getByRole("button", { name: /skip/i }));
+
+    // Step 3: select goal and finish
     fireEvent.click(screen.getByText("Casual"));
     fireEvent.click(screen.getByRole("button", { name: /start learning/i }));
 
-    expect(upsertUserProgress).toHaveBeenCalledWith(3, 1);
+    await waitFor(() => {
+      expect(upsertUserProgress).toHaveBeenCalledWith(3, 1);
+    });
   });
 });
