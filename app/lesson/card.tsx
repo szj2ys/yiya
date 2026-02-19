@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { useAudio, useKey } from "react-use";
 
 import { cn } from "@/lib/utils";
+import { speak } from "@/lib/tts";
 import { challenges } from "@/db/schema";
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
   disabled?: boolean;
   status?: "correct" | "wrong" | "none",
   type: typeof challenges.$inferSelect["type"];
+  courseLanguage?: string;
 };
 
 export const Card = ({
@@ -29,15 +31,20 @@ export const Card = ({
   status,
   disabled,
   type,
+  courseLanguage,
 }: Props) => {
   const [audio, _, controls] = useAudio({ src: audioSrc || "" });
 
   const handleClick = useCallback(() => {
     if (disabled) return;
 
-    controls.play();
+    if (audioSrc) {
+      controls.play();
+    } else if (courseLanguage) {
+      speak(text, courseLanguage);
+    }
     onClick();
-  }, [disabled, onClick, controls]);
+  }, [disabled, onClick, controls, audioSrc, courseLanguage, text]);
 
   useKey(shortcut, handleClick, {}, [handleClick]);
 
