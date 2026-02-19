@@ -22,13 +22,14 @@ describe("MobileHeader (bottom tab bar)", () => {
     expect(screen.getByText("Leaderboard")).toBeInTheDocument();
     expect(screen.getByText("Quests")).toBeInTheDocument();
     expect(screen.getByText("Shop")).toBeInTheDocument();
+    expect(screen.getByText("Settings")).toBeInTheDocument();
   });
 
-  it("should render 4 navigation links", () => {
+  it("should render 5 navigation links", () => {
     render(<MobileHeader />);
 
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(4);
+    expect(links).toHaveLength(5);
   });
 
   it("should link to correct routes", () => {
@@ -39,6 +40,7 @@ describe("MobileHeader (bottom tab bar)", () => {
     expect(links[1]).toHaveAttribute("href", "/leaderboard");
     expect(links[2]).toHaveAttribute("href", "/quests");
     expect(links[3]).toHaveAttribute("href", "/shop");
+    expect(links[4]).toHaveAttribute("href", "/settings");
   });
 
   it("should highlight active tab with green text", () => {
@@ -53,11 +55,12 @@ describe("MobileHeader (bottom tab bar)", () => {
     render(<MobileHeader />);
 
     const images = screen.getAllByRole("img");
-    expect(images).toHaveLength(4);
+    expect(images).toHaveLength(5);
     expect(images[0]).toHaveAttribute("alt", "Learn");
     expect(images[1]).toHaveAttribute("alt", "Leaderboard");
     expect(images[2]).toHaveAttribute("alt", "Quests");
     expect(images[3]).toHaveAttribute("alt", "Shop");
+    expect(images[4]).toHaveAttribute("alt", "Settings");
   });
 
   it("should have minimum 48px touch targets on tab links", () => {

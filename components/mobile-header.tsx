@@ -11,6 +11,7 @@ const tabs = [
   { label: "Leaderboard", href: "/leaderboard", iconSrc: "/leaderboard.svg" },
   { label: "Quests", href: "/quests", iconSrc: "/quests.svg" },
   { label: "Shop", href: "/shop", iconSrc: "/shop.svg" },
+  { label: "Settings", href: "/settings", iconSrc: "/settings.svg" },
 ] as const;
 
 export const MobileHeader = () => {
