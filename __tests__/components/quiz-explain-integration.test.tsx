@@ -1,5 +1,5 @@
 import React from "react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import type { challenges } from "@/db/schema";
@@ -41,6 +41,9 @@ const fetchSpy = vi.fn();
 global.fetch = fetchSpy as unknown as typeof global.fetch;
 
 describe("Quiz explain integration", () => {
+  beforeEach(() => {
+    fetchSpy.mockReset();
+  });
   it("should show ExplanationPanel after wrong answer", async () => {
     fetchSpy.mockResolvedValueOnce({
       ok: true,
@@ -181,7 +184,11 @@ describe("Quiz explain integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "Got it" }));
 
     await waitFor(() => {
-      expect(screen.queryByText("Why it’s wrong")).toBeNull();
+      const panelRoot = screen
+        .getByText("Why it’s wrong")
+        .closest("[aria-hidden]") as HTMLElement | null;
+
+      expect(panelRoot).toHaveAttribute("aria-hidden", "true");
     });
   });
 });
