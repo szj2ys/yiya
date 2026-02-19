@@ -180,6 +180,7 @@ describe("Quiz explain integration", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Why it’s wrong")).toBeInTheDocument();
+      expect(screen.getByText("E")).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Got it" }));

@@ -28,5 +28,10 @@ vi.mock("@clerk/nextjs", () => {
     SignInButton: ({ children }: any) => children,
     SignUpButton: ({ children }: any) => children,
     UserButton: () => null,
+    useUser: () => ({
+      user: null,
+      isLoaded: true,
+      isSignedIn: false,
+    }),
   };
 });
