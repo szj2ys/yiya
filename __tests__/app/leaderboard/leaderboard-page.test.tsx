@@ -17,13 +17,13 @@ describe("LeaderboardPage", () => {
 
   // --- Data wiring ---
 
-  it("should call getUserRank query", () => {
-    expect(pageSource).toContain("getUserRank");
+  it("should call getUserWeeklyRank query", () => {
+    expect(pageSource).toContain("getUserWeeklyRank");
     expect(pageSource).toContain("userRankData");
   });
 
-  it("should call getTopTenUsers query", () => {
-    expect(pageSource).toContain("getTopTenUsers");
+  it("should call getTopTenWeekly query", () => {
+    expect(pageSource).toContain("getTopTenWeekly");
   });
 
   it("should get current userId via getAuthUserId", () => {
@@ -39,9 +39,9 @@ describe("LeaderboardPage", () => {
 
   it("should render top 3 podium with medals", () => {
     // Check for medal emojis
-    expect(pageSource).toContain("🥇");
-    expect(pageSource).toContain("🥈");
-    expect(pageSource).toContain("🥉");
+    expect(pageSource).toContain("\u{1F947}");
+    expect(pageSource).toContain("\u{1F948}");
+    expect(pageSource).toContain("\u{1F949}");
     // Check for podium data-testid
     expect(pageSource).toContain('data-testid="podium"');
   });
@@ -87,6 +87,27 @@ describe("LeaderboardPage", () => {
 
   it("should only show rank section when user is not in top 10 and rank data exists", () => {
     expect(pageSource).toContain("!currentUserInTop10 && userRank");
+  });
+
+  // --- Weekly XP display ---
+
+  it("should display weeklyXp values instead of all-time points", () => {
+    expect(pageSource).toContain("weeklyXp");
+    expect(pageSource).toContain("XP this week");
+  });
+
+  it("should calculate xpToTop10 based on weekly XP", () => {
+    expect(pageSource).toContain("weeklyXp");
+    expect(pageSource).toContain("xpToTop10");
+    // Ensure it uses weeklyXp, not points, for top10 calculation
+    expect(pageSource).toMatch(/leaderboard\[leaderboard\.length - 1\]\.weeklyXp/);
+  });
+
+  it("should not use all-time points for leaderboard rankings", () => {
+    // The page should NOT reference user.points for ranking display
+    // (it still uses userProgress.points for the sidebar UserProgress component)
+    expect(pageSource).not.toContain("getTopTenUsers");
+    expect(pageSource).not.toContain("getUserRank()");
   });
 
   // --- Empty state ---
