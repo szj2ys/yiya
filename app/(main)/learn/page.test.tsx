@@ -171,7 +171,9 @@ describe("LearnPage", () => {
     const element = await LearnPage();
     render(element);
 
-    expect(screen.getByText("7 day streak")).toBeInTheDocument();
+    // Streak appears both in sidebar and mobile wrapper
+    const streakElements = screen.getAllByText("7 day streak");
+    expect(streakElements.length).toBeGreaterThanOrEqual(1);
   });
 
   it("should not render ProgressStats or LearningStats or Promo in sidebar", async () => {
@@ -211,5 +213,67 @@ describe("LearnPage", () => {
     render(element);
 
     expect(screen.getByText("DailyGoal")).toBeInTheDocument();
+  });
+
+  it("should render Streak component in mobile wrapper when viewport < lg", async () => {
+    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+
+    const LearnPage = (await import("./page")).default;
+
+    const element = await LearnPage();
+    render(element);
+
+    const mobileStreak = screen.getByTestId("mobile-streak");
+    expect(mobileStreak).toBeInTheDocument();
+    expect(mobileStreak.className).toContain("lg:hidden");
+  });
+
+  it("should render DailyGoal before LearningProgress", async () => {
+    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+
+    const LearnPage = (await import("./page")).default;
+
+    const element = await LearnPage();
+    const { container } = render(element);
+
+    const allText = container.textContent ?? "";
+    const dailyGoalIndex = allText.indexOf("DailyGoal");
+    const learningProgressIndex = allText.indexOf("LearningProgress");
+
+    expect(dailyGoalIndex).toBeGreaterThan(-1);
+    expect(learningProgressIndex).toBeGreaterThan(-1);
+    expect(dailyGoalIndex).toBeLessThan(learningProgressIndex);
+  });
+
+  it("should display hearts and points in mobile stats bar", async () => {
+    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+
+    const LearnPage = (await import("./page")).default;
+
+    const element = await LearnPage();
+    render(element);
+
+    const mobileStatsBar = screen.getByTestId("mobile-stats-bar");
+    expect(mobileStatsBar).toBeInTheDocument();
+    expect(mobileStatsBar.className).toContain("lg:hidden");
+    // Default mock has subscription active (Pro), so hearts show infinity icon rather than number
+    expect(mobileStatsBar.textContent).toContain("10 XP");
+    // Verify heart icon is present (lucide renders an svg with class containing "heart")
+    const heartIcon = mobileStatsBar.querySelector("svg.lucide-heart");
+    expect(heartIcon).toBeInTheDocument();
+    // Verify flame icon is present
+    const flameIcon = mobileStatsBar.querySelector("svg.lucide-flame");
+    expect(flameIcon).toBeInTheDocument();
+  });
+
+  it("should show Pro badge in mobile stats bar when user has active subscription", async () => {
+    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+
+    const LearnPage = (await import("./page")).default;
+
+    const element = await LearnPage();
+    render(element);
+
+    expect(screen.getByText("Pro")).toBeInTheDocument();
   });
 });

@@ -6,6 +6,7 @@ import { UserProgress } from "@/components/user-progress";
 import { Streak } from "@/components/streak";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Button } from "@/components/ui/button";
+import { Flame, Heart, InfinityIcon } from "lucide-react";
 import { lessons, units as unitsSchema } from "@/db/schema";
 import {
   getCourseProgress,
@@ -122,6 +123,31 @@ const LearnPage = async () => {
       <FeedWrapper>
         <Header title={userProgress.activeCourse.title} />
 
+        {/* Mobile-only streak + stats bar */}
+        <div className="lg:hidden mb-4" data-testid="mobile-streak">
+          <Streak streak={userStreak?.streak ?? 0} lastLessonAt={userStreak?.lastLessonAt ?? null} />
+        </div>
+
+        <div className="lg:hidden mb-4 flex items-center gap-x-4" data-testid="mobile-stats-bar">
+          <div className="flex items-center gap-x-1 text-sm text-neutral-600">
+            <Heart className="h-4 w-4 text-rose-500" />
+            {isPro ? (
+              <InfinityIcon className="h-4 w-4 stroke-[3] text-rose-500" />
+            ) : (
+              <span>{userProgress.hearts}</span>
+            )}
+          </div>
+          <div className="flex items-center gap-x-1 text-sm text-neutral-600">
+            <Flame className="h-4 w-4 text-orange-500" />
+            <span>{userProgress.points} XP</span>
+          </div>
+          {isPro && (
+            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+              Pro
+            </span>
+          )}
+        </div>
+
         {courseProgress.activeLesson && (
           <ContinueCta
             lessonTitle={courseProgress.activeLesson.title}
@@ -148,18 +174,18 @@ const LearnPage = async () => {
           </div>
         )}
 
-        <LearningProgress
-          courseStats={courseStats}
-          memoryStrength={memoryStrength}
-          accuracyPercent={learningStats?.averageAccuracy ?? 0}
-        />
-
         <DailyGoal
           todayLessonCount={todayLessonCount}
           dailyGoal={userProgress.dailyGoal ?? 1}
         />
 
         <DailyQuestsCard quests={dailyQuests} />
+
+        <LearningProgress
+          courseStats={courseStats}
+          memoryStrength={memoryStrength}
+          accuracyPercent={learningStats?.averageAccuracy ?? 0}
+        />
 
         {weeklyActivity.length > 0 && (
           <WeeklyActivity data={weeklyActivity} />
