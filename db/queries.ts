@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { and, count, countDistinct, eq, gte, gt, inArray, lte } from "drizzle-orm";
+import { and, count, countDistinct, eq, gte, gt, inArray, isNotNull, lte } from "drizzle-orm";
 
 import db from "@/db/drizzle";
 import { getAuthUserId } from "@/lib/auth-utils";
@@ -774,4 +774,40 @@ export const getMemoryStrength = cache(async (): Promise<MemoryStrengthData> => 
     weak,
     newCount,
   };
+});
+
+export const getUserRank = cache(async () => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return null;
+  }
+
+  // Get the current user's points
+  const currentUser = await db.query.userProgress.findFirst({
+    where: eq(userProgress.userId, userId),
+    columns: { points: true },
+  });
+
+  if (!currentUser) {
+    return null;
+  }
+
+  // Count users with more points (rank = that count + 1)
+  const [usersAbove] = await db
+    .select({ value: count() })
+    .from(userProgress)
+    .where(gt(userProgress.points, currentUser.points));
+
+  const rank = (usersAbove?.value ?? 0) + 1;
+
+  // Count total users with an active course
+  const [totalResult] = await db
+    .select({ value: count() })
+    .from(userProgress)
+    .where(isNotNull(userProgress.activeCourseId));
+
+  const totalUsers = totalResult?.value ?? 0;
+
+  return { rank, totalUsers };
 });
