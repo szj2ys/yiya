@@ -28,7 +28,12 @@ export const Unit = ({
 }: Props) => {
   return (
     <>
-      <UnitBanner title={title} description={description} />
+      <UnitBanner
+        title={title}
+        description={description}
+        completedLessons={lessons.filter((l) => l.completed).length}
+        totalLessons={lessons.length}
+      />
       <div className="flex items-center flex-col relative">
         {lessons.map((lesson, index) => {
           const isCurrent = lesson.id === activeLesson?.id;

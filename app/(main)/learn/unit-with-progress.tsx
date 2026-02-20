@@ -34,7 +34,12 @@ export const UnitWithProgress = ({
   return (
     <>
       <div className="space-y-3">
-        <UnitBanner title={title} description={description} />
+        <UnitBanner
+          title={title}
+          description={description}
+          completedLessons={completedLessons}
+          totalLessons={lessons.length}
+        />
         <UnitProgress
           completed={completedLessons}
           total={lessons.length}
