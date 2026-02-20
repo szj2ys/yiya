@@ -82,7 +82,7 @@ const LeaderboardPage = async () => {
           </p>
 
           {/* Empty state */}
-          {leaderboard.length < 3 && leaderboard.length === 0 && (
+          {leaderboard.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16">
               <p className="text-muted-foreground text-center text-base">
                 Be the first to climb the ranks!
