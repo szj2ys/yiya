@@ -427,8 +427,7 @@ export const Quiz = ({
 
           {!isPractice && isLastLessonInUnit && (
             <div className="w-full mb-5" data-testid="unit-celebration-card">
-              <div className="rounded-2xl border-2 border-emerald-300 bg-gradient-to-b from-emerald-50 to-sky-50 p-5 flex items-center gap-x-4"
-                style={{ borderImage: "linear-gradient(to right, #6ee7b7, #7dd3fc) 1" }}>
+              <div className="rounded-2xl border-2 border-emerald-300 bg-gradient-to-b from-emerald-50 to-sky-50 p-5 flex items-center gap-x-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-2xl">
                   <span role="img" aria-label="star">&#x2B50;</span>
                 </div>

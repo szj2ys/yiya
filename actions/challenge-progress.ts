@@ -25,6 +25,9 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     throw new Error("User progress not found");
   }
 
+  const currentWeeklyXp = currentUserProgress.weeklyXp ?? 0;
+  const currentWeeklyXpResetAt = currentUserProgress.weeklyXpResetAt ?? null;
+
   const challenge = await db.query.challenges.findFirst({
     where: eq(challenges.id, challengeId)
   });
@@ -60,11 +63,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
       eq(challengeProgress.id, existingChallengeProgress.id)
     );
 
-    const practiceWeekly = computeWeeklyXp(
-      currentUserProgress.weeklyXp ?? 0,
-      currentUserProgress.weeklyXpResetAt ?? null,
-      10,
-    );
+    const practiceWeekly = computeWeeklyXp(currentWeeklyXp, currentWeeklyXpResetAt, 10);
 
     await db.update(userProgress).set({
       hearts: Math.min(currentUserProgress.hearts + 1, 5),
@@ -89,12 +88,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
 
   await createReviewCard(userId, challengeId, "correct");
 
-  // Per-challenge: update points (XP) and weekly XP
-  const weekly = computeWeeklyXp(
-    currentUserProgress.weeklyXp ?? 0,
-    currentUserProgress.weeklyXpResetAt ?? null,
-    10,
-  );
+  const weekly = computeWeeklyXp(currentWeeklyXp, currentWeeklyXpResetAt, 10);
 
   await db.update(userProgress)
     .set({
