@@ -10,6 +10,8 @@ import { lessons, units as unitsSchema } from "@/db/schema";
 import {
   getCourseProgress,
   getCourseStats,
+  getClaimedDailyQuests,
+  getDailyQuestProgress,
   getLearningStats,
   getLessonPercentage,
   getMemoryStrength,
@@ -21,6 +23,7 @@ import {
   getUserStreak,
   getWeeklyActivity,
 } from "@/db/queries";
+import { DAILY_QUESTS } from "@/constants";
 import { getReviewDueCount } from "@/actions/review";
 
 import { UnitWithProgress } from "./unit-with-progress";
@@ -31,6 +34,7 @@ import { DailyGoal } from "./daily-goal";
 import { PracticeEntry } from "./practice-entry";
 import { StartFirstLesson } from "./start-first-lesson";
 import { WeeklyActivity } from "./weekly-activity";
+import { DailyQuestsCard } from "./daily-quests-card";
 
 const LearnPage = async () => {
   const userProgressData = getUserProgress();
@@ -46,6 +50,8 @@ const LearnPage = async () => {
   const courseStatsData = getCourseStats();
   const memoryStrengthData = getMemoryStrength();
   const learningStatsData = getLearningStats();
+  const dailyQuestProgressData = getDailyQuestProgress();
+  const claimedDailyQuestsData = getClaimedDailyQuests();
 
   const [
     userProgress,
@@ -61,6 +67,8 @@ const LearnPage = async () => {
     courseStats,
     memoryStrength,
     learningStats,
+    dailyQuestProgress,
+    claimedDailyQuests,
   ] = await Promise.all([
     userProgressData,
     unitsData,
@@ -75,6 +83,8 @@ const LearnPage = async () => {
     courseStatsData,
     memoryStrengthData,
     learningStatsData,
+    dailyQuestProgressData,
+    claimedDailyQuestsData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -87,6 +97,15 @@ const LearnPage = async () => {
 
   const isPro = !!userSubscription?.isActive;
   const shouldShowStartCta = !courseProgress.activeLesson;
+
+  const dailyQuests = DAILY_QUESTS.map((quest) => ({
+    id: quest.id,
+    title: quest.title,
+    description: quest.description,
+    xpReward: quest.xpReward,
+    completed: dailyQuestProgress[quest.id as keyof typeof dailyQuestProgress],
+    claimed: claimedDailyQuests.includes(quest.id),
+  }));
 
   return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
@@ -139,6 +158,8 @@ const LearnPage = async () => {
           todayLessonCount={todayLessonCount}
           dailyGoal={userProgress.dailyGoal ?? 1}
         />
+
+        <DailyQuestsCard quests={dailyQuests} />
 
         {weeklyActivity.length > 0 && (
           <WeeklyActivity data={weeklyActivity} />
