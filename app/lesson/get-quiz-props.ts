@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { getCourseStats, getLesson, getNextLesson, getTodayLessonCount, getUserProgress, getUserSubscription, getUserStreak } from "@/db/queries";
+import { getCourseStats, getLesson, getNextLesson, getTodayLessonCount, getUnitInfoForLesson, getUserProgress, getUserSubscription, getUserStreak } from "@/db/queries";
 import { startPractice } from "@/actions/practice";
 
 export async function getQuizProps(lessonId?: number) {
@@ -19,8 +19,11 @@ export async function getQuizProps(lessonId?: number) {
     redirect("/learn");
   }
 
-  // Fetch next lesson in parallel-safe way (after we know lesson.id)
-  const nextLesson = await getNextLesson(lesson.id);
+  // Fetch next lesson and unit info in parallel (after we know lesson.id)
+  const [nextLesson, unitInfo] = await Promise.all([
+    getNextLesson(lesson.id),
+    getUnitInfoForLesson(lesson.id),
+  ]);
 
   const reviewCardId =
     practiceStart?.type === "challenge" &&
@@ -48,5 +51,8 @@ export async function getQuizProps(lessonId?: number) {
     todayLessonCount,
     dailyGoal: userProgress.dailyGoal ?? 1,
     wordsLearned: courseStats?.wordsLearned ?? 0,
+    isLastLessonInUnit: unitInfo?.isLastLesson ?? false,
+    unitTitle: unitInfo?.unitTitle ?? undefined,
+    unitOrder: unitInfo?.unitOrder ?? undefined,
   };
 }

@@ -55,6 +55,9 @@ type Props = {
   todayLessonCount?: number;
   dailyGoal?: number;
   wordsLearned?: number;
+  isLastLessonInUnit?: boolean;
+  unitTitle?: string;
+  unitOrder?: number;
 };
 
 export const Quiz = ({
@@ -73,6 +76,9 @@ export const Quiz = ({
   todayLessonCount,
   dailyGoal,
   wordsLearned,
+  isLastLessonInUnit,
+  unitTitle,
+  unitOrder,
 }: Props) => {
   const { open: openHeartsModal } = useHeartsModal();
   const { open: openPracticeModal } = usePracticeModal();
@@ -400,7 +406,7 @@ export const Quiz = ({
           width={width}
           height={height}
           recycle={false}
-          numberOfPieces={isPerfect ? 800 : 500}
+          numberOfPieces={!isPractice && isLastLessonInUnit ? 1000 : isPerfect ? 800 : 500}
           tweenDuration={10000}
         />
         <div className="flex flex-col max-w-lg mx-auto items-center h-full px-6 lg:px-0 pb-40 lg:pb-6 pt-6 lg:pt-0 lg:justify-center">
@@ -414,6 +420,26 @@ export const Quiz = ({
                 <div>
                   <p className="text-lg font-bold text-amber-700">Perfect!</p>
                   <p className="text-sm text-amber-600">Zero mistakes — outstanding work.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isPractice && isLastLessonInUnit && (
+            <div className="w-full mb-5" data-testid="unit-celebration-card">
+              <div className="rounded-2xl border-2 border-emerald-300 bg-gradient-to-b from-emerald-50 to-sky-50 p-5 flex items-center gap-x-4"
+                style={{ borderImage: "linear-gradient(to right, #6ee7b7, #7dd3fc) 1" }}>
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-2xl">
+                  <span role="img" aria-label="star">&#x2B50;</span>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-emerald-700">
+                    Unit {unitOrder} Complete!
+                  </p>
+                  <p className="text-base font-medium text-emerald-600">{unitTitle}</p>
+                  <p className="text-sm text-emerald-600">
+                    You&apos;ve mastered all lessons in this unit. Keep going!
+                  </p>
                 </div>
               </div>
             </div>

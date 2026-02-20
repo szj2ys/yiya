@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { and, count, countDistinct, eq, gte, gt, inArray, isNotNull, lte, sum } from "drizzle-orm";
+import { and, count, countDistinct, eq, gte, gt, inArray, isNotNull, lte, max, sum } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 import db from "@/db/drizzle";
@@ -924,4 +924,61 @@ export const getClaimedDailyQuests = cache(async (): Promise<string[]> => {
     );
 
   return rows.map((r: typeof rows[number]) => r.questId);
+});
+
+export type UnitInfoForLesson = {
+  unitTitle: string;
+  unitOrder: number;
+  isLastLesson: boolean;
+  totalLessonsInUnit: number;
+};
+
+/**
+ * Given a lessonId, return info about the unit it belongs to and
+ * whether this lesson is the last one (highest order) in that unit.
+ */
+export const getUnitInfoForLesson = cache(async (lessonId: number): Promise<UnitInfoForLesson | null> => {
+  // 1. Find the lesson to get its unitId
+  const lesson = await db.query.lessons.findFirst({
+    where: eq(lessons.id, lessonId),
+    columns: { id: true, unitId: true, order: true },
+  });
+
+  if (!lesson) {
+    return null;
+  }
+
+  // 2. Get the unit info
+  const unit = await db.query.units.findFirst({
+    where: eq(units.id, lesson.unitId),
+    columns: { id: true, title: true, order: true },
+  });
+
+  if (!unit) {
+    return null;
+  }
+
+  // 3. Count total lessons in this unit
+  const [totalResult] = await db
+    .select({ value: count() })
+    .from(lessons)
+    .where(eq(lessons.unitId, unit.id));
+
+  const totalLessonsInUnit = totalResult?.value ?? 0;
+
+  // 4. Find the highest order lesson in this unit
+  const [maxOrderResult] = await db
+    .select({ value: max(lessons.order) })
+    .from(lessons)
+    .where(eq(lessons.unitId, unit.id));
+
+  const maxOrder = maxOrderResult?.value ?? 0;
+  const isLastLesson = lesson.order === maxOrder;
+
+  return {
+    unitTitle: unit.title,
+    unitOrder: unit.order,
+    isLastLesson,
+    totalLessonsInUnit,
+  };
 });
