@@ -5,6 +5,7 @@ import { FeedWrapper } from "@/components/feed-wrapper";
 import { getUserProgress, getCourses } from "@/db/queries";
 
 import { SettingsForm } from "./settings-form";
+import { ThemeToggle } from "./theme-toggle";
 
 const SettingsPage = async () => {
   const userProgressData = getUserProgress();
@@ -40,6 +41,9 @@ const SettingsPage = async () => {
             currentCourseId={userProgress.activeCourseId!}
             currentDailyGoal={userProgress.dailyGoal}
           />
+          <div className="mt-10 w-full">
+            <ThemeToggle />
+          </div>
         </div>
       </FeedWrapper>
     </div>

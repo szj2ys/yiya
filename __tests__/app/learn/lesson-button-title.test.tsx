@@ -2,12 +2,6 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 
-vi.mock("react-circular-progressbar", () => ({
-  CircularProgressbarWithChildren: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="circular-progress">{children}</div>
-  ),
-}));
-
 import { LessonButton } from "@/app/(main)/learn/lesson-button";
 
 const defaultProps = {
