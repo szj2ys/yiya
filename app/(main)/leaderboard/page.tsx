@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import { StickyWrapper } from "@/components/sticky-wrapper";
-import { getTopTenUsers, getUserProgress, getUserSubscription, getUserRank } from "@/db/queries";
+import { getTopTenWeekly, getUserProgress, getUserSubscription, getUserWeeklyRank } from "@/db/queries";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Promo } from "@/components/promo";
@@ -16,8 +16,8 @@ const MEDALS = ["🥇", "🥈", "🥉"] as const;
 const LeaderboardPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();
-  const leaderboardData = getTopTenUsers();
-  const userRankData = getUserRank();
+  const leaderboardData = getTopTenWeekly();
+  const userRankData = getUserWeeklyRank();
   const currentUserIdData = getAuthUserId();
 
   const [
@@ -48,10 +48,10 @@ const LeaderboardPage = async () => {
     (u: typeof leaderboard[number]) => u.userId === currentUserId,
   );
 
-  // XP needed to enter top 10
+  // XP needed to enter top 10 (based on weekly XP)
   const xpToTop10 =
     !currentUserInTop10 && leaderboard.length >= 10
-      ? leaderboard[leaderboard.length - 1].points - (userProgress.points ?? 0) + 1
+      ? leaderboard[leaderboard.length - 1].weeklyXp - (userProgress.weeklyXp ?? 0) + 1
       : 0;
 
   return (
@@ -141,7 +141,7 @@ const LeaderboardPage = async () => {
                       {user.userName}
                     </p>
                     <p className="text-muted-foreground text-xs mt-1">
-                      {user.points} XP
+                      {user.weeklyXp} XP this week
                     </p>
                   </div>
                 );
@@ -188,7 +188,7 @@ const LeaderboardPage = async () => {
                       {user.userName}
                     </p>
                     <p className="text-muted-foreground text-sm">
-                      {user.points} XP
+                      {user.weeklyXp} XP this week
                     </p>
                   </div>
                 );
@@ -221,7 +221,7 @@ const LeaderboardPage = async () => {
                     {userProgress.userName}
                   </p>
                   <p className="text-muted-foreground text-sm">
-                    {userProgress.points} XP
+                    {userProgress.weeklyXp ?? 0} XP this week
                   </p>
                 </div>
                 {xpToTop10 > 0 && (

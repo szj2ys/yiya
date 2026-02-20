@@ -132,6 +132,8 @@ export const userProgress = pgTable("user_progress", {
   longestStreak: integer("longest_streak").notNull().default(0),
   dailyGoal: integer("daily_goal").notNull().default(1),
   lastLessonAt: timestamp("last_lesson_at"),
+  weeklyXp: integer("weekly_xp").notNull().default(0),
+  weeklyXpResetAt: timestamp("weekly_xp_reset_at"),
 });
 
 export const userProgressRelations = relations(userProgress, ({ one }) => ({
