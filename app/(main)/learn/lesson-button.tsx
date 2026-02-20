@@ -2,12 +2,9 @@
 
 import Link from "next/link";
 import { Check, Crown, Star } from "lucide-react";
-import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-
-import "react-circular-progressbar/dist/styles.css";
 
 type Props = {
   id: number;
@@ -17,6 +14,54 @@ type Props = {
   current?: boolean;
   percentage: number;
   title: string;
+};
+
+const CircularProgress = ({
+  value,
+  children,
+}: {
+  value: number;
+  children: React.ReactNode;
+}) => {
+  const size = 112;
+  const strokeWidth = 8;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg
+        width={size}
+        height={size}
+        className="absolute inset-0 -rotate-90"
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth={strokeWidth}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#4ade80"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="transition-[stroke-dashoffset] duration-300"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        {children}
+      </div>
+    </div>
+  );
 };
 
 export const LessonButton = ({
@@ -74,16 +119,8 @@ export const LessonButton = ({
                 className="absolute left-1/2 -bottom-2 w-0 h-0 border-x-8 border-x-transparent border-t-8 transform -translate-x-1/2"
               />
             </div>
-            <CircularProgressbarWithChildren
+            <CircularProgress
               value={Number.isNaN(percentage) ? 0 : percentage}
-              styles={{
-                path: {
-                  stroke: "#4ade80",
-                },
-                trail: {
-                  stroke: "#e5e7eb",
-                },
-              }}
             >
               <Button
                 size="rounded"
@@ -100,7 +137,7 @@ export const LessonButton = ({
                   )}
                 />
               </Button>
-            </CircularProgressbarWithChildren>
+            </CircularProgress>
           </div>
         ) : (
           <Button
