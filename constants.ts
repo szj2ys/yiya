@@ -1,5 +1,11 @@
 export const POINTS_TO_REFILL = 10;
 
+export const DAILY_QUESTS = [
+  { id: "complete_lesson", title: "Complete a lesson", description: "Finish any lesson today", xpReward: 5 },
+  { id: "hit_daily_goal", title: "Hit your daily goal", description: "Complete your daily lesson target", xpReward: 10 },
+  { id: "practice_review", title: "Review your cards", description: "Do at least one practice review session", xpReward: 10 },
+] as const;
+
 export const quests = [
   {
     title: "Earn 20 XP",

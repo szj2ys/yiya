@@ -8,6 +8,7 @@ import {
   challengeProgress,
   courses,
   challenges,
+  dailyQuestClaims,
   lessonCompletions,
   lessons,
   questClaims,
@@ -845,3 +846,82 @@ export const getGlobalStats = unstable_cache(
   ["global-stats"],
   { revalidate: 3600 },
 );
+
+export type DailyQuestProgress = {
+  complete_lesson: boolean;
+  hit_daily_goal: boolean;
+  practice_review: boolean;
+};
+
+export const getDailyQuestProgress = cache(async (): Promise<DailyQuestProgress> => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return { complete_lesson: false, hit_daily_goal: false, practice_review: false };
+  }
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  // Lesson count today (reuse logic from getTodayLessonCount)
+  const [lessonCountResult] = await db
+    .select({ value: count() })
+    .from(lessonCompletions)
+    .where(
+      and(
+        eq(lessonCompletions.userId, userId),
+        gte(lessonCompletions.completedAt, startOfToday),
+      ),
+    );
+
+  const todayLessonCount = lessonCountResult?.value ?? 0;
+
+  // User's daily goal
+  const progress = await db.query.userProgress.findFirst({
+    where: eq(userProgress.userId, userId),
+    columns: { dailyGoal: true },
+  });
+
+  const dailyGoal = progress?.dailyGoal ?? 1;
+
+  // Check if any review cards have been reviewed today
+  const [reviewResult] = await db
+    .select({ value: count() })
+    .from(reviewCards)
+    .where(
+      and(
+        eq(reviewCards.userId, userId),
+        gte(reviewCards.lastReview, startOfToday),
+      ),
+    );
+
+  const hasReviewedToday = (reviewResult?.value ?? 0) >= 1;
+
+  return {
+    complete_lesson: todayLessonCount >= 1,
+    hit_daily_goal: todayLessonCount >= dailyGoal,
+    practice_review: hasReviewedToday,
+  };
+});
+
+export const getClaimedDailyQuests = cache(async (): Promise<string[]> => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return [];
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const rows = await db
+    .select({ questId: dailyQuestClaims.questId })
+    .from(dailyQuestClaims)
+    .where(
+      and(
+        eq(dailyQuestClaims.userId, userId),
+        eq(dailyQuestClaims.claimedDate, today),
+      ),
+    );
+
+  return rows.map((r: typeof rows[number]) => r.questId);
+});

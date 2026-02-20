@@ -214,3 +214,13 @@ export const reviewCardsRelations = relations(reviewCards, ({ one }) => ({
     references: [challenges.id],
   }),
 }));
+
+export const dailyQuestClaims = pgTable("daily_quest_claims", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  questId: text("quest_id").notNull(),
+  claimedDate: text("claimed_date").notNull(), // YYYY-MM-DD
+  claimedAt: timestamp("claimed_at").notNull().defaultNow(),
+}, (t) => ({
+  userQuestDateUnique: uniqueIndex("daily_quest_claims_user_quest_date_unique").on(t.userId, t.questId, t.claimedDate),
+}));

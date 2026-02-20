@@ -46,6 +46,12 @@ vi.mock("@/db/queries", () => ({
     totalLessonsCompleted: 0,
     averageAccuracy: 0,
   }),
+  getDailyQuestProgress: vi.fn().mockResolvedValue({
+    complete_lesson: false,
+    hit_daily_goal: false,
+    practice_review: false,
+  }),
+  getClaimedDailyQuests: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/actions/review", () => ({
@@ -98,6 +104,10 @@ vi.mock("./daily-goal", () => ({
 
 vi.mock("./weekly-activity", () => ({
   WeeklyActivity: () => <div>WeeklyActivity</div>,
+}));
+
+vi.mock("./daily-quests-card", () => ({
+  DailyQuestsCard: () => <div>DailyQuestsCard</div>,
 }));
 
 vi.mock("./continue-cta", () => ({
