@@ -30,12 +30,12 @@
 
 ### Prerequisites
 
-**Node version 14.x**
+**Node version 18.x or higher**
 
 ### Cloning the repository
 
 ```shell
-git clone https://github.com/Davronov-Alimardon/duolingo-clone.git
+git clone https://github.com/szj2ys/yiya.git
 ```
 
 ### Install packages
@@ -46,34 +46,22 @@ npm i
 
 ### Setup .env.local file
 
-```js
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "";
-CLERK_SECRET_KEY = "";
-DATABASE_URL = "postgresql://...";
-STRIPE_API_KEY = "";
-NEXT_PUBLIC_APP_URL = "http://localhost:3000";
-STRIPE_WEBHOOK_SECRET = "";
+Copy `.env.example` and fill in your values:
+
+```shell
+cp .env.example .env.local
 ```
 
 ### Setup Drizzle ORM
 
 ```shell
 npm run db:push
-
 ```
 
 ### Seed the app
 
 ```shell
 npm run db:seed
-
-```
-
-or
-
-```shell
-npm run db:prod
-
 ```
 
 ### Start the app

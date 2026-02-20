@@ -38,12 +38,13 @@ yarn-error.log*
 # local worktrees + agent briefs
 .worktrees/
 TODO.md
-
-# per-worktree agent briefs
 **/TODO.md
+T*-TODO.md
+
+# local tooling / agent metadata
+.entire/
 
 # Playwright
-node_modules/
 /test-results/
 /playwright-report/
 /blob-report/
