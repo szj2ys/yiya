@@ -12,4 +12,24 @@ describe("userProgress schema", () => {
     expect(dailyGoalCol.default).toBe(1);
     expect(dailyGoalCol.notNull).toBe(true);
   });
+
+  it("should have weeklyXp column with default 0", () => {
+    const columns = userProgress as Record<string, any>;
+    const weeklyXpCol = columns.weeklyXp;
+
+    expect(weeklyXpCol).toBeDefined();
+    expect(weeklyXpCol.name).toBe("weekly_xp");
+    expect(weeklyXpCol.hasDefault).toBe(true);
+    expect(weeklyXpCol.default).toBe(0);
+    expect(weeklyXpCol.notNull).toBe(true);
+  });
+
+  it("should have weeklyXpResetAt timestamp column that is nullable", () => {
+    const columns = userProgress as Record<string, any>;
+    const weeklyXpResetAtCol = columns.weeklyXpResetAt;
+
+    expect(weeklyXpResetAtCol).toBeDefined();
+    expect(weeklyXpResetAtCol.name).toBe("weekly_xp_reset_at");
+    expect(weeklyXpResetAtCol.notNull).toBe(false);
+  });
 });

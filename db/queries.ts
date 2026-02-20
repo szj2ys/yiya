@@ -527,6 +527,27 @@ export const getTopTenUsers = cache(async () => {
   return data;
 });
 
+export const getTopTenWeekly = cache(async () => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return [];
+  }
+
+  const data = await db.query.userProgress.findMany({
+    orderBy: (userProgress: any, { desc }: any) => [desc(userProgress.weeklyXp)],
+    limit: 10,
+    columns: {
+      userId: true,
+      userName: true,
+      userImageSrc: true,
+      weeklyXp: true,
+    },
+  });
+
+  return data;
+});
+
 /**
  * Find the next lesson after the given lesson ID.
  *
@@ -800,6 +821,42 @@ export const getUserRank = cache(async () => {
     .select({ value: count() })
     .from(userProgress)
     .where(gt(userProgress.points, currentUser.points));
+
+  const rank = (usersAbove?.value ?? 0) + 1;
+
+  // Count total users with an active course
+  const [totalResult] = await db
+    .select({ value: count() })
+    .from(userProgress)
+    .where(isNotNull(userProgress.activeCourseId));
+
+  const totalUsers = totalResult?.value ?? 0;
+
+  return { rank, totalUsers };
+});
+
+export const getUserWeeklyRank = cache(async () => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return null;
+  }
+
+  // Get the current user's weeklyXp
+  const currentUser = await db.query.userProgress.findFirst({
+    where: eq(userProgress.userId, userId),
+    columns: { weeklyXp: true },
+  });
+
+  if (!currentUser) {
+    return null;
+  }
+
+  // Count users with more weeklyXp (rank = that count + 1)
+  const [usersAbove] = await db
+    .select({ value: count() })
+    .from(userProgress)
+    .where(gt(userProgress.weeklyXp, currentUser.weeklyXp));
 
   const rank = (usersAbove?.value ?? 0) + 1;
 

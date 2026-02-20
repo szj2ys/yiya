@@ -98,6 +98,8 @@ describe("upsertChallengeProgress review card", () => {
       streak: 0,
       longestStreak: 0,
       lastLessonAt: null,
+      weeklyXp: 0,
+      weeklyXpResetAt: null,
     });
 
     const { upsertChallengeProgress } = await import("@/actions/challenge-progress");
@@ -117,6 +119,8 @@ describe("upsertChallengeProgress streak timing", () => {
       streak: 3,
       longestStreak: 5,
       lastLessonAt: new Date(now.getTime() - 30 * 60 * 60 * 1000),
+      weeklyXp: 0,
+      weeklyXpResetAt: null,
     });
 
     // Lesson is NOT complete: 5 total, only 3 completed
@@ -127,10 +131,10 @@ describe("upsertChallengeProgress streak timing", () => {
 
     await upsertChallengeProgress(1);
 
-    // Per-challenge: only points should be updated, no streak or lastLessonAt
+    // Per-challenge: points + weeklyXp should be updated, no streak or lastLessonAt
     const setCalls = setSpy.mock.calls.map((c: any[]) => c[0]);
-    expect(setCalls.length).toBe(1); // only one update call (points only)
-    expect(setCalls[0]).toEqual({ points: 10 });
+    expect(setCalls.length).toBe(1); // only one update call (points + weeklyXp)
+    expect(setCalls[0]).toMatchObject({ points: 10, weeklyXp: 10 });
     expect(setCalls[0]).not.toHaveProperty("streak");
     expect(setCalls[0]).not.toHaveProperty("lastLessonAt");
   });
@@ -143,6 +147,8 @@ describe("upsertChallengeProgress streak timing", () => {
       streak: 3,
       longestStreak: 5,
       lastLessonAt: new Date(now.getTime() - 30 * 60 * 60 * 1000),
+      weeklyXp: 0,
+      weeklyXpResetAt: null,
     });
 
     // Lesson IS complete: 5 total, 5 completed
@@ -153,12 +159,12 @@ describe("upsertChallengeProgress streak timing", () => {
 
     await upsertChallengeProgress(1);
 
-    // Two update calls: first for points, second for streak + lastLessonAt
+    // Two update calls: first for points + weeklyXp, second for streak + lastLessonAt
     const setCalls = setSpy.mock.calls.map((c: any[]) => c[0]);
     expect(setCalls.length).toBe(2);
 
-    // First call: points only
-    expect(setCalls[0]).toEqual({ points: 10 });
+    // First call: points + weeklyXp
+    expect(setCalls[0]).toMatchObject({ points: 10, weeklyXp: 10 });
 
     // Second call: streak + lastLessonAt
     expect(setCalls[1]).toMatchObject({ streak: 4, longestStreak: 5 });
@@ -173,6 +179,8 @@ describe("upsertChallengeProgress streak timing", () => {
       streak: 3,
       longestStreak: 3,
       lastLessonAt: new Date(now.getTime() - 30 * 60 * 60 * 1000),
+      weeklyXp: 20,
+      weeklyXpResetAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
     });
 
     // Lesson IS complete
@@ -198,6 +206,8 @@ describe("upsertChallengeProgress streak timing", () => {
       streak: 9,
       longestStreak: 15,
       lastLessonAt: new Date(now.getTime() - 49 * 60 * 60 * 1000),
+      weeklyXp: 0,
+      weeklyXpResetAt: null,
     });
 
     // Lesson IS complete
@@ -223,6 +233,8 @@ describe("upsertChallengeProgress streak timing", () => {
       streak: 5,
       longestStreak: 10,
       lastLessonAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+      weeklyXp: 30,
+      weeklyXpResetAt: new Date(now.getTime() - 1 * 60 * 60 * 1000),
     });
 
     // Lesson IS complete

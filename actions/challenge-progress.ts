@@ -9,6 +9,7 @@ import { getUserProgress, getUserSubscription } from "@/db/queries";
 import { challengeProgress, challenges, lessonCompletions, userProgress } from "@/db/schema";
 import { createReviewCard } from "@/actions/review";
 import { computeNextStreak } from "@/lib/streak";
+import { computeWeeklyXp } from "@/lib/weekly-xp";
 
 export const upsertChallengeProgress = async (challengeId: number) => {
   const userId = await getAuthUserId();
@@ -59,9 +60,17 @@ export const upsertChallengeProgress = async (challengeId: number) => {
       eq(challengeProgress.id, existingChallengeProgress.id)
     );
 
+    const practiceWeekly = computeWeeklyXp(
+      currentUserProgress.weeklyXp ?? 0,
+      currentUserProgress.weeklyXpResetAt ?? null,
+      10,
+    );
+
     await db.update(userProgress).set({
       hearts: Math.min(currentUserProgress.hearts + 1, 5),
       points: currentUserProgress.points + 10,
+      weeklyXp: practiceWeekly.weeklyXp,
+      weeklyXpResetAt: practiceWeekly.weeklyXpResetAt,
     }).where(eq(userProgress.userId, userId));
 
     revalidatePath("/learn");
@@ -80,10 +89,18 @@ export const upsertChallengeProgress = async (challengeId: number) => {
 
   await createReviewCard(userId, challengeId, "correct");
 
-  // Per-challenge: only update points (XP)
+  // Per-challenge: update points (XP) and weekly XP
+  const weekly = computeWeeklyXp(
+    currentUserProgress.weeklyXp ?? 0,
+    currentUserProgress.weeklyXpResetAt ?? null,
+    10,
+  );
+
   await db.update(userProgress)
     .set({
       points: currentUserProgress.points + 10,
+      weeklyXp: weekly.weeklyXp,
+      weeklyXpResetAt: weekly.weeklyXpResetAt,
     })
     .where(eq(userProgress.userId, userId));
 
