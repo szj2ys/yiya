@@ -1,12 +1,33 @@
 import React from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-import Page from "../page";
+// Mock getGlobalStats before importing the page
+const mockGetGlobalStats = vi.fn();
+
+vi.mock("@/db/queries", () => ({
+  getGlobalStats: (...args: unknown[]) => mockGetGlobalStats(...args),
+}));
+
+// The page is an async server component — we await it then render the result.
+async function renderPage() {
+  const { default: Page } = await import("../page");
+  const jsx = await Page();
+  render(jsx);
+}
 
 describe("Marketing page", () => {
-  it("should render hero with CTA visible on mobile viewport", () => {
-    render(<Page />);
+  beforeEach(() => {
+    mockGetGlobalStats.mockReset();
+    mockGetGlobalStats.mockResolvedValue({
+      totalLessonsCompleted: 150,
+      activeLearnersCount: 42,
+      totalStreakDays: 300,
+    });
+  });
+
+  it("should render hero with CTA visible on mobile viewport", async () => {
+    await renderPage();
 
     expect(
       screen.getByRole("button", { name: /get started free/i })
@@ -15,8 +36,8 @@ describe("Marketing page", () => {
     expect(screen.getByText(/speak confidently/i)).toBeInTheDocument();
   });
 
-  it("should render feature cards", () => {
-    render(<Page />);
+  it("should render feature cards", async () => {
+    await renderPage();
 
     expect(screen.getByRole("heading", { name: /6 languages/i })).toBeInTheDocument();
     expect(
@@ -26,8 +47,8 @@ describe("Marketing page", () => {
     expect(screen.getByRole("heading", { name: /free to start/i })).toBeInTheDocument();
   });
 
-  it("should render all 6 language options", () => {
-    render(<Page />);
+  it("should render all 6 language options", async () => {
+    await renderPage();
 
     expect(screen.getByText("English")).toBeInTheDocument();
     expect(screen.getByText("Chinese")).toBeInTheDocument();
@@ -37,8 +58,8 @@ describe("Marketing page", () => {
     expect(screen.getByText("Japanese")).toBeInTheDocument();
   });
 
-  it("should make language cards clickable", () => {
-    render(<Page />);
+  it("should make language cards clickable", async () => {
+    await renderPage();
 
     // In signed-out state (default mock), language cards render as buttons
     const buttons = screen.getAllByRole("button");
@@ -48,5 +69,81 @@ describe("Marketing page", () => {
     // "Start learning" text should appear instead of "Tap to explore"
     const startLearningTexts = screen.getAllByText("Start learning");
     expect(startLearningTexts).toHaveLength(6);
+  });
+
+  // Task 2 tests
+  it("should render social proof stats when data is available", async () => {
+    await renderPage();
+
+    const section = screen.getByTestId("social-proof-stats");
+    expect(section).toBeInTheDocument();
+
+    expect(screen.getByText("150+")).toBeInTheDocument();
+    expect(screen.getByText("Lessons Completed")).toBeInTheDocument();
+
+    expect(screen.getByText("42+")).toBeInTheDocument();
+    expect(screen.getByText("Active Learners")).toBeInTheDocument();
+
+    expect(screen.getByText("300+")).toBeInTheDocument();
+    expect(screen.getByText("Streak Days")).toBeInTheDocument();
+  });
+
+  it("should handle zero stats gracefully by hiding the section", async () => {
+    mockGetGlobalStats.mockResolvedValue({
+      totalLessonsCompleted: 0,
+      activeLearnersCount: 0,
+      totalStreakDays: 0,
+    });
+
+    await renderPage();
+
+    expect(screen.queryByTestId("social-proof-stats")).not.toBeInTheDocument();
+  });
+
+  it("should show social proof section when at least one stat is nonzero", async () => {
+    mockGetGlobalStats.mockResolvedValue({
+      totalLessonsCompleted: 0,
+      activeLearnersCount: 5,
+      totalStreakDays: 0,
+    });
+
+    await renderPage();
+
+    expect(screen.getByTestId("social-proof-stats")).toBeInTheDocument();
+    expect(screen.getByText("Active Learners")).toBeInTheDocument();
+  });
+
+  // Task 3 tests
+  it("should render 3 testimonial cards", async () => {
+    await renderPage();
+
+    const section = screen.getByTestId("testimonials");
+    expect(section).toBeInTheDocument();
+
+    expect(screen.getByText("Maria K.")).toBeInTheDocument();
+    expect(screen.getByText("David L.")).toBeInTheDocument();
+    expect(screen.getByText("Yuki T.")).toBeInTheDocument();
+  });
+
+  it("should render testimonial quotes", async () => {
+    await renderPage();
+
+    expect(
+      screen.getByText(/learning Spanish for 2 weeks/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/daily streak keeps me motivated/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/more fun than textbook learning/)
+    ).toBeInTheDocument();
+  });
+
+  it("should render What learners say heading", async () => {
+    await renderPage();
+
+    expect(
+      screen.getByRole("heading", { name: /what learners say/i })
+    ).toBeInTheDocument();
   });
 });

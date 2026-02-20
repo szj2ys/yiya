@@ -8,9 +8,10 @@ import {
   SignInButton,
   SignUpButton,
 } from "@clerk/nextjs";
-import { BookOpenCheck, Globe2, Loader, Sparkles, TrendingUp } from "lucide-react";
+import { BookOpenCheck, Flame, Globe2, Loader, MessageCircle, Sparkles, TrendingUp, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { getGlobalStats } from "@/db/queries";
 
 const LANGUAGES = [
   { code: "en", name: "English" },
@@ -44,6 +45,42 @@ const STATS = [
   },
 ] as const;
 
+const TESTIMONIALS = [
+  {
+    quote:
+      "I've been learning Spanish for 2 weeks and I'm already recognizing words in conversations!",
+    author: "Maria K.",
+  },
+  {
+    quote:
+      "The daily streak keeps me motivated. Haven't missed a day in 3 weeks.",
+    author: "David L.",
+  },
+  {
+    quote:
+      "Way more fun than textbook learning. The AI explanations when I get something wrong are super helpful.",
+    author: "Yuki T.",
+  },
+] as const;
+
+const SOCIAL_PROOF_CARDS = [
+  {
+    icon: BookOpenCheck,
+    key: "totalLessonsCompleted" as const,
+    label: "Lessons Completed",
+  },
+  {
+    icon: Users,
+    key: "activeLearnersCount" as const,
+    label: "Active Learners",
+  },
+  {
+    icon: Flame,
+    key: "totalStreakDays" as const,
+    label: "Streak Days",
+  },
+] as const;
+
 const LanguageCardContent = ({ name, code }: { name: string; code: string }) => (
   <>
     <div className="relative h-9 w-12 overflow-hidden rounded-lg ring-1 ring-black/10">
@@ -65,7 +102,13 @@ const LanguageCardContent = ({ name, code }: { name: string; code: string }) => 
   </>
 );
 
-export default function Home() {
+export default async function Home() {
+  const globalStats = await getGlobalStats();
+  const hasStats =
+    globalStats.totalLessonsCompleted > 0 ||
+    globalStats.activeLearnersCount > 0 ||
+    globalStats.totalStreakDays > 0;
+
   return (
     <div className="w-full">
       {/* Hero */}
@@ -161,7 +204,70 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social Proof / Stats */}
+      {/* Social Proof Counters */}
+      {hasStats && (
+        <section className="w-full bg-white" data-testid="social-proof-stats">
+          <div className="mx-auto w-full max-w-screen-lg px-4 py-10">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {SOCIAL_PROOF_CARDS.map((card) => {
+                const Icon = card.icon;
+                const value = globalStats[card.key];
+
+                return (
+                  <div
+                    key={card.key}
+                    className="flex flex-col items-center gap-2 rounded-2xl bg-white p-6 text-center ring-1 ring-black/5"
+                  >
+                    <Icon className="h-6 w-6 text-green-600" />
+                    <p className="text-3xl font-extrabold tracking-tight text-neutral-900 sm:text-4xl">
+                      {value.toLocaleString()}+
+                    </p>
+                    <p className="text-sm font-medium text-neutral-600">
+                      {card.label}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* What learners say */}
+      <section className="w-full bg-neutral-50" data-testid="testimonials">
+        <div className="mx-auto w-full max-w-screen-lg px-4 py-12">
+          <div className="flex flex-col items-center text-center">
+            <h2 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+              What learners say
+            </h2>
+            <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-neutral-600 sm:text-base">
+              Real stories from people building a daily learning habit.
+            </p>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {TESTIMONIALS.map((testimonial) => (
+              <div
+                key={testimonial.author}
+                className="flex flex-col gap-4 rounded-2xl bg-white p-6 ring-1 ring-black/5"
+              >
+                <MessageCircle className="h-5 w-5 text-green-600" />
+                <p className="flex-1 text-sm italic leading-relaxed text-neutral-700">
+                  &ldquo;{testimonial.quote}&rdquo;
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 shrink-0 rounded-full bg-neutral-200" />
+                  <span className="text-sm font-semibold text-neutral-900">
+                    {testimonial.author}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features / Stats */}
       <section className="w-full border-y border-black/5 bg-white">
         <div className="mx-auto w-full max-w-screen-lg px-4 py-10">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

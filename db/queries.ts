@@ -1,5 +1,6 @@
 import { cache } from "react";
-import { and, count, countDistinct, eq, gte, gt, inArray, isNotNull, lte } from "drizzle-orm";
+import { and, count, countDistinct, eq, gte, gt, inArray, isNotNull, lte, sum } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 
 import db from "@/db/drizzle";
 import { getAuthUserId } from "@/lib/auth-utils";
@@ -811,3 +812,36 @@ export const getUserRank = cache(async () => {
 
   return { rank, totalUsers };
 });
+
+export type GlobalStats = {
+  totalLessonsCompleted: number;
+  activeLearnersCount: number;
+  totalStreakDays: number;
+};
+
+async function fetchGlobalStats(): Promise<GlobalStats> {
+  const [lessonsResult] = await db
+    .select({ value: count() })
+    .from(lessonCompletions);
+
+  const [learnersResult] = await db
+    .select({ value: countDistinct(userProgress.userId) })
+    .from(userProgress)
+    .where(isNotNull(userProgress.activeCourseId));
+
+  const [streakResult] = await db
+    .select({ value: sum(userProgress.streak) })
+    .from(userProgress);
+
+  return {
+    totalLessonsCompleted: lessonsResult?.value ?? 0,
+    activeLearnersCount: learnersResult?.value ?? 0,
+    totalStreakDays: Number(streakResult?.value) || 0,
+  };
+}
+
+export const getGlobalStats = unstable_cache(
+  fetchGlobalStats,
+  ["global-stats"],
+  { revalidate: 3600 },
+);
