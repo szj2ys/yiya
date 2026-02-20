@@ -1,6 +1,10 @@
-# Build a Duolingo Clone With Nextjs, React, Drizzle (2024)
+# Yiya
 
-Key Features:
+> **Mission: Make daily language learning feel effortless.**
+>
+> See [docs/MISSION.md](docs/MISSION.md) for our full mission, vision, and strategic direction.
+
+## Key Features
 
 - 🌐 Next.js 14 & server actions
 - 🗣 Audio pronunciations
