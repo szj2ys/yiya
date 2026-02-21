@@ -15,4 +15,32 @@ describe("Streak", () => {
 
     expect(screen.getByText("Start your streak!")).toBeInTheDocument();
   });
+
+  it("should show freeze badge when freeze is active", () => {
+    render(<Streak streak={5} lastLessonAt={null} freezeActive={true} />);
+
+    expect(screen.getByText("5 day streak")).toBeInTheDocument();
+    expect(screen.getByText("Protected today")).toBeInTheDocument();
+  });
+
+  it("should not show reminder when freeze is active", () => {
+    render(<Streak streak={5} lastLessonAt={null} freezeActive={true} />);
+
+    expect(screen.queryByText("Don't forget to study today!")).not.toBeInTheDocument();
+  });
+
+  it("should show completed today when lastLessonAt is today", () => {
+    const today = new Date();
+    render(<Streak streak={3} lastLessonAt={today} freezeActive={false} />);
+
+    expect(screen.getByText("Completed today")).toBeInTheDocument();
+  });
+
+  it("should prioritize completed today over freeze active", () => {
+    const today = new Date();
+    render(<Streak streak={3} lastLessonAt={today} freezeActive={true} />);
+
+    expect(screen.getByText("Completed today")).toBeInTheDocument();
+    expect(screen.queryByText("Protected today")).not.toBeInTheDocument();
+  });
 });

@@ -3,16 +3,24 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BookOpen } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const tabs = [
+type Tab = {
+  label: string;
+  href: string;
+  iconSrc?: string;
+  Icon?: React.ComponentType<{ className?: string }>;
+};
+
+const tabs: Tab[] = [
   { label: "Learn", href: "/learn", iconSrc: "/learn.svg" },
   { label: "Leaderboard", href: "/leaderboard", iconSrc: "/leaderboard.svg" },
-  { label: "Quests", href: "/quests", iconSrc: "/quests.svg" },
+  { label: "Review", href: "/practice", Icon: BookOpen },
   { label: "Shop", href: "/shop", iconSrc: "/shop.svg" },
   { label: "Settings", href: "/settings", iconSrc: "/settings.svg" },
-] as const;
+];
 
 export const MobileHeader = () => {
   const pathname = usePathname();
@@ -36,16 +44,25 @@ export const MobileHeader = () => {
                   : "text-neutral-400 active:bg-neutral-100",
               )}
             >
-              <div className="relative w-7 h-7">
-                <Image
-                  src={tab.iconSrc}
-                  alt={tab.label}
-                  fill
-                  className={cn(
-                    "object-contain transition-opacity",
-                    isActive ? "opacity-100" : "opacity-50",
-                  )}
-                />
+              <div className="relative w-7 h-7 flex items-center justify-center">
+                {tab.iconSrc ? (
+                  <Image
+                    src={tab.iconSrc}
+                    alt={tab.label}
+                    fill
+                    className={cn(
+                      "object-contain transition-opacity",
+                      isActive ? "opacity-100" : "opacity-50",
+                    )}
+                  />
+                ) : tab.Icon ? (
+                  <tab.Icon
+                    className={cn(
+                      "h-6 w-6 transition-opacity",
+                      isActive ? "opacity-100 text-green-600" : "opacity-50 text-neutral-400",
+                    )}
+                  />
+                ) : null}
               </div>
               <span
                 className={cn(

@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 
 vi.mock("sonner", () => ({
-  toast: { error: vi.fn() },
+  toast: { error: vi.fn(), success: vi.fn() },
 }));
 
 vi.mock("@/actions/user-progress", () => ({
@@ -12,6 +12,10 @@ vi.mock("@/actions/user-progress", () => ({
 
 vi.mock("@/actions/user-subscription", () => ({
   createStripeUrl: vi.fn(),
+}));
+
+vi.mock("@/actions/streak-freeze", () => ({
+  buyStreakFreeze: vi.fn(),
 }));
 
 import { Items } from "./items";
@@ -69,5 +73,37 @@ describe("Shop Items", () => {
     const buttons = screen.getAllByRole("button");
     const refillButton = buttons[0]; // first button is refill
     expect(refillButton).toBeDisabled();
+  });
+
+  // --- Streak Freeze tests ---
+
+  it("should render freeze purchase option with correct price", () => {
+    render(
+      <Items hearts={3} points={100} hasActiveSubscription={false} />,
+    );
+
+    expect(screen.getByText("Streak Freeze")).toBeInTheDocument();
+    expect(screen.getByText("50 points · Protect your streak for 1 day")).toBeInTheDocument();
+    expect(screen.getByText("50")).toBeInTheDocument();
+  });
+
+  it("should show active state when freeze already purchased", () => {
+    render(
+      <Items hearts={3} points={100} hasActiveSubscription={false} hasActiveFreezeToday={true} />,
+    );
+
+    expect(screen.getByText("Streak Freeze")).toBeInTheDocument();
+    expect(screen.getByText("Active today")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /active/i })).toBeDisabled();
+  });
+
+  it("should disable freeze button when not enough points", () => {
+    render(
+      <Items hearts={3} points={30} hasActiveSubscription={false} />,
+    );
+
+    // The freeze button should be disabled because points (30) < STREAK_FREEZE_COST (50)
+    const freezeButton = screen.getAllByRole("button")[1]; // second button is freeze
+    expect(freezeButton).toBeDisabled();
   });
 });

@@ -176,4 +176,92 @@ describe("computeNextStreak", () => {
 
     expect(result.longestStreak).toBe(1);
   });
+
+  // --- Streak Freeze tests ---
+
+  it("should maintain streak when freeze exists for missed day", () => {
+    // User last studied ~36 hours ago (missed yesterday), but has a freeze
+    const lastLessonAt = new Date(baseNow.getTime() - DAY_IN_MS * 1.5);
+
+    const result = computeNextStreak({
+      currentStreak: 5,
+      lastLessonAt,
+      now: baseNow,
+      currentLongestStreak: 10,
+      hasFreezeForMissedDay: true,
+    });
+
+    expect(result.streak).toBe(5);
+    expect(result.shouldUpdateStreak).toBe(false);
+    expect(result.longestStreak).toBe(10);
+  });
+
+  it("should reset streak when no freeze and missed day", () => {
+    // User last studied ~36 hours ago but no freeze => streak increments normally
+    // (between 1 and 2 days, no freeze)
+    const lastLessonAt = new Date(baseNow.getTime() - DAY_IN_MS * 1.5);
+
+    const result = computeNextStreak({
+      currentStreak: 5,
+      lastLessonAt,
+      now: baseNow,
+      currentLongestStreak: 10,
+      hasFreezeForMissedDay: false,
+    });
+
+    // Without freeze, 1.5 days is in the normal "next day" window so streak increments
+    expect(result.streak).toBe(6);
+    expect(result.shouldUpdateStreak).toBe(true);
+  });
+
+  it("should not use freeze when elapsed > 2 days", () => {
+    // More than 2 days: freeze can only protect 1 day
+    const lastLessonAt = new Date(baseNow.getTime() - 3 * DAY_IN_MS);
+
+    const result = computeNextStreak({
+      currentStreak: 5,
+      lastLessonAt,
+      now: baseNow,
+      currentLongestStreak: 10,
+      hasFreezeForMissedDay: true,
+    });
+
+    expect(result.streak).toBe(1);
+    expect(result.shouldUpdateStreak).toBe(true);
+  });
+
+  it("should not use freeze when elapsed is exactly 1 day (no missed day)", () => {
+    // Exactly 24h is a normal continuation, freeze should not interfere
+    const lastLessonAt = new Date(baseNow.getTime() - DAY_IN_MS);
+
+    const result = computeNextStreak({
+      currentStreak: 3,
+      lastLessonAt,
+      now: baseNow,
+      currentLongestStreak: 3,
+      hasFreezeForMissedDay: true,
+    });
+
+    // At exactly 24h, elapsedMs === DAY_IN_MS, which is NOT > DAY_IN_MS
+    // So the freeze condition (elapsedMs > DAY_IN_MS && hasFreezeForMissedDay) doesn't trigger
+    // Instead it falls through to the normal increment
+    expect(result.streak).toBe(4);
+    expect(result.shouldUpdateStreak).toBe(true);
+  });
+
+  it("should maintain streak with freeze when just over 1 day", () => {
+    // 24h + 1ms: freeze should protect
+    const lastLessonAt = new Date(baseNow.getTime() - DAY_IN_MS - 1);
+
+    const result = computeNextStreak({
+      currentStreak: 7,
+      lastLessonAt,
+      now: baseNow,
+      currentLongestStreak: 7,
+      hasFreezeForMissedDay: true,
+    });
+
+    expect(result.streak).toBe(7);
+    expect(result.shouldUpdateStreak).toBe(false);
+  });
 });
