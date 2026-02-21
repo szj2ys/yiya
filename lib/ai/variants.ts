@@ -101,7 +101,7 @@ async function fetchVariantFromLlm(
 export async function getVariantQuestion(
   params: GetVariantQuestionParams,
 ): Promise<VariantQuestion | null> {
-  const rate = checkRateLimit(params.userId, "review_variant");
+  const rate = await checkRateLimit(params.userId, "review_variant");
   if (!rate.allowed) return null;
 
   const cacheKey = makeVariantCacheKey(params.challengeId, params.originalQuestion);
