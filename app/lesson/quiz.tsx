@@ -280,7 +280,7 @@ export const Quiz = ({
 
     if (isCorrect) {
       startTransition(() => {
-        upsertChallengeProgress(challenge.id)
+        upsertChallengeProgress(challenge.id, new Date().getTimezoneOffset())
           .then((response) => {
             if (response?.error === "hearts") {
               openHeartsModal();
