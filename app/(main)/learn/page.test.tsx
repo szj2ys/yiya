@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-const mockGetCourseProgress = vi.fn();
+const mockGetUnitsWithProgress = vi.fn();
 const mockGetUserProgress = vi.fn();
 const mockRedirect = vi.fn();
 
@@ -9,10 +9,9 @@ vi.mock("next/navigation", () => ({ redirect: (...args: any[]) => mockRedirect(.
 
 vi.mock("@/db/queries", () => ({
   getUserProgress: (...args: any[]) => mockGetUserProgress(...args),
-  getCourseProgress: mockGetCourseProgress,
+  getUnitsWithProgress: (...args: any[]) => mockGetUnitsWithProgress(...args),
   getLessonPercentage: vi.fn().mockResolvedValue(0),
   getTodayReviewItems: vi.fn().mockResolvedValue([]),
-  getUnits: vi.fn().mockResolvedValue([]),
   getUserSubscription: vi.fn().mockResolvedValue({ isActive: true }),
   getUserStreak: vi.fn().mockResolvedValue({ streak: 7, lastLessonAt: new Date() }),
   getWeeklyActivity: vi.fn().mockResolvedValue([
@@ -141,7 +140,7 @@ describe("LearnPage", () => {
 
   it("should redirect new users to onboarding when no userProgress", async () => {
     mockGetUserProgress.mockResolvedValueOnce(null);
-    mockGetCourseProgress.mockResolvedValueOnce(null);
+    mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: undefined, activeLessonId: undefined });
     // redirect() in Next.js throws to halt execution; simulate that
     mockRedirect.mockImplementation(() => {
       throw new Error("NEXT_REDIRECT");
@@ -154,7 +153,7 @@ describe("LearnPage", () => {
   });
 
   it("should show primary start CTA when user has no progress", async () => {
-    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: null });
+    mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: undefined, activeLessonId: undefined });
 
     const LearnPage = (await import("./page")).default;
 
@@ -165,7 +164,7 @@ describe("LearnPage", () => {
   });
 
   it("should display streak in sidebar", async () => {
-    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+    mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } }, activeLessonId: 1 });
 
     const LearnPage = (await import("./page")).default;
 
@@ -178,7 +177,7 @@ describe("LearnPage", () => {
   });
 
   it("should not render ProgressStats or LearningStats or Promo in sidebar", async () => {
-    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+    mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } }, activeLessonId: 1 });
 
     const LearnPage = (await import("./page")).default;
 
@@ -191,8 +190,10 @@ describe("LearnPage", () => {
   });
 
   it("should render continue CTA with lesson title and progress when active lesson exists", async () => {
-    mockGetCourseProgress.mockResolvedValueOnce({
+    mockGetUnitsWithProgress.mockResolvedValueOnce({
+      units: [],
       activeLesson: { id: 1, title: "Greetings", unit: { description: "Learn the basics" } },
+      activeLessonId: 1,
     });
 
     const LearnPage = (await import("./page")).default;
@@ -206,7 +207,7 @@ describe("LearnPage", () => {
   });
 
   it("should render DailyGoal with correct todayLessonCount and dailyGoal", async () => {
-    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+    mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } }, activeLessonId: 1 });
 
     const LearnPage = (await import("./page")).default;
 
@@ -217,7 +218,7 @@ describe("LearnPage", () => {
   });
 
   it("should render Streak component in mobile wrapper when viewport < lg", async () => {
-    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+    mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } }, activeLessonId: 1 });
 
     const LearnPage = (await import("./page")).default;
 
@@ -230,7 +231,7 @@ describe("LearnPage", () => {
   });
 
   it("should render DailyGoal before LearningProgress", async () => {
-    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+    mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } }, activeLessonId: 1 });
 
     const LearnPage = (await import("./page")).default;
 
@@ -247,7 +248,7 @@ describe("LearnPage", () => {
   });
 
   it("should display hearts and points in mobile stats bar", async () => {
-    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+    mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } }, activeLessonId: 1 });
 
     const LearnPage = (await import("./page")).default;
 
@@ -268,7 +269,7 @@ describe("LearnPage", () => {
   });
 
   it("should show Pro badge in mobile stats bar when user has active subscription", async () => {
-    mockGetCourseProgress.mockResolvedValueOnce({ activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } } });
+    mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } }, activeLessonId: 1 });
 
     const LearnPage = (await import("./page")).default;
 
@@ -276,5 +277,22 @@ describe("LearnPage", () => {
     render(element);
 
     expect(screen.getByText("Pro")).toBeInTheDocument();
+  });
+
+  it("should render learn page with merged query data", async () => {
+    mockGetUnitsWithProgress.mockResolvedValueOnce({
+      units: [{ id: 1, order: 1, title: "Unit 1", description: "Desc 1", lessons: [] }],
+      activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } },
+      activeLessonId: 1,
+    });
+
+    const LearnPage = (await import("./page")).default;
+
+    const element = await LearnPage();
+    render(element);
+
+    // Both units and active lesson come from the single getUnitsWithProgress call
+    expect(screen.getByText("Unit")).toBeInTheDocument();
+    expect(screen.getByText("Greetings")).toBeInTheDocument();
   });
 });
