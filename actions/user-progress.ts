@@ -63,9 +63,11 @@ export const upsertUserProgress = async (
     ...(dailyGoal !== undefined && { dailyGoal }),
   });
 
+  const firstLessonId = course.units[0].lessons[0].id;
+
   revalidatePath("/courses");
   revalidatePath("/learn");
-  redirect("/learn");
+  redirect(`/lesson/${firstLessonId}`);
 };
 
 export const reduceHearts = async (challengeId: number) => {

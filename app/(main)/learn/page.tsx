@@ -170,16 +170,16 @@ const LearnPage = async () => {
         )}
 
         {shouldShowStartCta && (
-          <div className="mb-6 flex flex-col gap-3 rounded-2xl border bg-white p-5">
-            <h2 className="text-lg font-bold text-neutral-800">
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-green-200 bg-green-50 p-5 dark:border-green-800 dark:bg-green-950" data-testid="first-lesson-cta">
+            <h2 className="text-lg font-bold text-neutral-800 dark:text-neutral-100">
               Ready for your first lesson?
             </h2>
-            <p className="text-sm text-neutral-600">
-              Start your first lesson now — it only takes a minute.
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              Your first lesson takes about 2 minutes. Let's go!
             </p>
             <StartFirstLesson
               primaryCta={
-                <Button size="lg" variant="primary" className="w-full sm:w-auto">
+                <Button size="lg" variant="primary" className="w-full animate-pulse sm:w-auto">
                   Start first lesson
                 </Button>
               }

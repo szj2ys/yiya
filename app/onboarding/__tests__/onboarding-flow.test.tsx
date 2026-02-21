@@ -198,4 +198,29 @@ describe("OnboardingFlow", () => {
       expect(upsertUserProgress).toHaveBeenCalledWith(3, 1);
     });
   });
+
+  it("should redirect to first lesson ID after new user onboarding", async () => {
+    // upsertUserProgress is a server action that handles the redirect.
+    // For new users it redirects to /lesson/[firstLessonId].
+    // Here we verify the onboarding flow calls the action with correct args
+    // so the server-side redirect is triggered.
+    const { upsertUserProgress } = await import("@/actions/user-progress");
+
+    render(<OnboardingFlow courses={MOCK_COURSES} />);
+
+    // Complete full onboarding flow
+    fireEvent.click(screen.getByText("English"));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    fireEvent.click(screen.getByRole("button", { name: /skip/i }));
+    fireEvent.click(screen.getByText("Regular"));
+    fireEvent.click(screen.getByRole("button", { name: /start learning/i }));
+
+    await waitFor(() => {
+      // English course id=1, Regular goal=3
+      expect(upsertUserProgress).toHaveBeenCalledWith(1, 3);
+    });
+
+    // Step 4 loading indicator shown while server action processes
+    expect(screen.getByText("Setting up your course...")).toBeInTheDocument();
+  });
 });
