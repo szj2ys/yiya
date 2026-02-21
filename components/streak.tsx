@@ -24,7 +24,7 @@ export const Streak = ({ streak, lastLessonAt }: Props) => {
   return (
     <div
       className={[
-        "w-full rounded-xl border bg-white p-4",
+        "w-full rounded-xl border bg-white dark:bg-neutral-800 p-4",
         "flex flex-col gap-y-2",
         isMilestone ? "border-orange-200" : "border-neutral-200",
       ].join(" ")}

@@ -28,7 +28,7 @@ export const Footer = ({
     <footer
       className={cn(
         "lg:h-[140px] h-auto border-t-2",
-        "sticky bottom-0 z-40 bg-white",
+        "sticky bottom-0 z-40 bg-white dark:bg-neutral-900",
         status === "correct" && "border-transparent bg-green-100",
         status === "wrong" && "border-transparent bg-rose-100",
       )}

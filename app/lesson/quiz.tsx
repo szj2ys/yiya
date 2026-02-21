@@ -58,6 +58,8 @@ type Props = {
   isLastLessonInUnit?: boolean;
   unitTitle?: string;
   unitOrder?: number;
+  isCourseComplete?: boolean;
+  courseName?: string;
 };
 
 export const Quiz = ({
@@ -79,6 +81,8 @@ export const Quiz = ({
   isLastLessonInUnit,
   unitTitle,
   unitOrder,
+  isCourseComplete,
+  courseName,
 }: Props) => {
   const { open: openHeartsModal } = useHeartsModal();
   const { open: openPracticeModal } = usePracticeModal();
@@ -454,6 +458,41 @@ export const Quiz = ({
             </div>
           )}
 
+          {!isPractice && isCourseComplete && (
+            <div className="w-full mb-5" data-testid="course-complete-card">
+              <div className="rounded-2xl border-2 border-violet-300 dark:border-violet-600 bg-gradient-to-b from-violet-50 to-amber-50 dark:from-violet-900/40 dark:to-amber-900/30 p-6 flex flex-col items-center gap-y-3 text-center">
+                <div className="text-5xl" role="img" aria-label="graduation cap">&#x1F393;</div>
+                <h2 className="text-xl font-bold text-violet-700 dark:text-violet-300">Course Complete!</h2>
+                <p className="text-sm text-violet-600 dark:text-violet-400">
+                  You&apos;ve completed all lessons in {courseName ?? "this course"}. That&apos;s an incredible achievement.
+                </p>
+                <div className="flex flex-col gap-y-2 w-full mt-2">
+                  <button
+                    type="button"
+                    className="w-full h-11 rounded-2xl bg-violet-600 text-white font-semibold hover:bg-violet-700 active:bg-violet-800 transition"
+                    onClick={() => router.push("/practice")}
+                  >
+                    Continue Reviewing
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full h-11 rounded-2xl bg-white dark:bg-neutral-800 border border-violet-200 dark:border-violet-700 text-violet-700 dark:text-violet-300 font-semibold hover:bg-violet-50 dark:hover:bg-neutral-700 active:bg-violet-100 dark:active:bg-neutral-600 transition"
+                    onClick={() => setShowShareCard(true)}
+                  >
+                    Share Achievement
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full h-11 rounded-2xl bg-white dark:bg-neutral-800 border border-violet-200 dark:border-violet-700 text-violet-700 dark:text-violet-300 font-semibold hover:bg-violet-50 dark:hover:bg-neutral-700 active:bg-violet-100 dark:active:bg-neutral-600 transition"
+                    onClick={() => router.push("/courses")}
+                  >
+                    Try Another Language
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col items-center text-center gap-y-3 mb-5">
             <Image
               src="/finish.svg"
@@ -462,10 +501,10 @@ export const Quiz = ({
               width={80}
               className="w-16 h-16 lg:w-20 lg:h-20"
             />
-            <h1 className="text-2xl lg:text-3xl font-bold text-neutral-700">
+            <h1 className="text-2xl lg:text-3xl font-bold text-neutral-700 dark:text-neutral-200">
               {isPractice ? "Review complete" : "Lesson complete"}
             </h1>
-            <p className="text-base lg:text-lg text-neutral-600">
+            <p className="text-base lg:text-lg text-neutral-600 dark:text-neutral-300">
               {isPractice
                 ? isPerfect
                   ? "All cards reviewed — excellent memory."
@@ -477,59 +516,59 @@ export const Quiz = ({
           </div>
 
           {/* 2. Core Stats */}
-          <div className="w-full rounded-2xl bg-white/70 border border-neutral-200 p-5 lg:p-6 flex flex-col gap-y-5 mb-5">
+          <div className="w-full rounded-2xl bg-white/70 dark:bg-neutral-800/70 border border-neutral-200 dark:border-neutral-700 p-5 lg:p-6 flex flex-col gap-y-5 mb-5">
             {isPractice ? (
               <>
                 {/* Practice-specific review stats */}
                 <div className="flex flex-col gap-y-2">
-                  <p className="text-sm font-medium text-neutral-500">Review Summary</p>
-                  <p className="text-xl font-semibold text-neutral-700">
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Review Summary</p>
+                  <p className="text-xl font-semibold text-neutral-700 dark:text-neutral-200">
                     {reviewedCount} {reviewedCount === 1 ? "card" : "cards"} reviewed
                   </p>
-                  <p className="text-sm text-neutral-600">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-300">
                     {accuracyPercent}% accuracy
                   </p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
-                    <p className="text-sm text-neutral-500">Correct</p>
+                  <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4 text-center">
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Correct</p>
                     <p className="text-lg font-semibold text-emerald-600">{correctCount}</p>
                   </div>
-                  <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
-                    <p className="text-sm text-neutral-500">Again</p>
+                  <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4 text-center">
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Again</p>
                     <p className="text-lg font-semibold text-amber-600">{againCount}</p>
                   </div>
-                  <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
-                    <p className="text-sm text-neutral-500">Total</p>
-                    <p className="text-lg font-semibold text-neutral-700">{challenges.length}</p>
+                  <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4 text-center">
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Total</p>
+                    <p className="text-lg font-semibold text-neutral-700 dark:text-neutral-200">{challenges.length}</p>
                   </div>
                 </div>
               </>
             ) : (
               <>
                 <div className="flex flex-col gap-y-2">
-                  <p className="text-sm font-medium text-neutral-500">Accuracy</p>
-                  <p className="text-xl font-semibold text-neutral-700">
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Accuracy</p>
+                  <p className="text-xl font-semibold text-neutral-700 dark:text-neutral-200">
                     {correctCount}/{challenges.length} correct
                   </p>
-                  <p className="text-sm text-neutral-600">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-300">
                     {wrongAnswers.length} wrong • {challenges.length} total challenges
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-y-3">
-                  <p className="text-sm font-medium text-neutral-500">Stats</p>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Stats</p>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
-                      <p className="text-sm text-neutral-500">Streak</p>
-                      <p className="text-lg font-semibold text-neutral-700">
+                    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4 text-center">
+                      <p className="text-sm text-neutral-500 dark:text-neutral-400">Streak</p>
+                      <p className="text-lg font-semibold text-neutral-700 dark:text-neutral-200">
                         {streak > 0 ? `\uD83D\uDD25 ${streak}` : "\u2014"}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 text-center">
-                      <p className="text-sm text-neutral-500">Hearts</p>
-                      <p className="text-lg font-semibold text-neutral-700">{hearts}</p>
+                    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4 text-center">
+                      <p className="text-sm text-neutral-500 dark:text-neutral-400">Hearts</p>
+                      <p className="text-lg font-semibold text-neutral-700 dark:text-neutral-200">{hearts}</p>
                     </div>
                   </div>
 
@@ -544,15 +583,15 @@ export const Quiz = ({
             {/* 3. Wrong Answers Review */}
             {wrongAnswers.length > 0 && (
               <div className="flex flex-col gap-y-3">
-                <p className="text-sm font-medium text-neutral-500">Review these</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Review these</p>
                 <div className="flex flex-col gap-y-3">
                   {wrongAnswers.map((item) => (
                     <div
                       key={item.challengeId}
-                      className="rounded-2xl border border-neutral-200 bg-white p-4"
+                      className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4"
                     >
-                      <p className="text-base font-semibold text-neutral-700">{item.question}</p>
-                      <p className="text-sm text-neutral-600 mt-1">
+                      <p className="text-base font-semibold text-neutral-700 dark:text-neutral-200">{item.question}</p>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-300 mt-1">
                         Correct: <span className="font-medium text-emerald-700">{item.correctAnswer}</span>
                       </p>
                     </div>
@@ -593,7 +632,7 @@ export const Quiz = ({
         </div>
 
         {/* 5. Sticky bottom CTAs on mobile */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-neutral-200 p-4 lg:static lg:border-t-0 lg:bg-transparent lg:backdrop-blur-none lg:p-0 z-10">
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm border-t border-neutral-200 dark:border-neutral-700 p-4 lg:static lg:border-t-0 lg:bg-transparent lg:backdrop-blur-none lg:p-0 z-10">
           <div className="max-w-lg mx-auto flex flex-col gap-y-3 lg:px-0">
             {isPractice ? (
               <button
@@ -629,7 +668,7 @@ export const Quiz = ({
                 {wrongAnswers.length > 0 && (
                   <button
                     type="button"
-                    className="w-full h-12 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-semibold hover:bg-neutral-50 active:bg-neutral-100 transition"
+                    className="w-full h-12 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-700 active:bg-neutral-100 dark:active:bg-neutral-600 transition"
                     onClick={() => openPracticeModal()}
                   >
                     Practice weak items
@@ -639,7 +678,7 @@ export const Quiz = ({
                 {nextLessonId && (
                   <button
                     type="button"
-                    className="w-full h-12 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-semibold hover:bg-neutral-50 active:bg-neutral-100 transition"
+                    className="w-full h-12 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-700 active:bg-neutral-100 dark:active:bg-neutral-600 transition"
                     onClick={() => router.push("/learn")}
                   >
                     Back to Learn
