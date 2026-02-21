@@ -68,7 +68,7 @@ export const Items = ({
           }
         >
           {hearts === 5
-            ? "full"
+            ? "Full"
             : (
               <div className="flex items-center">
                 <Image
@@ -96,12 +96,17 @@ export const Items = ({
           <p className="text-neutral-700 text-base lg:text-xl font-bold">
             Unlimited hearts
           </p>
+          {!hasActiveSubscription && (
+            <p className="text-neutral-500 text-sm">
+              $20/month · Unlimited hearts
+            </p>
+          )}
         </div>
         <Button
           onClick={onUpgrade}
           disabled={pending}
         >
-          {hasActiveSubscription ? "settings" : "upgrade"}
+          {hasActiveSubscription ? "Manage" : "upgrade"}
         </Button>
       </div>
     </ul>
