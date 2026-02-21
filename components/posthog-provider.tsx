@@ -3,9 +3,10 @@
 import { useUser } from "@clerk/nextjs";
 import posthog from "posthog-js";
 import { PostHogProvider as PostHogJsProvider } from "posthog-js/react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { initAnalytics } from "@/lib/analytics-init";
+import { track } from "@/lib/analytics";
 
 type Props = {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ export function PostHogProvider({ children }: Props) {
   const apiHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? DEFAULT_POSTHOG_HOST;
 
   const { user, isLoaded, isSignedIn } = useUser();
+  const didFireSessionStart = useRef(false);
 
   useEffect(() => {
     if (!apiKey) return;
@@ -39,7 +41,16 @@ export function PostHogProvider({ children }: Props) {
     if (!isLoaded) return;
 
     if (isSignedIn && user) {
-      posthog.identify(user.id);
+      posthog.identify(user.id, {
+        email: user.primaryEmailAddress?.emailAddress,
+        name: user.fullName,
+        created_at: user.createdAt,
+      });
+
+      if (!didFireSessionStart.current) {
+        didFireSessionStart.current = true;
+        track("session_start", {});
+      }
       return;
     }
 
