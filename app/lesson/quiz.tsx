@@ -60,6 +60,8 @@ type Props = {
   unitOrder?: number;
   isCourseComplete?: boolean;
   courseName?: string;
+  /** Number of due review items remaining beyond this session (practice mode only). */
+  remainingDueCount?: number;
 };
 
 export const Quiz = ({
@@ -83,6 +85,7 @@ export const Quiz = ({
   unitOrder,
   isCourseComplete,
   courseName,
+  remainingDueCount,
 }: Props) => {
   const { open: openHeartsModal } = useHeartsModal();
   const { open: openPracticeModal } = usePracticeModal();
@@ -544,6 +547,53 @@ export const Quiz = ({
                     <p className="text-lg font-semibold text-neutral-700 dark:text-neutral-200">{challenges.length}</p>
                   </div>
                 </div>
+
+                {/* Next step indicator */}
+                {(remainingDueCount ?? 0) > 0 ? (
+                  <div
+                    data-testid="remaining-due-indicator"
+                    className="flex items-center gap-x-2 rounded-xl bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 px-4 py-3"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="h-5 w-5 text-sky-500 shrink-0"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <p className="text-sm text-sky-700 dark:text-sky-300">
+                      {remainingDueCount} more {remainingDueCount === 1 ? "item" : "items"} due for review
+                    </p>
+                  </div>
+                ) : (
+                  <div
+                    data-testid="all-caught-up-indicator"
+                    className="flex items-center gap-x-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="h-5 w-5 text-emerald-500 shrink-0"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                      All caught up! Check back tomorrow for new reviews.
+                    </p>
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -660,13 +710,54 @@ export const Quiz = ({
         <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm border-t border-neutral-200 dark:border-neutral-700 p-4 lg:static lg:border-t-0 lg:bg-transparent lg:backdrop-blur-none lg:p-0 z-10">
           <div className="max-w-lg mx-auto flex flex-col gap-y-3 lg:px-0">
             {isPractice ? (
-              <button
-                type="button"
-                className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition"
-                onClick={() => router.push("/learn")}
-              >
-                Back to Learn
-              </button>
+              <>
+                {(remainingDueCount ?? 0) > 0 ? (
+                  <>
+                    <button
+                      type="button"
+                      data-testid="continue-review-btn"
+                      className="w-full rounded-2xl bg-sky-600 text-white font-semibold hover:bg-sky-700 active:bg-sky-800 transition py-3"
+                      onClick={() => router.push("/practice")}
+                    >
+                      <span>Continue Review</span>
+                      <span className="block text-sm text-sky-200 font-normal mt-0.5">
+                        {remainingDueCount} more {remainingDueCount === 1 ? "item" : "items"} due
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      className="w-full h-12 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-700 active:bg-neutral-100 dark:active:bg-neutral-600 transition"
+                      onClick={() => setShowShareCard(true)}
+                    >
+                      Share your progress
+                    </button>
+                    <button
+                      type="button"
+                      className="w-full h-12 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-700 active:bg-neutral-100 dark:active:bg-neutral-600 transition"
+                      onClick={() => router.push("/learn")}
+                    >
+                      Back to Learn
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition"
+                      onClick={() => router.push("/learn")}
+                    >
+                      Back to Learn
+                    </button>
+                    <button
+                      type="button"
+                      className="w-full h-12 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-700 active:bg-neutral-100 dark:active:bg-neutral-600 transition"
+                      onClick={() => setShowShareCard(true)}
+                    >
+                      Share your progress
+                    </button>
+                  </>
+                )}
+              </>
             ) : (
               <>
                 {nextLessonId ? (

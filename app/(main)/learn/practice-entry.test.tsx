@@ -33,10 +33,16 @@ describe("PracticeEntry", () => {
     expect(screen.getByText("8 items due · ~2 min")).toBeInTheDocument();
   });
 
-  it("should show empty state when no items", () => {
+  it("should render encouraging empty state when no items due", () => {
     render(<PracticeEntry reviewItemCount={0} dueCount={0} />);
-    expect(screen.getByText("All caught up!")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Practice" })).toBeDisabled();
+    expect(
+      screen.getByText("Great job! All caught up for today."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Check back tomorrow for new reviews."),
+    ).toBeInTheDocument();
+    // Practice button should not be rendered when empty
+    expect(screen.queryByRole("button", { name: "Practice" })).toBeNull();
   });
 
   it("should show emphasized style when items are due", () => {
@@ -46,10 +52,17 @@ describe("PracticeEntry", () => {
     expect(container.className).toContain("bg-sky-50");
   });
 
-  it("should show muted style when all caught up", () => {
+  it("should show encouraging style when all caught up", () => {
     render(<PracticeEntry reviewItemCount={0} dueCount={0} />);
     const container = screen.getByTestId("practice-entry");
-    expect(container.className).toContain("border-neutral-200");
-    expect(container.className).toContain("bg-white");
+    expect(container.className).toContain("border-emerald-200");
+    expect(container.className).toContain("bg-emerald-50/50");
+  });
+
+  it("should render correctly in dark mode", () => {
+    render(<PracticeEntry reviewItemCount={0} dueCount={0} />);
+    const container = screen.getByTestId("practice-entry");
+    expect(container.className).toContain("dark:border-emerald-800");
+    expect(container.className).toContain("dark:bg-emerald-950/30");
   });
 });

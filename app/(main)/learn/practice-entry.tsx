@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { BookOpen, CheckCircle2 } from "lucide-react";
+import { BookOpen, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -16,10 +15,6 @@ export const PracticeEntry = ({ reviewItemCount, dueCount }: PracticeEntryProps)
 
   const hasItems = dueCount > 0 || reviewItemCount > 0;
   const itemsDue = dueCount > 0 ? dueCount : reviewItemCount;
-  const summary =
-    itemsDue > 0
-      ? `${itemsDue} items due \u00b7 ~${Math.max(1, Math.ceil(itemsDue / 4))} min`
-      : "All caught up!";
 
   const onPractice = () => {
     router.push("/practice");
@@ -31,7 +26,7 @@ export const PracticeEntry = ({ reviewItemCount, dueCount }: PracticeEntryProps)
         "mb-6 rounded-2xl border p-5 transition-colors",
         hasItems
           ? "border-sky-200 bg-sky-50 dark:border-sky-800 dark:bg-sky-950"
-          : "border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800",
+          : "border-emerald-200 bg-emerald-50/50 dark:border-emerald-800 dark:bg-emerald-950/30",
       ].join(" ")}
       data-testid="practice-entry"
     >
@@ -42,8 +37,8 @@ export const PracticeEntry = ({ reviewItemCount, dueCount }: PracticeEntryProps)
               <BookOpen className="h-6 w-6 text-sky-600 dark:text-sky-400" />
             </div>
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-              <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900">
+              <Sparkles className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </div>
           )}
         </div>
@@ -54,10 +49,10 @@ export const PracticeEntry = ({ reviewItemCount, dueCount }: PracticeEntryProps)
                 "text-sm font-semibold",
                 hasItems
                   ? "text-sky-800 dark:text-sky-200"
-                  : "text-neutral-800 dark:text-neutral-200",
+                  : "text-emerald-800 dark:text-emerald-200",
               ].join(" ")}
             >
-              Today&apos;s practice
+              {hasItems ? "Today\u2019s practice" : "Great job! All caught up for today."}
             </p>
             {itemsDue > 0 && (
               <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-sky-600 px-1.5 text-[11px] font-semibold text-white">
@@ -70,10 +65,12 @@ export const PracticeEntry = ({ reviewItemCount, dueCount }: PracticeEntryProps)
               "text-xs",
               hasItems
                 ? "text-sky-600 dark:text-sky-400"
-                : "text-neutral-600 dark:text-neutral-400",
+                : "text-emerald-600 dark:text-emerald-400",
             ].join(" ")}
           >
-            {summary}
+            {hasItems
+              ? `${itemsDue} items due \u00b7 ~${Math.max(1, Math.ceil(itemsDue / 4))} min`
+              : "Check back tomorrow for new reviews."}
           </p>
           {hasItems && (
             <div className="mt-2 h-1.5 w-full rounded-full bg-sky-200 dark:bg-sky-800">
@@ -84,14 +81,15 @@ export const PracticeEntry = ({ reviewItemCount, dueCount }: PracticeEntryProps)
             </div>
           )}
         </div>
-        <Button
-          onClick={onPractice}
-          disabled={!hasItems}
-          variant={hasItems ? "primary" : "default"}
-          className={hasItems ? "shadow-sm" : ""}
-        >
-          Practice
-        </Button>
+        {hasItems && (
+          <Button
+            onClick={onPractice}
+            variant="primary"
+            className="shadow-sm"
+          >
+            Practice
+          </Button>
+        )}
       </div>
     </div>
   );
