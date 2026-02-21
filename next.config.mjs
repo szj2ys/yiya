@@ -1,5 +1,11 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    // Required for instrumentation.ts in Next.js 14 (stable in 15+)
+    instrumentationHook: true,
+  },
   async headers() {
     return [
       // Admin CRUD APIs — same-origin so no CORS needed,
@@ -46,4 +52,13 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Only print logs for uploading source maps in CI
+  silent: !process.env.CI,
+
+  // Upload source maps for readable stack traces
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  // Route Sentry requests through your server to avoid ad-blockers
+  tunnelRoute: "/monitoring",
+});
