@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 const isE2E = process.env.E2E_TESTING === "true";
 
 const clerkMiddleware = authMiddleware({
-  publicRoutes: ["/", "/api/webhooks/stripe"],
+  publicRoutes: ["/", "/api/webhooks/stripe", "/monitoring"],
 });
 
 export default function middleware(req: NextRequest, event: any) {
@@ -20,5 +20,5 @@ export const config = {
   // Protects all routes, including api/trpc.
   // See https://clerk.com/docs/references/nextjs/auth-middleware
   // for more information about configuring your Middleware
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ["/((?!.+\\.[\\w]+$|_next|monitoring).*)", "/", "/(api|trpc)(.*)"],
 };

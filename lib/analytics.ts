@@ -63,10 +63,31 @@ export function buildTrackPayload<E extends AnalyticsEventName>(
 
 export type TrackDispatcher = (payload: TrackPayload<AnalyticsEventName>) => void | Promise<void>;
 
-function defaultDispatcher(payload: TrackPayload<AnalyticsEventName>) {
-  // Phase 0: console-only. Production can swap to Segment/PostHog/etc.
+function consoleDispatcher(payload: TrackPayload<AnalyticsEventName>) {
   // eslint-disable-next-line no-console
   console.info("[analytics]", payload.event, payload.properties);
+}
+
+/**
+ * Environment-aware default dispatcher.
+ *
+ * - **Server** (Node.js / Edge): delegates to `serverPosthogDispatcher` which
+ *   sends events to PostHog via `posthog-node`, or falls back to console when
+ *   `POSTHOG_API_KEY` is not set.
+ * - **Client** (browser): console-only until `setTrackDispatcher` is called
+ *   with the PostHog JS dispatcher (via `initAnalytics`).
+ */
+function defaultDispatcher(payload: TrackPayload<AnalyticsEventName>) {
+  if (typeof window === "undefined") {
+    // Server-side: dynamically import to avoid bundling posthog-node on client
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { serverPosthogDispatcher } = require("@/lib/analytics-server") as {
+      serverPosthogDispatcher: TrackDispatcher;
+    };
+    serverPosthogDispatcher(payload);
+    return;
+  }
+  consoleDispatcher(payload);
 }
 
 let dispatcher: TrackDispatcher = defaultDispatcher;
