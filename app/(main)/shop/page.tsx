@@ -8,6 +8,7 @@ import { StickyWrapper } from "@/components/sticky-wrapper";
 import { getUserProgress, getUserSubscription } from "@/db/queries";
 
 import { Items } from "./items";
+import { PaywallTracker } from "./paywall-tracker";
 import { Quests } from "@/components/quests";
 
 const ShopPage = async () => {
@@ -28,8 +29,9 @@ const ShopPage = async () => {
 
   const isPro = !!userSubscription?.isActive;
 
-  return ( 
+  return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
+      {!isPro && <PaywallTracker />}
       <StickyWrapper>
         <UserProgress
           activeCourse={userProgress.activeCourse}

@@ -118,11 +118,15 @@ describe("LeaderboardPage", () => {
 
   // --- Layout structure ---
 
-  it("should keep StickyWrapper sidebar with UserProgress, Promo, and Quests", () => {
+  it("should keep StickyWrapper sidebar with UserProgress and Quests", () => {
     expect(pageSource).toContain("<StickyWrapper");
     expect(pageSource).toContain("<UserProgress");
-    expect(pageSource).toContain("<Promo");
     expect(pageSource).toContain("<Quests");
+  });
+
+  it("should not render Promo on leaderboard page", () => {
+    expect(pageSource).not.toContain("<Promo");
+    expect(pageSource).not.toContain("@/components/promo");
   });
 
   it("should use FeedWrapper for main content", () => {
