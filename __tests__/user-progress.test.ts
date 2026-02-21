@@ -44,4 +44,13 @@ describe("upsertUserProgress", () => {
     expect(setSpy).toHaveBeenCalledTimes(1);
     expect(whereSpy).toHaveBeenCalledTimes(1);
   });
+
+  it("should redirect existing user to /learn when switching course", async () => {
+    const { redirect } = await import("next/navigation");
+    const { upsertUserProgress } = await import("@/actions/user-progress");
+
+    await upsertUserProgress(123);
+
+    expect(redirect).toHaveBeenCalledWith("/learn");
+  });
 });
