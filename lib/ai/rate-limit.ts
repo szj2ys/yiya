@@ -10,6 +10,8 @@ type Bucket = {
   count: number;
 };
 
+type RateLimitResult = { allowed: boolean; remaining: number };
+
 const DEFAULT_LIMITS: LimitConfig = {
   default: 50,
   byFeature: {
@@ -19,6 +21,12 @@ const DEFAULT_LIMITS: LimitConfig = {
 };
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const KV_KEY_PREFIX = "ratelimit:";
+
+/* ---------------------------------------------------------------------------
+ * In-memory fallback (used when KV env vars are not set)
+ * --------------------------------------------------------------------------- */
+
 const store = new Map<string, Bucket>();
 
 function nowMs(): number {
@@ -33,11 +41,36 @@ function makeKey(userId: string, feature: Feature): string {
   return `${userId}:${feature}`;
 }
 
-export function checkRateLimit(
+/* ---------------------------------------------------------------------------
+ * Vercel KV (Upstash Redis) — lazy singleton
+ * --------------------------------------------------------------------------- */
+
+function useKv(): boolean {
+  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
+let _kv: import("@vercel/kv").VercelKV | null = null;
+
+async function getKv(): Promise<import("@vercel/kv").VercelKV> {
+  if (!_kv) {
+    const { createClient } = await import("@vercel/kv");
+    _kv = createClient({
+      url: process.env.KV_REST_API_URL!,
+      token: process.env.KV_REST_API_TOKEN!,
+    });
+  }
+  return _kv;
+}
+
+/* ---------------------------------------------------------------------------
+ * Public API
+ * --------------------------------------------------------------------------- */
+
+export async function checkRateLimit(
   userId: string,
   feature: Feature,
   options: { limits?: Partial<LimitConfig>; windowMs?: number; now?: () => number } = {},
-): { allowed: boolean; remaining: number } {
+): Promise<RateLimitResult> {
   const limits: LimitConfig = {
     ...DEFAULT_LIMITS,
     ...(options.limits ?? {}),
@@ -48,8 +81,49 @@ export function checkRateLimit(
   };
 
   const windowMs = options.windowMs ?? ONE_DAY_MS;
-  const clockNow = (options.now ?? nowMs)();
   const limit = getLimit(feature, limits);
+
+  if (useKv()) {
+    return checkRateLimitKv(userId, feature, limit, windowMs);
+  }
+
+  return checkRateLimitMemory(userId, feature, limit, windowMs, options.now);
+}
+
+/* KV path — fixed-window counter via INCR + EXPIRE */
+async function checkRateLimitKv(
+  userId: string,
+  feature: Feature,
+  limit: number,
+  windowMs: number,
+): Promise<RateLimitResult> {
+  const kv = await getKv();
+  const kvKey = `${KV_KEY_PREFIX}${userId}:${feature}`;
+  const ttlSeconds = Math.max(1, Math.ceil(windowMs / 1000));
+
+  const count = await kv.incr(kvKey);
+
+  // First request in window — set the TTL
+  if (count === 1) {
+    await kv.expire(kvKey, ttlSeconds);
+  }
+
+  if (count > limit) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  return { allowed: true, remaining: Math.max(0, limit - count) };
+}
+
+/* In-memory path — preserves original synchronous logic */
+async function checkRateLimitMemory(
+  userId: string,
+  feature: Feature,
+  limit: number,
+  windowMs: number,
+  nowFn?: () => number,
+): Promise<RateLimitResult> {
+  const clockNow = (nowFn ?? nowMs)();
   const key = makeKey(userId, feature);
 
   const existing = store.get(key);
@@ -68,7 +142,10 @@ export function checkRateLimit(
   return { allowed: true, remaining: Math.max(0, limit - existing.count) };
 }
 
+/* ---------------------------------------------------------------------------
+ * Testing helpers
+ * --------------------------------------------------------------------------- */
+
 export function __testing__resetRateLimit(): void {
   store.clear();
 }
-

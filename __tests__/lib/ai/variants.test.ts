@@ -34,7 +34,7 @@ describe("getVariantQuestion", () => {
   });
 
   it("should return null when rate limited", async () => {
-    mockCheckRateLimit.mockReturnValue({ allowed: false, remaining: 0 });
+    mockCheckRateLimit.mockResolvedValue({ allowed: false, remaining: 0 });
 
     const { getVariantQuestion } = await import("@/lib/ai/variants");
 
@@ -52,7 +52,7 @@ describe("getVariantQuestion", () => {
   });
 
   it("should return null when AI config missing", async () => {
-    mockCheckRateLimit.mockReturnValue({ allowed: true, remaining: 10 });
+    mockCheckRateLimit.mockResolvedValue({ allowed: true, remaining: 10 });
     mockAiChat.mockRejectedValueOnce(new AiConfigError("Missing required env var: OPENAI_API_KEY"));
 
     const { getVariantQuestion } = await import("@/lib/ai/variants");
@@ -70,7 +70,7 @@ describe("getVariantQuestion", () => {
   });
 
   it("should return parsed variant on success", async () => {
-    mockCheckRateLimit.mockReturnValue({ allowed: true, remaining: 10 });
+    mockCheckRateLimit.mockResolvedValue({ allowed: true, remaining: 10 });
     mockAiChat.mockResolvedValueOnce(
       JSON.stringify({
         question: "Variant question",

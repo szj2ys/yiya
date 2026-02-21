@@ -110,7 +110,7 @@ async function fetchExplanationFromLlm(
 export async function getExplanation(
   params: GetExplanationParams,
 ): Promise<ExplanationResult | null> {
-  const rate = checkRateLimit(params.userId, "explain");
+  const rate = await checkRateLimit(params.userId, "explain");
   if (!rate.allowed) return null;
 
   const cacheKey = makeExplainCacheKey(params.challengeId, params.userAnswer);
