@@ -31,11 +31,6 @@ export const HeartsModal = () => {
     track("paywall_view", { surface: "hearts_modal" }).catch(() => undefined);
   }, [isOpen]);
 
-  const onClick = () => {
-    close();
-    router.push("/shop");
-  };
-
   if (!isClient) {
     return null;
   }
@@ -48,27 +43,39 @@ export const HeartsModal = () => {
             <Image src="/mascot_bad.svg" alt="Mascot" height={80} width={80} />
           </div>
           <DialogTitle className="text-center font-bold text-2xl">
-            Keep your streak going
+            Take a breath — you can earn hearts back
           </DialogTitle>
           <DialogDescription className="text-center text-base">
-            Get unlimited hearts to keep learning today — and protect your streak.
+            Practice what you&apos;ve learned to earn hearts, or get unlimited hearts to keep going.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mb-4">
           <div className="flex flex-col gap-y-4 w-full">
             <Button
-              variant="primary"
+              variant="secondary"
+              className="w-full"
+              size="lg"
+              onClick={() => {
+                close();
+                router.push("/practice");
+              }}
+            >
+              Practice to earn hearts
+            </Button>
+            <Button
+              variant="primaryOutline"
               className="w-full"
               size="lg"
               onClick={() => {
                 track("checkout_start", { surface: "hearts_modal" }).catch(() => undefined);
-                onClick();
+                close();
+                router.push("/shop");
               }}
             >
-              Continue learning
+              Get unlimited hearts
             </Button>
             <Button
-              variant="primaryOutline"
+              variant="ghost"
               className="w-full"
               size="lg"
               onClick={close}
