@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { InfinityIcon, Volume2, VolumeX, X } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { useExitModal } from "@/store/use-exit-modal";
 import { isMuted, toggleMute } from "@/lib/tts";
@@ -29,6 +30,8 @@ export const Header = ({
 
   const MuteIcon = muted ? VolumeX : Volume2;
 
+  const showLastHeartPulse = !hasActiveSubscription && hearts === 1;
+
   return (
     <header className="lg:pt-[50px] pt-[20px] px-10 flex gap-x-7 items-center justify-between max-w-[1140px] mx-auto w-full">
       <X
@@ -44,7 +47,13 @@ export const Header = ({
       >
         <MuteIcon className="h-5 w-5" />
       </button>
-      <div className="text-rose-500 flex items-center font-bold">
+      <div
+        data-testid="hearts-display"
+        className={cn(
+          "text-rose-500 flex items-center font-bold",
+          showLastHeartPulse && "animate-pulse",
+        )}
+      >
         <Image
           src="/heart.svg"
           height={28}
