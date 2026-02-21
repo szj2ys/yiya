@@ -32,7 +32,6 @@ type ReviewItem =
     };
 
 const MAX_REVIEW_ITEMS = 10;
-const MAX_LOOKBACK_ITEMS = 50;
 
 export const getUserProgress = cache(async () => {
   const userId = await getAuthUserId();
@@ -315,114 +314,35 @@ export const getTodayReviewItems = cache(async () => {
     },
   });
 
-  if (dueCards.length > 0) {
-    const dueChallengeIds = dueCards.map((c: typeof dueCards[number]) => c.challengeId);
-    const challengeIdToReviewCardId = new Map(
-      dueCards.map((c: typeof dueCards[number]) => [c.challengeId, c.id] as const),
-    );
-    const dueChallenges = await db.query.challenges.findMany({
-      where: inArray(challenges.id, dueChallengeIds),
-      columns: { id: true, lessonId: true },
-    });
-
-    const challengeIdToLessonId = new Map(
-      dueChallenges.map((c: typeof dueChallenges[number]) => [c.id, c.lessonId] as const),
-    );
-
-    return dueChallengeIds.flatMap((challengeId: number) => {
-      const lessonId = challengeIdToLessonId.get(challengeId);
-      if (!lessonId) return [];
-      return [
-        {
-          type: "challenge" as const,
-          challengeId,
-          lessonId,
-          reviewCardId: challengeIdToReviewCardId.get(challengeId),
-        },
-      ];
-    });
+  if (dueCards.length === 0) {
+    return [] as ReviewItem[];
   }
 
-  // 1) Recently-wrong challenges first (most recent attempt first)
-  const wrongChallengeProgress = await db.query.challengeProgress.findMany({
-    where: and(
-      eq(challengeProgress.userId, userId),
-      eq(challengeProgress.completed, false),
-    ),
-    orderBy: (challengeProgress: any, { desc }: any) => [desc(challengeProgress.id)],
-    limit: MAX_REVIEW_ITEMS,
-    columns: {
-      challengeId: true,
-    },
+  const dueChallengeIds = dueCards.map((c: typeof dueCards[number]) => c.challengeId);
+  const challengeIdToReviewCardId = new Map(
+    dueCards.map((c: typeof dueCards[number]) => [c.challengeId, c.id] as const),
+  );
+  const dueChallenges = await db.query.challenges.findMany({
+    where: inArray(challenges.id, dueChallengeIds),
+    columns: { id: true, lessonId: true },
   });
-
-  const wrongChallengeIds = wrongChallengeProgress.map((row: typeof wrongChallengeProgress[number]) => row.challengeId);
-
-  const wrongChallenges = wrongChallengeIds.length
-    ? await db.query.challenges.findMany({
-        where: inArray(challenges.id, wrongChallengeIds),
-        columns: { id: true, lessonId: true },
-      })
-    : [];
 
   const challengeIdToLessonId = new Map(
-    wrongChallenges.map((challenge: typeof wrongChallenges[number]) => [challenge.id, challenge.lessonId] as const),
+    dueChallenges.map((c: typeof dueChallenges[number]) => [c.id, c.lessonId] as const),
   );
 
-  const challengeItems: ReviewItem[] = wrongChallengeIds.flatMap((challengeId: number) => {
+  return dueChallengeIds.flatMap((challengeId: number) => {
     const lessonId = challengeIdToLessonId.get(challengeId);
     if (!lessonId) return [];
-    return [{ type: "challenge" as const, challengeId, lessonId }];
+    return [
+      {
+        type: "challenge" as const,
+        challengeId,
+        lessonId,
+        reviewCardId: challengeIdToReviewCardId.get(challengeId),
+      },
+    ];
   });
-
-  // 2) Recently completed lessons for recap (by most recent completed challenge)
-  const completedChallengeProgress = await db.query.challengeProgress.findMany({
-    where: and(
-      eq(challengeProgress.userId, userId),
-      eq(challengeProgress.completed, true),
-    ),
-    orderBy: (challengeProgress: any, { desc }: any) => [desc(challengeProgress.id)],
-    limit: MAX_LOOKBACK_ITEMS,
-    columns: {
-      challengeId: true,
-    },
-  });
-
-  const completedChallengeIds = completedChallengeProgress.map((row: typeof completedChallengeProgress[number]) => row.challengeId);
-
-  const completedChallenges = completedChallengeIds.length
-    ? await db.query.challenges.findMany({
-        where: inArray(challenges.id, completedChallengeIds),
-        columns: { id: true, lessonId: true },
-      })
-    : ([] as { id: number; lessonId: number }[]);
-
-  const completedChallengeIdToLessonId = new Map<number, number>(
-    completedChallenges.map((challenge: { id: number; lessonId: number }) => [challenge.id, challenge.lessonId] as const),
-  );
-
-  const recapLessonIds: number[] = [];
-  const recapLessonIdsSet = new Set<number>();
-  const wrongLessonSet = new Set<number>(challengeItems.map((i: ReviewItem) => i.lessonId));
-
-  for (const challengeId of completedChallengeIds) {
-    const lessonId = completedChallengeIdToLessonId.get(challengeId);
-    if (!lessonId) continue;
-    if (wrongLessonSet.has(lessonId)) continue;
-    if (recapLessonIdsSet.has(lessonId)) continue;
-
-    recapLessonIdsSet.add(lessonId);
-    recapLessonIds.push(lessonId);
-
-    if (recapLessonIds.length >= MAX_REVIEW_ITEMS) break;
-  }
-
-  const recapItems: ReviewItem[] = recapLessonIds.map((lessonId: number) => ({
-    type: "lesson" as const,
-    lessonId,
-  }));
-
-  return [...challengeItems, ...recapItems];
 });
 
 const DAY_IN_MS = 86_400_000;
