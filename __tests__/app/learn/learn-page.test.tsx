@@ -63,6 +63,13 @@ describe("LearnPage integration", () => {
     expect(pageSource).not.toContain("lastLessonAt={userProgress.lastLessonAt");
   });
 
+  it("should use getUnitsWithProgress instead of separate getUnits and getCourseProgress", () => {
+    expect(pageSource).toContain("getUnitsWithProgress");
+    // Should NOT import the old separate functions on the learn page
+    expect(pageSource).not.toContain("getUnits,");
+    expect(pageSource).not.toContain("getCourseProgress");
+  });
+
   it("should render ContinueCta with correct props when active lesson exists", () => {
     expect(pageSource).toContain('import { ContinueCta }');
     expect(pageSource).toContain("<ContinueCta");
