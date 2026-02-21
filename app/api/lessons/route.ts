@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 
 import db from "@/db/drizzle";
-import { isAdmin } from "@/lib/admin";
+import { assertAdmin } from "@/lib/admin-guard";
 import { lessons } from "@/db/schema";
 
 export const GET = async () => {
-  if (!(await isAdmin())) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
+  const forbidden = await assertAdmin();
+  if (forbidden) return forbidden;
 
   const data = await db.query.lessons.findMany();
 
@@ -15,9 +14,8 @@ export const GET = async () => {
 };
 
 export const POST = async (req: Request) => {
-  if (!(await isAdmin())) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
+  const forbidden = await assertAdmin();
+  if (forbidden) return forbidden;
 
   const body = await req.json();
 
