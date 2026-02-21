@@ -16,6 +16,7 @@ import {
   getLearningStats,
   getLessonPercentage,
   getMemoryStrength,
+  getStreakFreezeForDate,
   getTodayLessonCount,
   getTodayReviewItems,
   getUnits,
@@ -53,6 +54,7 @@ const LearnPage = async () => {
   const learningStatsData = getLearningStats();
   const dailyQuestProgressData = getDailyQuestProgress();
   const claimedDailyQuestsData = getClaimedDailyQuests();
+  const todayFreezeData = getStreakFreezeForDate();
 
   const [
     userProgress,
@@ -70,6 +72,7 @@ const LearnPage = async () => {
     learningStats,
     dailyQuestProgress,
     claimedDailyQuests,
+    todayFreeze,
   ] = await Promise.all([
     userProgressData,
     unitsData,
@@ -86,6 +89,7 @@ const LearnPage = async () => {
     learningStatsData,
     dailyQuestProgressData,
     claimedDailyQuestsData,
+    todayFreezeData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -98,6 +102,7 @@ const LearnPage = async () => {
 
   const isPro = !!userSubscription?.isActive;
   const shouldShowStartCta = !courseProgress.activeLesson;
+  const hasFreezeToday = !!todayFreeze;
 
   const dailyQuests = DAILY_QUESTS.map((quest) => ({
     id: quest.id,
@@ -117,7 +122,11 @@ const LearnPage = async () => {
           points={userProgress.points}
           hasActiveSubscription={isPro}
         />
-        <Streak streak={userStreak?.streak ?? 0} lastLessonAt={userStreak?.lastLessonAt ?? null} />
+        <Streak
+          streak={userStreak?.streak ?? 0}
+          lastLessonAt={userStreak?.lastLessonAt ?? null}
+          freezeActive={hasFreezeToday}
+        />
         <Quests points={userProgress.points} />
       </StickyWrapper>
       <FeedWrapper>
@@ -125,7 +134,11 @@ const LearnPage = async () => {
 
         {/* Mobile-only streak + stats bar */}
         <div className="lg:hidden mb-4" data-testid="mobile-streak">
-          <Streak streak={userStreak?.streak ?? 0} lastLessonAt={userStreak?.lastLessonAt ?? null} />
+          <Streak
+            streak={userStreak?.streak ?? 0}
+            lastLessonAt={userStreak?.lastLessonAt ?? null}
+            freezeActive={hasFreezeToday}
+          />
         </div>
 
         <div className="lg:hidden mb-4 flex items-center gap-x-4" data-testid="mobile-stats-bar">
@@ -179,6 +192,11 @@ const LearnPage = async () => {
           dailyGoal={userProgress.dailyGoal ?? 1}
         />
 
+        <PracticeEntry
+          reviewItemCount={todayReviewItems.length}
+          dueCount={reviewDueCount}
+        />
+
         <DailyQuestsCard quests={dailyQuests} />
 
         <LearningProgress
@@ -190,11 +208,6 @@ const LearnPage = async () => {
         {weeklyActivity.length > 0 && (
           <WeeklyActivity data={weeklyActivity} />
         )}
-
-        <PracticeEntry
-          reviewItemCount={todayReviewItems.length}
-          dueCount={reviewDueCount}
-        />
 
         {units.map((unit: typeof units[number]) => (
           <div key={unit.id} className="mb-10">

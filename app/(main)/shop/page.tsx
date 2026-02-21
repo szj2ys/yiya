@@ -5,7 +5,7 @@ import { Promo } from "@/components/promo";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import { StickyWrapper } from "@/components/sticky-wrapper";
-import { getUserProgress, getUserSubscription } from "@/db/queries";
+import { getUserProgress, getUserSubscription, getStreakFreezeForDate } from "@/db/queries";
 
 import { Items } from "./items";
 import { PaywallTracker } from "./paywall-tracker";
@@ -14,13 +14,16 @@ import { Quests } from "@/components/quests";
 const ShopPage = async () => {
   const userProgressData = getUserProgress();
   const userSubscriptionData = getUserSubscription();
+  const todayFreezeData = getStreakFreezeForDate();
 
   const [
     userProgress,
     userSubscription,
+    todayFreeze,
   ] = await Promise.all([
     userProgressData,
-    userSubscriptionData
+    userSubscriptionData,
+    todayFreezeData,
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
@@ -62,11 +65,12 @@ const ShopPage = async () => {
             hearts={userProgress.hearts}
             points={userProgress.points}
             hasActiveSubscription={isPro}
+            hasActiveFreezeToday={!!todayFreeze}
           />
         </div>
       </FeedWrapper>
     </div>
   );
 };
- 
+
 export default ShopPage;
