@@ -506,27 +506,6 @@ export const getCourseStats = cache(async () => {
   };
 });
 
-export const getTopTenUsers = cache(async () => {
-  const userId = await getAuthUserId();
-
-  if (!userId) {
-    return [];
-  }
-
-  const data = await db.query.userProgress.findMany({
-    orderBy: (userProgress: any, { desc }: any) => [desc(userProgress.points)],
-    limit: 10,
-    columns: {
-      userId: true,
-      userName: true,
-      userImageSrc: true,
-      points: true,
-    },
-  });
-
-  return data;
-});
-
 export const getTopTenWeekly = cache(async () => {
   const userId = await getAuthUserId();
 
