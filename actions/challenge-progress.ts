@@ -8,10 +8,13 @@ import db from "@/db/drizzle";
 import { getUserProgress, getUserSubscription, getStreakFreezeForDate } from "@/db/queries";
 import { challengeProgress, challenges, lessonCompletions, userProgress } from "@/db/schema";
 import { createReviewCard } from "@/actions/review";
-import { computeNextStreak } from "@/lib/streak";
+import { computeNextStreak, toLocalDateString } from "@/lib/streak";
 import { computeWeeklyXp } from "@/lib/weekly-xp";
 
-export const upsertChallengeProgress = async (challengeId: number) => {
+export const upsertChallengeProgress = async (
+  challengeId: number,
+  timezoneOffset?: number,
+) => {
   const userId = await getAuthUserId();
 
   if (!userId) {
@@ -123,8 +126,12 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     completedResult.value >= totalResult.value
   ) {
     const now = new Date();
-    const yesterday = new Date(now.getTime() - 86_400_000).toISOString().slice(0, 10);
-    const freezeForYesterday = await getStreakFreezeForDate(yesterday);
+    const offset = timezoneOffset ?? 0;
+    const yesterdayLocal = toLocalDateString(
+      new Date(now.getTime() - 86_400_000),
+      offset,
+    );
+    const freezeForYesterday = await getStreakFreezeForDate(yesterdayLocal);
 
     const { streak: nextStreak, shouldUpdateStreak, longestStreak } = computeNextStreak({
       currentStreak: currentUserProgress.streak ?? 0,
@@ -132,6 +139,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
       now,
       currentLongestStreak: currentUserProgress.longestStreak ?? 0,
       hasFreezeForMissedDay: !!freezeForYesterday,
+      userTimezoneOffset: timezoneOffset,
     });
 
     await db.update(userProgress)
