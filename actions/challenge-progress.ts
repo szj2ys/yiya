@@ -5,7 +5,7 @@ import { and, eq, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import db from "@/db/drizzle";
-import { getUserProgress, getUserSubscription } from "@/db/queries";
+import { getUserProgress, getUserSubscription, getStreakFreezeForDate } from "@/db/queries";
 import { challengeProgress, challenges, lessonCompletions, userProgress } from "@/db/schema";
 import { createReviewCard } from "@/actions/review";
 import { computeNextStreak } from "@/lib/streak";
@@ -123,12 +123,15 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     completedResult.value >= totalResult.value
   ) {
     const now = new Date();
+    const yesterday = new Date(now.getTime() - 86_400_000).toISOString().slice(0, 10);
+    const freezeForYesterday = await getStreakFreezeForDate(yesterday);
 
     const { streak: nextStreak, shouldUpdateStreak, longestStreak } = computeNextStreak({
       currentStreak: currentUserProgress.streak ?? 0,
       lastLessonAt: currentUserProgress.lastLessonAt ?? null,
       now,
       currentLongestStreak: currentUserProgress.longestStreak ?? 0,
+      hasFreezeForMissedDay: !!freezeForYesterday,
     });
 
     await db.update(userProgress)
