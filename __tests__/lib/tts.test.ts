@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
-import { speak, isTtsSupported, mapLanguage } from "@/lib/tts";
+import { speak, isTtsSupported, mapLanguage, isMuted, setMuted, toggleMute, _resetMuteCache } from "@/lib/tts";
 
 describe("tts utility", () => {
   describe("mapLanguage", () => {
@@ -110,6 +110,69 @@ describe("tts utility", () => {
       speak("merci", "French");
 
       expect(mockCancel).toHaveBeenCalledTimes(2);
+    });
+
+    it("should not speak when muted", () => {
+      setMuted(true);
+      speak("hola", "Spanish");
+
+      expect(mockSpeak).not.toHaveBeenCalled();
+      expect(mockCancel).not.toHaveBeenCalled();
+
+      // Clean up
+      setMuted(false);
+    });
+  });
+
+  describe("mute state", () => {
+    beforeEach(() => {
+      localStorage.clear();
+      _resetMuteCache();
+    });
+
+    afterEach(() => {
+      _resetMuteCache();
+    });
+
+    it("should default to unmuted", () => {
+      expect(isMuted()).toBe(false);
+    });
+
+    it("should persist mute preference to localStorage", () => {
+      setMuted(true);
+      expect(localStorage.getItem("yiya-muted")).toBe("true");
+      expect(isMuted()).toBe(true);
+
+      setMuted(false);
+      expect(localStorage.getItem("yiya-muted")).toBe("false");
+      expect(isMuted()).toBe(false);
+    });
+
+    it("should lazy-load mute preference from localStorage", () => {
+      localStorage.setItem("yiya-muted", "true");
+      _resetMuteCache();
+
+      expect(isMuted()).toBe(true);
+    });
+
+    it("should toggle mute state", () => {
+      expect(isMuted()).toBe(false);
+
+      const result1 = toggleMute();
+      expect(result1).toBe(true);
+      expect(isMuted()).toBe(true);
+
+      const result2 = toggleMute();
+      expect(result2).toBe(false);
+      expect(isMuted()).toBe(false);
+    });
+
+    it("should persist toggle to localStorage", () => {
+      toggleMute(); // false → true
+      expect(localStorage.getItem("yiya-muted")).toBe("true");
+
+      toggleMute(); // true → false
+      expect(localStorage.getItem("yiya-muted")).toBe("false");
     });
   });
 });

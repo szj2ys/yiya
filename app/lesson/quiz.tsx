@@ -306,6 +306,11 @@ export const Quiz = ({
               trackPayload(buildTrackPayload("hearts_empty", { lesson_id: lessonId })).catch(
                 () => undefined,
               );
+              trackPayload(buildTrackPayload("lesson_fail", {
+                lesson_id: lessonId,
+                hearts_remaining: 0,
+                challenges_completed: correctCount,
+              })).catch(() => undefined);
               return;
             }
 
@@ -367,6 +372,11 @@ export const Quiz = ({
               trackPayload(buildTrackPayload("hearts_empty", { lesson_id: lessonId })).catch(
                 () => undefined,
               );
+              trackPayload(buildTrackPayload("lesson_fail", {
+                lesson_id: lessonId,
+                hearts_remaining: 0,
+                challenges_completed: correctCount,
+              })).catch(() => undefined);
             }
           })
           .catch(() => toast.error("Something went wrong. Please try again."))
@@ -652,8 +662,6 @@ export const Quiz = ({
       </>
     );
   }
-
-  // Note: lesson_fail isn't tracked yet. Only hearts_empty is required in Phase 0.
 
   const title = challenge.type === "ASSIST"
     ? "Select the correct meaning"
