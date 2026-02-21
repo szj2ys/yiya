@@ -37,6 +37,9 @@ export async function getQuizProps(lessonId?: number) {
       lesson.challenges.length) *
     100;
 
+  // Course is complete when there is no next lesson AND this is not a practice session
+  const isCourseComplete = !nextLesson && initialPercentage < 100;
+
   return {
     initialLessonId: lesson.id,
     initialLessonChallenges: lesson.challenges,
@@ -54,5 +57,7 @@ export async function getQuizProps(lessonId?: number) {
     isLastLessonInUnit: unitInfo?.isLastLesson ?? false,
     unitTitle: unitInfo?.unitTitle ?? undefined,
     unitOrder: unitInfo?.unitOrder ?? undefined,
+    isCourseComplete,
+    courseName: userProgress.activeCourse?.title ?? undefined,
   };
 }

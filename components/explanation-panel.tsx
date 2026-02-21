@@ -52,10 +52,10 @@ export function ExplanationPanel({
       )}
     >
       <div className="mx-auto w-full max-w-2xl px-4 pb-4">
-        <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-amber-50 to-sky-50 shadow-lg">
+        <div className="rounded-2xl border border-slate-200 dark:border-neutral-700 bg-gradient-to-br from-amber-50 to-sky-50 dark:from-neutral-800 dark:to-neutral-800 shadow-lg">
           <div className="px-4 pt-4 pb-3">
-            <div className="text-sm font-bold text-slate-700">Why it’s wrong</div>
-            <div className="mt-2 text-sm text-slate-700">
+            <div className="text-sm font-bold text-slate-700 dark:text-neutral-200">Why it’s wrong</div>
+            <div className="mt-2 text-sm text-slate-700 dark:text-neutral-300">
               {loading ? (
                 <div className="space-y-2">
                   <SkeletonLine />
@@ -66,8 +66,8 @@ export function ExplanationPanel({
               )}
             </div>
 
-            <div className="mt-4 text-sm font-bold text-slate-700">Rule</div>
-            <div className="mt-2 text-sm text-slate-700">
+            <div className="mt-4 text-sm font-bold text-slate-700 dark:text-neutral-200">Rule</div>
+            <div className="mt-2 text-sm text-slate-700 dark:text-neutral-300">
               {loading ? (
                 <div className="space-y-2">
                   <SkeletonLine />
@@ -78,8 +78,8 @@ export function ExplanationPanel({
               )}
             </div>
 
-            <div className="mt-4 text-sm font-bold text-slate-700">Memory tip</div>
-            <div className="mt-2 text-sm text-slate-700">
+            <div className="mt-4 text-sm font-bold text-slate-700 dark:text-neutral-200">Memory tip</div>
+            <div className="mt-2 text-sm text-slate-700 dark:text-neutral-300">
               {loading ? (
                 <SkeletonLine className="w-3/4" />
               ) : (
@@ -87,8 +87,8 @@ export function ExplanationPanel({
               )}
             </div>
 
-            <div className="mt-4 text-sm font-bold text-slate-700">Similar examples</div>
-            <div className="mt-2 space-y-3 text-sm text-slate-700">
+            <div className="mt-4 text-sm font-bold text-slate-700 dark:text-neutral-200">Similar examples</div>
+            <div className="mt-2 space-y-3 text-sm text-slate-700 dark:text-neutral-300">
               {loading ? (
                 <div className="space-y-2">
                   <SkeletonLine />
@@ -98,9 +98,9 @@ export function ExplanationPanel({
                 </div>
               ) : explanation?.examples?.length ? (
                 explanation.examples.slice(0, 2).map((ex, idx) => (
-                  <div key={idx} className="rounded-xl bg-white/70 p-3">
+                  <div key={idx} className="rounded-xl bg-white/70 dark:bg-neutral-700/70 p-3">
                     <div className="font-medium">{ex.source}</div>
-                    <div className="mt-1 text-slate-600">{ex.translation}</div>
+                    <div className="mt-1 text-slate-600 dark:text-neutral-400">{ex.translation}</div>
                   </div>
                 ))
               ) : (
@@ -109,7 +109,7 @@ export function ExplanationPanel({
             </div>
           </div>
 
-          <div className="flex gap-3 border-t border-slate-200 px-4 py-3">
+          <div className="flex gap-3 border-t border-slate-200 dark:border-neutral-700 px-4 py-3">
             <Button
               variant="primaryOutline"
               className="flex-1"
