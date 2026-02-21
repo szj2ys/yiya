@@ -6,6 +6,7 @@ import { getUserProgress, getCourses } from "@/db/queries";
 
 import { SettingsForm } from "./settings-form";
 import { ThemeToggle } from "./theme-toggle";
+import { SoundToggle } from "./sound-toggle";
 
 const SettingsPage = async () => {
   const userProgressData = getUserProgress();
@@ -43,6 +44,9 @@ const SettingsPage = async () => {
           />
           <div className="mt-10 w-full">
             <ThemeToggle />
+          </div>
+          <div className="mt-10 w-full">
+            <SoundToggle />
           </div>
         </div>
       </FeedWrapper>

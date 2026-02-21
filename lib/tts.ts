@@ -14,6 +14,57 @@ const LANGUAGE_MAP: Record<string, string> = {
   English: "en-US",
 };
 
+// ---------------------------------------------------------------------------
+// Mute state
+// ---------------------------------------------------------------------------
+
+const MUTE_KEY = "yiya-muted";
+
+let _muted = false;
+let _mutedLoaded = false;
+
+/** Whether TTS is currently muted. Lazy-loads from localStorage on first call. */
+export function isMuted(): boolean {
+  if (!_mutedLoaded) {
+    try {
+      _muted = typeof window !== "undefined" && localStorage.getItem(MUTE_KEY) === "true";
+    } catch {
+      // localStorage unavailable — default to unmuted
+    }
+    _mutedLoaded = true;
+  }
+  return _muted;
+}
+
+/** Set mute state and persist to localStorage. */
+export function setMuted(muted: boolean): void {
+  _muted = muted;
+  _mutedLoaded = true;
+  try {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(MUTE_KEY, String(muted));
+    }
+  } catch {
+    // localStorage unavailable — ignore
+  }
+}
+
+/** Toggle mute state. Returns the new muted value. */
+export function toggleMute(): boolean {
+  const next = !isMuted();
+  setMuted(next);
+  return next;
+}
+
+/**
+ * Reset internal mute cache. **Only for tests** — forces the next `isMuted()`
+ * call to re-read localStorage.
+ */
+export function _resetMuteCache(): void {
+  _muted = false;
+  _mutedLoaded = false;
+}
+
 /**
  * Map a course language name (e.g. "Spanish") to a BCP-47 language tag
  * (e.g. "es-ES"). Returns the input unchanged if no mapping exists,
@@ -43,6 +94,7 @@ export function isTtsSupported(): boolean {
  * - The text is empty
  */
 export function speak(text: string, lang: string): void {
+  if (isMuted()) return;
   if (!text || !isTtsSupported()) return;
 
   try {
