@@ -48,6 +48,7 @@ vi.mock("@/db/drizzle", () => ({
 vi.mock("@/db/queries", () => ({
   getUserProgress: getUserProgressSpy,
   getUserSubscription: getUserSubscriptionSpy,
+  getStreakFreezeForDate: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock("@/actions/review", () => ({
