@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Flame, Heart, InfinityIcon } from "lucide-react";
 import { lessons, units as unitsSchema } from "@/db/schema";
 import {
-  getCourseProgress,
   getCourseStats,
   getClaimedDailyQuests,
   getDailyQuestProgress,
@@ -19,7 +18,7 @@ import {
   getStreakFreezeForDate,
   getTodayLessonCount,
   getTodayReviewItems,
-  getUnits,
+  getUnitsWithProgress,
   getUserProgress,
   getUserSubscription,
   getUserStreak,
@@ -40,9 +39,8 @@ import { DailyQuestsCard } from "./daily-quests-card";
 
 const LearnPage = async () => {
   const userProgressData = getUserProgress();
-  const courseProgressData = getCourseProgress();
+  const unitsWithProgressData = getUnitsWithProgress();
   const lessonPercentageData = getLessonPercentage();
-  const unitsData = getUnits();
   const userSubscriptionData = getUserSubscription();
   const userStreakData = getUserStreak();
   const todayReviewItemsData = getTodayReviewItems();
@@ -58,8 +56,7 @@ const LearnPage = async () => {
 
   const [
     userProgress,
-    units,
-    courseProgress,
+    unitsWithProgress,
     lessonPercentage,
     userSubscription,
     userStreak,
@@ -75,8 +72,7 @@ const LearnPage = async () => {
     todayFreeze,
   ] = await Promise.all([
     userProgressData,
-    unitsData,
-    courseProgressData,
+    unitsWithProgressData,
     lessonPercentageData,
     userSubscriptionData,
     userStreakData,
@@ -92,11 +88,10 @@ const LearnPage = async () => {
     todayFreezeData,
   ]);
 
-  if (!userProgress || !userProgress.activeCourse) {
-    redirect("/onboarding");
-  }
+  const { units, activeLesson, activeLessonId } = unitsWithProgress;
+  const courseProgress = { activeLesson, activeLessonId };
 
-  if (!courseProgress) {
+  if (!userProgress || !userProgress.activeCourse) {
     redirect("/onboarding");
   }
 

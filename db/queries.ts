@@ -106,29 +106,36 @@ export const getClaimedQuests = cache(async () => {
   return rows.map((r: typeof rows[number]) => r.questValue);
 });
 
-export const getUnits = cache(async () => {
+/**
+ * Fetch the full challenge graph once and derive both:
+ *   - `units`: unit list with per-lesson completion status (replaces getUnits)
+ *   - `activeLesson` / `activeLessonId`: first uncompleted lesson (replaces getCourseProgress)
+ *
+ * This eliminates the duplicate units->lessons->challenges->challengeProgress query
+ * that previously happened when getUnits() and getCourseProgress() were called independently.
+ */
+export const getUnitsWithProgress = cache(async () => {
   const userId = await getAuthUserId();
-  const userProgress = await getUserProgress();
+  const userProgressData = await getUserProgress();
 
-  if (!userId || !userProgress?.activeCourseId) {
-    return [];
+  if (!userId || !userProgressData?.activeCourseId) {
+    return { units: [], activeLesson: undefined, activeLessonId: undefined };
   }
 
+  // Single query: units -> lessons (with unit relation) -> challenges -> challengeProgress
   const data = await db.query.units.findMany({
     orderBy: (units: any, { asc }: any) => [asc(units.order)],
-    where: eq(units.courseId, userProgress.activeCourseId),
+    where: eq(units.courseId, userProgressData.activeCourseId),
     with: {
       lessons: {
         orderBy: (lessons: any, { asc }: any) => [asc(lessons.order)],
         with: {
+          unit: true,
           challenges: {
             orderBy: (challenges: any, { asc }: any) => [asc(challenges.order)],
             with: {
               challengeProgress: {
-                where: eq(
-                  challengeProgress.userId,
-                  userId,
-                ),
+                where: eq(challengeProgress.userId, userId),
               },
             },
           },
@@ -137,27 +144,46 @@ export const getUnits = cache(async () => {
     },
   });
 
-  const normalizedData = data.map((unit: typeof data[number]) => {
+  // Derive units with completion status (what getUnits used to do)
+  let firstUncompletedLesson: (typeof data)[number]["lessons"][number] | undefined;
+
+  const normalizedUnits = data.map((unit: typeof data[number]) => {
     const lessonsWithCompletedStatus = unit.lessons.map((lesson: typeof unit.lessons[number]) => {
-      if (
-        lesson.challenges.length === 0
-      ) {
+      if (lesson.challenges.length === 0) {
+        if (!firstUncompletedLesson) {
+          firstUncompletedLesson = lesson;
+        }
         return { ...lesson, completed: false };
       }
 
-      const allCompletedChallenges = lesson.challenges.every((challenge: typeof lesson.challenges[number]) => {
+      const allCompleted = lesson.challenges.every((challenge: typeof lesson.challenges[number]) => {
         return challenge.challengeProgress
           && challenge.challengeProgress.length > 0
           && challenge.challengeProgress.every((progress: typeof challenge.challengeProgress[number]) => progress.completed);
       });
 
-      return { ...lesson, completed: allCompletedChallenges };
+      // Track first uncompleted lesson (what getCourseProgress used to do)
+      if (!allCompleted && !firstUncompletedLesson) {
+        firstUncompletedLesson = lesson;
+      }
+
+      return { ...lesson, completed: allCompleted };
     });
 
     return { ...unit, lessons: lessonsWithCompletedStatus };
   });
 
-  return normalizedData;
+  return {
+    units: normalizedUnits,
+    activeLesson: firstUncompletedLesson,
+    activeLessonId: firstUncompletedLesson?.id,
+  };
+});
+
+/** @deprecated Use getUnitsWithProgress() instead. Kept for backward compatibility. */
+export const getUnits = cache(async () => {
+  const result = await getUnitsWithProgress();
+  return result.units;
 });
 
 export const getCourses = cache(async () => {
@@ -184,47 +210,19 @@ export const getCourseById = cache(async (courseId: number) => {
   return data;
 });
 
+/** @deprecated Use getUnitsWithProgress() instead. Kept for backward compatibility. */
 export const getCourseProgress = cache(async () => {
   const userId = await getAuthUserId();
-  const userProgress = await getUserProgress();
+  const userProgressData = await getUserProgress();
 
-  if (!userId || !userProgress?.activeCourseId) {
+  if (!userId || !userProgressData?.activeCourseId) {
     return null;
   }
 
-  const unitsInActiveCourse = await db.query.units.findMany({
-    orderBy: (units: any, { asc }: any) => [asc(units.order)],
-    where: eq(units.courseId, userProgress.activeCourseId),
-    with: {
-      lessons: {
-        orderBy: (lessons: any, { asc }: any) => [asc(lessons.order)],
-        with: {
-          unit: true,
-          challenges: {
-            with: {
-              challengeProgress: {
-                where: eq(challengeProgress.userId, userId),
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const firstUncompletedLesson = unitsInActiveCourse
-    .flatMap((unit: typeof unitsInActiveCourse[number]) => unit.lessons)
-    .find((lesson: (typeof unitsInActiveCourse)[number]["lessons"][number]) => {
-      return lesson.challenges.some((challenge: (typeof lesson.challenges)[number]) => {
-        return !challenge.challengeProgress
-          || challenge.challengeProgress.length === 0
-          || challenge.challengeProgress.some((progress: (typeof challenge.challengeProgress)[number]) => progress.completed === false)
-      });
-    });
-
+  const result = await getUnitsWithProgress();
   return {
-    activeLesson: firstUncompletedLesson,
-    activeLessonId: firstUncompletedLesson?.id,
+    activeLesson: result.activeLesson,
+    activeLessonId: result.activeLessonId,
   };
 });
 
@@ -451,69 +449,50 @@ export const getTopTenWeekly = cache(async () => {
 /**
  * Find the next lesson after the given lesson ID.
  *
- * Strategy:
- * 1. Look for the next lesson in the same unit (by order).
- * 2. If the current unit is complete, find the first lesson of the next unit
- *    (within the same course).
- * 3. If all units/lessons are done, return null.
+ * Optimized: uses 2 queries instead of 5.
+ * 1. Fetch current lesson with its unit (gives us unitId, order, courseId, unit order).
+ * 2. Fetch ALL lessons in the course (ordered by unit order, then lesson order),
+ *    and return the first one that comes after the current lesson.
  */
 export const getNextLesson = cache(async (currentLessonId: number) => {
-  // 1. Fetch the current lesson to get its unitId and order
+  // Query 1: Get current lesson with its unit info
   const currentLesson = await db.query.lessons.findFirst({
     where: eq(lessons.id, currentLessonId),
     columns: { id: true, unitId: true, order: true },
+    with: {
+      unit: {
+        columns: { id: true, courseId: true, order: true },
+      },
+    },
   });
 
   if (!currentLesson) {
     return null;
   }
 
-  // 2. Try to find the next lesson in the same unit (order > current order)
-  const nextInUnit = await db.query.lessons.findFirst({
-    where: and(
-      eq(lessons.unitId, currentLesson.unitId),
-      gt(lessons.order, currentLesson.order),
-    ),
-    orderBy: (lessons: any, { asc }: any) => [asc(lessons.order)],
-    columns: { id: true, title: true },
-  });
-
-  if (nextInUnit) {
-    return { id: nextInUnit.id, title: nextInUnit.title };
-  }
-
-  // 3. Get the current unit to find the next unit in the same course
-  const currentUnit = await db.query.units.findFirst({
-    where: eq(units.id, currentLesson.unitId),
-    columns: { id: true, courseId: true, order: true },
-  });
-
-  if (!currentUnit) {
-    return null;
-  }
-
-  // 4. Find the next unit in the same course
-  const nextUnit = await db.query.units.findFirst({
-    where: and(
-      eq(units.courseId, currentUnit.courseId),
-      gt(units.order, currentUnit.order),
-    ),
+  // Query 2: Get all units with their lessons for this course, ordered correctly
+  const courseUnits = await db.query.units.findMany({
+    where: eq(units.courseId, currentLesson.unit.courseId),
     orderBy: (units: any, { asc }: any) => [asc(units.order)],
-    columns: { id: true },
+    columns: { id: true, order: true },
+    with: {
+      lessons: {
+        orderBy: (lessons: any, { asc }: any) => [asc(lessons.order)],
+        columns: { id: true, title: true, order: true, unitId: true },
+      },
+    },
   });
 
-  if (!nextUnit) {
+  // Flatten all lessons in course order and find the one after current
+  const allLessons = courseUnits.flatMap((u: typeof courseUnits[number]) => u.lessons);
+  const currentIndex = allLessons.findIndex((l: typeof allLessons[number]) => l.id === currentLessonId);
+
+  if (currentIndex === -1 || currentIndex === allLessons.length - 1) {
     return null;
   }
 
-  // 5. Get the first lesson of the next unit
-  const firstLessonOfNextUnit = await db.query.lessons.findFirst({
-    where: eq(lessons.unitId, nextUnit.id),
-    orderBy: (lessons: any, { asc }: any) => [asc(lessons.order)],
-    columns: { id: true, title: true },
-  });
-
-  return firstLessonOfNextUnit ? { id: firstLessonOfNextUnit.id, title: firstLessonOfNextUnit.title } : null;
+  const next = allLessons[currentIndex + 1];
+  return { id: next.id, title: next.title };
 });
 
 export type WeeklyActivityDay = {
