@@ -580,7 +580,32 @@ export const Quiz = ({
               </>
             )}
 
-            {/* 3. Wrong Answers Review */}
+            {/* 3. Review Queue Bridge */}
+            {!isPractice && wrongAnswers.length > 0 && (
+              <div
+                data-testid="review-queue-stats"
+                className="flex items-center gap-x-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="h-5 w-5 text-amber-500 shrink-0"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  {wrongAnswers.length} {wrongAnswers.length === 1 ? "item" : "items"} added to your review queue — they&apos;ll reappear at the best time for your memory
+                </p>
+              </div>
+            )}
+
+            {/* 3b. Wrong Answers Review */}
             {wrongAnswers.length > 0 && (
               <div className="flex flex-col gap-y-3">
                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Review these</p>
@@ -760,6 +785,28 @@ export const Quiz = ({
           }}
           onPractice={openPracticeModal}
         />
+      )}
+
+      {!isPractice && status === "wrong" && (
+        <div
+          data-testid="review-added-indicator"
+          className="flex items-center justify-center gap-x-2 py-2 text-sm text-neutral-500 dark:text-neutral-400"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-4 w-4 text-amber-500 shrink-0"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span>Added to review &middot; will appear at the best time</span>
+        </div>
       )}
 
       <Footer
