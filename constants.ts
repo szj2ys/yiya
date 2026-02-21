@@ -1,4 +1,5 @@
 export const POINTS_TO_REFILL = 10;
+export const STREAK_FREEZE_COST = 50;
 
 export const DAILY_QUESTS = [
   { id: "complete_lesson", title: "Complete a lesson", description: "Finish any lesson today", xpReward: 5 },

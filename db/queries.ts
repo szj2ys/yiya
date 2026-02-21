@@ -13,6 +13,7 @@ import {
   lessons,
   questClaims,
   reviewCards,
+  streakFreezes,
   units,
   userProgress,
   userSubscription
@@ -1017,4 +1018,27 @@ export const getUnitInfoForLesson = cache(async (lessonId: number): Promise<Unit
     isLastLesson,
     totalLessonsInUnit,
   };
+});
+
+/**
+ * Check if a streak freeze exists for a given date (YYYY-MM-DD).
+ * Defaults to today.
+ */
+export const getStreakFreezeForDate = cache(async (date?: string) => {
+  const userId = await getAuthUserId();
+
+  if (!userId) {
+    return null;
+  }
+
+  const targetDate = date ?? new Date().toISOString().slice(0, 10);
+
+  const freeze = await db.query.streakFreezes.findFirst({
+    where: and(
+      eq(streakFreezes.userId, userId),
+      eq(streakFreezes.usedDate, targetDate),
+    ),
+  });
+
+  return freeze ?? null;
 });

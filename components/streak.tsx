@@ -1,8 +1,9 @@
-import { CheckCircle, Flame } from "lucide-react";
+import { CheckCircle, Flame, Snowflake } from "lucide-react";
 
 type Props = {
   streak: number;
   lastLessonAt: Date | null;
+  freezeActive?: boolean;
 };
 
 const milestones = new Set([7, 30, 100]);
@@ -16,10 +17,10 @@ const isToday = (date: Date): boolean => {
   );
 };
 
-export const Streak = ({ streak, lastLessonAt }: Props) => {
+export const Streak = ({ streak, lastLessonAt, freezeActive = false }: Props) => {
   const isMilestone = milestones.has(streak);
   const completedToday = lastLessonAt ? isToday(lastLessonAt) : false;
-  const showReminder = streak > 0 && !completedToday;
+  const showReminder = streak > 0 && !completedToday && !freezeActive;
 
   return (
     <div
@@ -36,15 +37,19 @@ export const Streak = ({ streak, lastLessonAt }: Props) => {
               "h-10 w-10 rounded-full flex items-center justify-center",
               completedToday
                 ? "bg-green-100"
-                : isMilestone
-                  ? "bg-orange-100"
-                  : "bg-neutral-100",
+                : freezeActive
+                  ? "bg-sky-100"
+                  : isMilestone
+                    ? "bg-orange-100"
+                    : "bg-neutral-100",
               isMilestone && !completedToday ? "animate-pulse" : "",
             ].join(" ")}
             aria-hidden="true"
           >
             {completedToday ? (
               <CheckCircle className="h-5 w-5 text-green-600" />
+            ) : freezeActive ? (
+              <Snowflake className="h-5 w-5 text-sky-500" />
             ) : (
               <Flame
                 className={[
@@ -66,6 +71,8 @@ export const Streak = ({ streak, lastLessonAt }: Props) => {
             )}
             {completedToday ? (
               <p className="text-xs text-green-600">Completed today</p>
+            ) : freezeActive ? (
+              <p className="text-xs text-sky-600">Protected today</p>
             ) : isMilestone && streak > 0 ? (
               <p className="text-xs text-neutral-500">Milestone unlocked</p>
             ) : (
@@ -79,6 +86,8 @@ export const Streak = ({ streak, lastLessonAt }: Props) => {
               <span className="text-green-600" aria-label="completed">
                 &#10003;
               </span>
+            ) : freezeActive ? (
+              <Snowflake className="h-4 w-4 text-sky-500" />
             ) : (
               <>&#128293;</>
             )}

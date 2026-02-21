@@ -217,6 +217,15 @@ export const reviewCardsRelations = relations(reviewCards, ({ one }) => ({
   }),
 }));
 
+export const streakFreezes = pgTable("streak_freezes", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  usedDate: text("used_date").notNull(), // YYYY-MM-DD
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  userDateUnique: uniqueIndex("streak_freezes_user_id_used_date_unique").on(t.userId, t.usedDate),
+}));
+
 export const dailyQuestClaims = pgTable("daily_quest_claims", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),

@@ -38,4 +38,18 @@ describe("PracticeEntry", () => {
     expect(screen.getByText("All caught up!")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Practice" })).toBeDisabled();
   });
+
+  it("should show emphasized style when items are due", () => {
+    render(<PracticeEntry reviewItemCount={5} dueCount={5} />);
+    const container = screen.getByTestId("practice-entry");
+    expect(container.className).toContain("border-sky-200");
+    expect(container.className).toContain("bg-sky-50");
+  });
+
+  it("should show muted style when all caught up", () => {
+    render(<PracticeEntry reviewItemCount={0} dueCount={0} />);
+    const container = screen.getByTestId("practice-entry");
+    expect(container.className).toContain("border-neutral-200");
+    expect(container.className).toContain("bg-white");
+  });
 });
