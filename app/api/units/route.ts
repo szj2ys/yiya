@@ -20,7 +20,10 @@ export const POST = async (req: Request) => {
   const body = await req.json();
 
   const data = await db.insert(units).values({
-    ...body,
+    title: body.title,
+    description: body.description,
+    courseId: body.courseId,
+    order: body.order,
   }).returning();
 
   return NextResponse.json(data[0]);

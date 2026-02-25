@@ -10,6 +10,6 @@ export async function getAuthUserId(): Promise<string | null> {
   } catch {
     // auth() throws when Clerk middleware is bypassed (E2E testing)
   }
-  if (process.env.E2E_TESTING === "true") return E2E_TEST_USER_ID;
+  if (process.env.E2E_TESTING === "true" && process.env.NODE_ENV !== "production") return E2E_TEST_USER_ID;
   return null;
 }
