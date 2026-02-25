@@ -44,17 +44,19 @@ export const buyStreakFreeze = async () => {
     throw new Error("Freeze already active for today");
   }
 
-  // Deduct points and insert freeze in a transaction-like manner
-  await db
-    .update(userProgress)
-    .set({
-      points: currentUserProgress.points - STREAK_FREEZE_COST,
-    })
-    .where(eq(userProgress.userId, userId));
+  // Deduct points and insert freeze atomically
+  await db.transaction(async (tx: typeof db) => {
+    await tx
+      .update(userProgress)
+      .set({
+        points: currentUserProgress.points - STREAK_FREEZE_COST,
+      })
+      .where(eq(userProgress.userId, userId));
 
-  await db.insert(streakFreezes).values({
-    userId,
-    usedDate: today,
+    await tx.insert(streakFreezes).values({
+      userId,
+      usedDate: today,
+    });
   });
 
   revalidatePath("/shop");

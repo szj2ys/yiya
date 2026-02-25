@@ -13,11 +13,25 @@ const getDailyQuestProgressSpy = vi.fn();
 const dailyQuestClaimsFindFirstSpy = vi.fn();
 const userProgressFindFirstSpy = vi.fn();
 
+// Shared tx mock used inside transactions
+const txMock = {
+  update: updateSpy,
+  insert: insertSpy,
+  query: {
+    userProgress: { findFirst: userProgressFindFirstSpy },
+  },
+};
+
+const transactionSpy = vi.fn(async (cb: (tx: typeof txMock) => Promise<void>) => {
+  await cb(txMock);
+});
+
 vi.mock("@/db/drizzle", () => ({
   default: {
     update: updateSpy,
     insert: insertSpy,
     select: selectSpy,
+    transaction: transactionSpy,
     query: {
       dailyQuestClaims: { findFirst: dailyQuestClaimsFindFirstSpy },
       userProgress: { findFirst: userProgressFindFirstSpy },
@@ -41,6 +55,7 @@ beforeEach(() => {
   updateSpy.mockClear();
   insertSpy.mockClear();
   insertValuesSpy.mockClear();
+  transactionSpy.mockClear();
   getDailyQuestProgressSpy.mockReset();
   dailyQuestClaimsFindFirstSpy.mockReset();
   userProgressFindFirstSpy.mockReset();
@@ -49,6 +64,10 @@ beforeEach(() => {
   dailyQuestClaimsFindFirstSpy.mockResolvedValue(null);
   // Default: user has 50 points
   userProgressFindFirstSpy.mockResolvedValue({ points: 50 });
+  // Restore default transaction behavior
+  transactionSpy.mockImplementation(async (cb: (tx: typeof txMock) => Promise<void>) => {
+    await cb(txMock);
+  });
 });
 
 describe("claimDailyQuest", () => {
@@ -63,6 +82,7 @@ describe("claimDailyQuest", () => {
     const result = await claimDailyQuest("complete_lesson");
 
     expect(result).toEqual({ success: true });
+    expect(transactionSpy).toHaveBeenCalledOnce();
     expect(insertSpy).toHaveBeenCalled();
     expect(setSpy).toHaveBeenCalledWith({ points: 55 }); // 50 + 5 xpReward
   });
@@ -86,8 +106,7 @@ describe("claimDailyQuest", () => {
     const result = await claimDailyQuest("complete_lesson");
 
     expect(result).toEqual({ error: "already_claimed" });
-    expect(updateSpy).not.toHaveBeenCalled();
-    expect(insertSpy).not.toHaveBeenCalled();
+    expect(transactionSpy).not.toHaveBeenCalled();
   });
 
   it("should reject claim for incomplete quest", async () => {
@@ -101,8 +120,7 @@ describe("claimDailyQuest", () => {
     const result = await claimDailyQuest("complete_lesson");
 
     expect(result).toEqual({ error: "not_completed" });
-    expect(updateSpy).not.toHaveBeenCalled();
-    expect(insertSpy).not.toHaveBeenCalled();
+    expect(transactionSpy).not.toHaveBeenCalled();
   });
 
   it("should reject invalid quest id", async () => {
@@ -110,7 +128,7 @@ describe("claimDailyQuest", () => {
     const result = await claimDailyQuest("nonexistent_quest");
 
     expect(result).toEqual({ error: "invalid" });
-    expect(updateSpy).not.toHaveBeenCalled();
+    expect(transactionSpy).not.toHaveBeenCalled();
   });
 
   it("should award correct XP for practice_review quest", async () => {
@@ -125,5 +143,24 @@ describe("claimDailyQuest", () => {
 
     expect(result).toEqual({ success: true });
     expect(setSpy).toHaveBeenCalledWith({ points: 60 }); // 50 + 10 xpReward
+  });
+
+  it("should rollback claim when points update fails", async () => {
+    getDailyQuestProgressSpy.mockResolvedValue({
+      complete_lesson: true,
+      hit_daily_goal: false,
+      practice_review: false,
+    });
+
+    // Make the update (points) fail inside the transaction
+    // insert succeeds, then findFirst succeeds, then update.set.where rejects
+    whereSpy.mockRejectedValueOnce(new Error("DB update failed"));
+
+    const { claimDailyQuest } = await import("@/actions/daily-quests");
+
+    await expect(claimDailyQuest("complete_lesson")).rejects.toThrow("DB update failed");
+
+    // Transaction was called, but since cb threw, Drizzle would rollback
+    expect(transactionSpy).toHaveBeenCalledOnce();
   });
 });
