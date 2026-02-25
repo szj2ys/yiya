@@ -7,7 +7,7 @@ const insertValuesSpy = vi.fn().mockResolvedValue(undefined);
 const insertSpy = vi.fn(() => ({ values: insertValuesSpy }));
 
 const getUserProgressSpy = vi.fn();
-const questClaimsFindFirstSpy = vi.fn();
+const streakFreezesFindFirstSpy = vi.fn();
 
 // Shared tx mock used inside transactions
 const txMock = {
@@ -25,7 +25,7 @@ vi.mock("@/db/drizzle", () => ({
     insert: insertSpy,
     transaction: transactionSpy,
     query: {
-      questClaims: { findFirst: questClaimsFindFirstSpy },
+      streakFreezes: { findFirst: streakFreezesFindFirstSpy },
     },
   },
 }));
@@ -48,71 +48,64 @@ beforeEach(() => {
   insertValuesSpy.mockClear();
   transactionSpy.mockClear();
   getUserProgressSpy.mockReset();
-  questClaimsFindFirstSpy.mockReset();
-  // Default: no existing claim
-  questClaimsFindFirstSpy.mockResolvedValue(null);
+  streakFreezesFindFirstSpy.mockReset();
+
+  // Default: no existing freeze
+  streakFreezesFindFirstSpy.mockResolvedValue(null);
   // Restore default transaction behavior
   transactionSpy.mockImplementation(async (cb: (tx: typeof txMock) => Promise<void>) => {
     await cb(txMock);
   });
 });
 
-describe("claimQuestReward", () => {
-  it("should add reward XP when eligible", async () => {
+describe("buyStreakFreeze", () => {
+  it("should deduct points and insert freeze when eligible", async () => {
     getUserProgressSpy.mockResolvedValue({
       userId: "user_a",
       hearts: 5,
-      points: 50,
+      points: 100,
     });
 
-    const { claimQuestReward } = await import("@/actions/quest-rewards");
+    const { buyStreakFreeze } = await import("@/actions/streak-freeze");
+    await buyStreakFreeze();
 
-    const result = await claimQuestReward(50, 10);
-
-    expect(result).toEqual({ success: true, newPoints: 60 });
     expect(transactionSpy).toHaveBeenCalledOnce();
-    expect(setSpy).toHaveBeenCalledWith({ points: 60 });
-    // Should also insert into questClaims
+    expect(setSpy).toHaveBeenCalledWith({ points: 50 }); // 100 - 50
     expect(insertSpy).toHaveBeenCalled();
   });
 
-  it("should reject when points < threshold", async () => {
+  it("should throw when not enough points", async () => {
     getUserProgressSpy.mockResolvedValue({
       userId: "user_a",
       hearts: 5,
       points: 30,
     });
 
-    const { claimQuestReward } = await import("@/actions/quest-rewards");
+    const { buyStreakFreeze } = await import("@/actions/streak-freeze");
 
-    const result = await claimQuestReward(50, 10);
-
-    expect(result).toEqual({ error: "not_eligible" });
+    await expect(buyStreakFreeze()).rejects.toThrow("Not enough points");
     expect(transactionSpy).not.toHaveBeenCalled();
   });
 
-  it("should prevent duplicate quest claims server-side", async () => {
+  it("should throw when freeze already exists for today", async () => {
     getUserProgressSpy.mockResolvedValue({
       userId: "user_a",
       hearts: 5,
       points: 100,
     });
-    // Already claimed
-    questClaimsFindFirstSpy.mockResolvedValue({
+    streakFreezesFindFirstSpy.mockResolvedValue({
       id: 1,
       userId: "user_a",
-      questValue: 50,
+      usedDate: new Date().toISOString().slice(0, 10),
     });
 
-    const { claimQuestReward } = await import("@/actions/quest-rewards");
+    const { buyStreakFreeze } = await import("@/actions/streak-freeze");
 
-    const result = await claimQuestReward(50, 10);
-
-    expect(result).toEqual({ error: "already_claimed" });
+    await expect(buyStreakFreeze()).rejects.toThrow("Freeze already active for today");
     expect(transactionSpy).not.toHaveBeenCalled();
   });
 
-  it("should rollback points when claim insert fails", async () => {
+  it("should rollback points when freeze insert fails", async () => {
     getUserProgressSpy.mockResolvedValue({
       userId: "user_a",
       hearts: 5,
@@ -122,9 +115,9 @@ describe("claimQuestReward", () => {
     // Make the insert fail inside the transaction
     insertValuesSpy.mockRejectedValueOnce(new Error("DB insert failed"));
 
-    const { claimQuestReward } = await import("@/actions/quest-rewards");
+    const { buyStreakFreeze } = await import("@/actions/streak-freeze");
 
-    await expect(claimQuestReward(100, 10)).rejects.toThrow("DB insert failed");
+    await expect(buyStreakFreeze()).rejects.toThrow("DB insert failed");
 
     // Transaction was called, but since cb threw, Drizzle would rollback
     expect(transactionSpy).toHaveBeenCalledOnce();

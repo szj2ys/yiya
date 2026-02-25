@@ -45,25 +45,26 @@ export const claimDailyQuest = async (
     return { error: "already_claimed" };
   }
 
-  // Insert claim record
-  await db.insert(dailyQuestClaims).values({
-    userId,
-    questId,
-    claimedDate: today,
+  // Insert claim and award XP atomically
+  await db.transaction(async (tx: typeof db) => {
+    await tx.insert(dailyQuestClaims).values({
+      userId,
+      questId,
+      claimedDate: today,
+    });
+
+    const currentProgress = await tx.query.userProgress.findFirst({
+      where: eq(userProgress.userId, userId),
+      columns: { points: true },
+    });
+
+    const newPoints = (currentProgress?.points ?? 0) + quest.xpReward;
+
+    await tx
+      .update(userProgress)
+      .set({ points: newPoints })
+      .where(eq(userProgress.userId, userId));
   });
-
-  // Award XP
-  const currentProgress = await db.query.userProgress.findFirst({
-    where: eq(userProgress.userId, userId),
-    columns: { points: true },
-  });
-
-  const newPoints = (currentProgress?.points ?? 0) + quest.xpReward;
-
-  await db
-    .update(userProgress)
-    .set({ points: newPoints })
-    .where(eq(userProgress.userId, userId));
 
   revalidatePath("/learn");
 
