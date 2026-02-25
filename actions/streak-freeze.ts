@@ -45,7 +45,7 @@ export const buyStreakFreeze = async () => {
   }
 
   // Deduct points and insert freeze atomically
-  await db.transaction(async (tx: typeof db) => {
+  await db.transaction(async (tx) => {
     await tx
       .update(userProgress)
       .set({

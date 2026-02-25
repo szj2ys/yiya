@@ -46,7 +46,7 @@ export const claimDailyQuest = async (
   }
 
   // Insert claim and award XP atomically
-  await db.transaction(async (tx: typeof db) => {
+  await db.transaction(async (tx) => {
     await tx.insert(dailyQuestClaims).values({
       userId,
       questId,
