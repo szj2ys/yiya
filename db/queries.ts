@@ -107,12 +107,9 @@ export const getClaimedQuests = cache(async () => {
 });
 
 /**
- * Fetch the full challenge graph once and derive both:
- *   - `units`: unit list with per-lesson completion status (replaces getUnits)
- *   - `activeLesson` / `activeLessonId`: first uncompleted lesson (replaces getCourseProgress)
- *
- * This eliminates the duplicate units->lessons->challenges->challengeProgress query
- * that previously happened when getUnits() and getCourseProgress() were called independently.
+ * Fetch the full challenge graph once and derive:
+ *   - `units`: unit list with per-lesson completion status
+ *   - `activeLesson` / `activeLessonId`: first uncompleted lesson
  */
 export const getUnitsWithProgress = cache(async () => {
   const userId = await getAuthUserId();
@@ -144,7 +141,7 @@ export const getUnitsWithProgress = cache(async () => {
     },
   });
 
-  // Derive units with completion status (what getUnits used to do)
+  // Derive units with completion status
   let firstUncompletedLesson: (typeof data)[number]["lessons"][number] | undefined;
 
   const normalizedUnits = data.map((unit: typeof data[number]) => {
@@ -162,7 +159,7 @@ export const getUnitsWithProgress = cache(async () => {
           && challenge.challengeProgress.every((progress: typeof challenge.challengeProgress[number]) => progress.completed);
       });
 
-      // Track first uncompleted lesson (what getCourseProgress used to do)
+      // Track first uncompleted lesson
       if (!allCompleted && !firstUncompletedLesson) {
         firstUncompletedLesson = lesson;
       }
@@ -178,12 +175,6 @@ export const getUnitsWithProgress = cache(async () => {
     activeLesson: firstUncompletedLesson,
     activeLessonId: firstUncompletedLesson?.id,
   };
-});
-
-/** @deprecated Use getUnitsWithProgress() instead. Kept for backward compatibility. */
-export const getUnits = cache(async () => {
-  const result = await getUnitsWithProgress();
-  return result.units;
 });
 
 export const getCourses = cache(async () => {
@@ -210,22 +201,6 @@ export const getCourseById = cache(async (courseId: number) => {
   return data;
 });
 
-/** @deprecated Use getUnitsWithProgress() instead. Kept for backward compatibility. */
-export const getCourseProgress = cache(async () => {
-  const userId = await getAuthUserId();
-  const userProgressData = await getUserProgress();
-
-  if (!userId || !userProgressData?.activeCourseId) {
-    return null;
-  }
-
-  const result = await getUnitsWithProgress();
-  return {
-    activeLesson: result.activeLesson,
-    activeLessonId: result.activeLessonId,
-  };
-});
-
 export const getLesson = cache(async (id?: number) => {
   const userId = await getAuthUserId();
 
@@ -233,9 +208,9 @@ export const getLesson = cache(async (id?: number) => {
     return null;
   }
 
-  const courseProgress = await getCourseProgress();
+  const { activeLessonId } = await getUnitsWithProgress();
 
-  const lessonId = id || courseProgress?.activeLessonId;
+  const lessonId = id || activeLessonId;
 
   if (!lessonId) {
     return null;
@@ -272,13 +247,13 @@ export const getLesson = cache(async (id?: number) => {
 });
 
 export const getLessonPercentage = cache(async () => {
-  const courseProgress = await getCourseProgress();
+  const { activeLessonId } = await getUnitsWithProgress();
 
-  if (!courseProgress?.activeLessonId) {
+  if (!activeLessonId) {
     return 0;
   }
 
-  const lesson = await getLesson(courseProgress.activeLessonId);
+  const lesson = await getLesson(activeLessonId);
 
   if (!lesson) {
     return 0;
