@@ -83,7 +83,7 @@ async function fetchVariantFromLlm(
       return null;
     }
 
-    return null;
+    throw error;
   }
 }
 
