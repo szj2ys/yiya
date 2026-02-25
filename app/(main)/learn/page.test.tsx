@@ -110,6 +110,21 @@ vi.mock("./daily-quests-card", () => ({
   DailyQuestsCard: () => <div>DailyQuestsCard</div>,
 }));
 
+vi.mock("./streak-risk-banner", () => ({
+  StreakRiskBanner: ({ streak, todayLessonCount, hasFreezeToday }: { streak: number; todayLessonCount: number; hasFreezeToday: boolean }) => {
+    if (streak > 0 && todayLessonCount === 0) {
+      return (
+        <div data-testid="streak-risk-banner">
+          {hasFreezeToday
+            ? `冻结保护中，但今天学习可以延续 ${streak} 天连胜`
+            : `你的 ${streak} 天连胜还差今天的课程！`}
+        </div>
+      );
+    }
+    return null;
+  },
+}));
+
 vi.mock("./continue-cta", () => ({
   ContinueCta: ({ lessonTitle, unitDescription, lessonPercentage }: { lessonTitle: string; unitDescription: string; lessonPercentage: number }) => (
     <div>
@@ -277,6 +292,23 @@ describe("LearnPage", () => {
     render(element);
 
     expect(screen.getByText("Pro")).toBeInTheDocument();
+  });
+
+  it("should show streak risk banner when todayLessonCount is 0 and streak > 0", async () => {
+    mockGetUnitsWithProgress.mockResolvedValueOnce({
+      units: [],
+      activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } },
+      activeLessonId: 1,
+    });
+
+    const LearnPage = (await import("./page")).default;
+
+    const element = await LearnPage();
+    render(element);
+
+    // Default mocks: streak=7, todayLessonCount=0 → banner should show
+    expect(screen.getByTestId("streak-risk-banner")).toBeInTheDocument();
+    expect(screen.getByText("你的 7 天连胜还差今天的课程！")).toBeInTheDocument();
   });
 
   it("should render learn page with merged query data", async () => {

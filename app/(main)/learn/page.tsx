@@ -34,6 +34,7 @@ import { LearningProgress } from "./learning-progress";
 import { DailyGoal } from "./daily-goal";
 import { PracticeEntry } from "./practice-entry";
 import { StartFirstLesson } from "./start-first-lesson";
+import { StreakRiskBanner } from "./streak-risk-banner";
 import { WeeklyActivity } from "./weekly-activity";
 import { DailyQuestsCard } from "./daily-quests-card";
 
@@ -155,6 +156,12 @@ const LearnPage = async () => {
             </span>
           )}
         </div>
+
+        <StreakRiskBanner
+          streak={userStreak?.streak ?? 0}
+          todayLessonCount={todayLessonCount}
+          hasFreezeToday={hasFreezeToday}
+        />
 
         {courseProgress.activeLesson && (
           <ContinueCta
