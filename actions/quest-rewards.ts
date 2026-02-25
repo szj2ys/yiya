@@ -42,7 +42,7 @@ export const claimQuestReward = async (
 
   const newPoints = currentUserProgress.points + reward;
 
-  await db.transaction(async (tx: typeof db) => {
+  await db.transaction(async (tx) => {
     await tx
       .update(userProgress)
       .set({ points: newPoints })
