@@ -1,4 +1,6 @@
-export const DAY_IN_MS = 86_400_000;
+import { DAY_IN_MS } from "@/constants";
+
+export { DAY_IN_MS };
 export const TWO_DAYS_IN_MS = 172_800_000;
 
 /**

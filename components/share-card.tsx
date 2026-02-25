@@ -218,7 +218,7 @@ export const ShareCard = ({
 
     // Fallback: copy app URL to clipboard
     try {
-      await navigator.clipboard.writeText("https://yiya.app");
+      await navigator.clipboard.writeText(process.env.NEXT_PUBLIC_APP_URL ?? "https://yiya.app");
       toast.success("Link copied to clipboard!");
     } catch {
       toast.error("Could not copy to clipboard.");

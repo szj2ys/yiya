@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getAuthUserId } from "@/lib/auth-utils";
 import { getExplanation } from "@/lib/ai/explain";
+import { isNonEmptyString } from "@/lib/utils";
 
 type ExplainRequestBody = {
   challengeId: number;
@@ -11,10 +12,6 @@ type ExplainRequestBody = {
   challengeType: string;
   courseLanguage: string;
 };
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
 
 function isValidBody(value: unknown): value is ExplainRequestBody {
   if (!value || typeof value !== "object") return false;

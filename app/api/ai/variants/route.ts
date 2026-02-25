@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getAuthUserId } from "@/lib/auth-utils";
 import { getVariantQuestion } from "@/lib/ai/variants";
+import { isNonEmptyString } from "@/lib/utils";
 
 type VariantsRequestBody = {
   challengeId: number;
@@ -10,10 +11,6 @@ type VariantsRequestBody = {
   challengeType: "SELECT" | "ASSIST" | "TYPE";
   courseLanguage: string;
 };
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
 
 function isValidBody(value: unknown): value is VariantsRequestBody {
   if (!value || typeof value !== "object") return false;

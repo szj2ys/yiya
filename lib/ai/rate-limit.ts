@@ -1,3 +1,5 @@
+import { useKv, getKv } from "@/lib/kv";
+
 type Feature = "explain" | "review_variant" | (string & {});
 
 type LimitConfig = {
@@ -39,27 +41,6 @@ function getLimit(feature: Feature, limits: LimitConfig): number {
 
 function makeKey(userId: string, feature: Feature): string {
   return `${userId}:${feature}`;
-}
-
-/* ---------------------------------------------------------------------------
- * Vercel KV (Upstash Redis) — lazy singleton
- * --------------------------------------------------------------------------- */
-
-function useKv(): boolean {
-  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-}
-
-let _kv: import("@vercel/kv").VercelKV | null = null;
-
-async function getKv(): Promise<import("@vercel/kv").VercelKV> {
-  if (!_kv) {
-    const { createClient } = await import("@vercel/kv");
-    _kv = createClient({
-      url: process.env.KV_REST_API_URL!,
-      token: process.env.KV_REST_API_TOKEN!,
-    });
-  }
-  return _kv;
 }
 
 /* ---------------------------------------------------------------------------
