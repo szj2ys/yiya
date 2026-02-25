@@ -2,6 +2,7 @@ import { aiChat, AiConfigError } from "@/lib/ai/client";
 import { getCachedOrFetch, sha256 } from "@/lib/ai/cache";
 import { checkRateLimit } from "@/lib/ai/rate-limit";
 import { buildExplainPrompt } from "@/lib/ai/prompts/explain";
+import { isNonEmptyString, safeParseJson } from "@/lib/utils";
 
 export type ExplanationExample = {
   source: string;
@@ -33,18 +34,6 @@ const FALLBACK_EXPLANATION: Omit<ExplanationResult, "cached"> = {
   tip: "Compare your answer to the correct one and note the difference.",
   examples: [],
 };
-
-function safeParseJson(input: string): unknown | null {
-  try {
-    return JSON.parse(input);
-  } catch {
-    return null;
-  }
-}
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
 
 function isExplanationResultPayload(value: unknown): value is Omit<
   ExplanationResult,

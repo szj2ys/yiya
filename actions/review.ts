@@ -6,6 +6,7 @@ import { State, fsrs } from "ts-fsrs";
 
 import db from "@/db/drizzle";
 import { reviewCards } from "@/db/schema";
+import { DAY_IN_MS } from "@/constants";
 
 const MAX_SESSION_SIZE = 20;
 
@@ -81,7 +82,7 @@ export const createReviewCard = async (
 ) => {
   const now = new Date();
   const isCorrect = initial === "correct";
-  const due = new Date(now.getTime() + (isCorrect ? 86_400_000 : 10 * 60_000));
+  const due = new Date(now.getTime() + (isCorrect ? DAY_IN_MS : 10 * 60_000));
 
   const values: typeof reviewCards.$inferInsert = {
     userId,
