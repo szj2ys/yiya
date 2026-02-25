@@ -42,14 +42,16 @@ export const claimQuestReward = async (
 
   const newPoints = currentUserProgress.points + reward;
 
-  await db
-    .update(userProgress)
-    .set({ points: newPoints })
-    .where(eq(userProgress.userId, userId));
+  await db.transaction(async (tx: typeof db) => {
+    await tx
+      .update(userProgress)
+      .set({ points: newPoints })
+      .where(eq(userProgress.userId, userId));
 
-  await db.insert(questClaims).values({
-    userId,
-    questValue,
+    await tx.insert(questClaims).values({
+      userId,
+      questValue,
+    });
   });
 
   revalidatePath("/learn");
