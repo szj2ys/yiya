@@ -10,6 +10,7 @@ import { challengeProgress, challenges, lessonCompletions, userProgress } from "
 import { createReviewCard } from "@/actions/review";
 import { computeNextStreak, toLocalDateString } from "@/lib/streak";
 import { computeWeeklyXp } from "@/lib/weekly-xp";
+import { DAY_IN_MS, MAX_HEARTS, XP_PER_CHALLENGE } from "@/constants";
 
 export const upsertChallengeProgress = async (
   challengeId: number,
@@ -66,11 +67,11 @@ export const upsertChallengeProgress = async (
       eq(challengeProgress.id, existingChallengeProgress.id)
     );
 
-    const practiceWeekly = computeWeeklyXp(currentWeeklyXp, currentWeeklyXpResetAt, 10);
+    const practiceWeekly = computeWeeklyXp(currentWeeklyXp, currentWeeklyXpResetAt, XP_PER_CHALLENGE);
 
     await db.update(userProgress).set({
-      hearts: Math.min(currentUserProgress.hearts + 1, 5),
-      points: currentUserProgress.points + 10,
+      hearts: Math.min(currentUserProgress.hearts + 1, MAX_HEARTS),
+      points: currentUserProgress.points + XP_PER_CHALLENGE,
       weeklyXp: practiceWeekly.weeklyXp,
       weeklyXpResetAt: practiceWeekly.weeklyXpResetAt,
     }).where(eq(userProgress.userId, userId));
@@ -91,11 +92,11 @@ export const upsertChallengeProgress = async (
 
   await createReviewCard(userId, challengeId, "correct");
 
-  const weekly = computeWeeklyXp(currentWeeklyXp, currentWeeklyXpResetAt, 10);
+  const weekly = computeWeeklyXp(currentWeeklyXp, currentWeeklyXpResetAt, XP_PER_CHALLENGE);
 
   await db.update(userProgress)
     .set({
-      points: currentUserProgress.points + 10,
+      points: currentUserProgress.points + XP_PER_CHALLENGE,
       weeklyXp: weekly.weeklyXp,
       weeklyXpResetAt: weekly.weeklyXpResetAt,
     })
@@ -128,7 +129,7 @@ export const upsertChallengeProgress = async (
     const now = new Date();
     const offset = timezoneOffset ?? 0;
     const yesterdayLocal = toLocalDateString(
-      new Date(now.getTime() - 86_400_000),
+      new Date(now.getTime() - DAY_IN_MS),
       offset,
     );
     const freezeForYesterday = await getStreakFreezeForDate(yesterdayLocal);

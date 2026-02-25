@@ -1,5 +1,8 @@
 export const POINTS_TO_REFILL = 10;
 export const STREAK_FREEZE_COST = 50;
+export const MAX_HEARTS = 5;
+export const XP_PER_CHALLENGE = 10;
+export const DAY_IN_MS = 86_400_000;
 
 export const DAILY_QUESTS = [
   { id: "complete_lesson", title: "Complete a lesson", description: "Finish any lesson today", xpReward: 5 },

@@ -2,6 +2,7 @@ import { aiChat, AiConfigError } from "@/lib/ai/client";
 import { getCachedOrFetch, sha256 } from "@/lib/ai/cache";
 import { checkRateLimit } from "@/lib/ai/rate-limit";
 import { buildVariantPrompt } from "@/lib/ai/prompts/variants";
+import { isNonEmptyString, safeParseJson } from "@/lib/utils";
 
 export type VariantOption = {
   text: string;
@@ -23,18 +24,6 @@ export type GetVariantQuestionParams = {
   challengeType: "SELECT" | "ASSIST" | "TYPE";
   courseLanguage: string;
 };
-
-function safeParseJson(input: string): unknown | null {
-  try {
-    return JSON.parse(input);
-  } catch {
-    return null;
-  }
-}
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
 
 function isVariantOptionPayload(value: unknown): value is VariantOption {
   if (!value || typeof value !== "object") return false;
