@@ -214,4 +214,95 @@ describe("Quiz course complete card", () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it("should render learning stats on course complete", () => {
+    render(
+      <Quiz
+        initialPercentage={0}
+        initialHearts={5}
+        initialLessonId={1}
+        initialStreak={3}
+        courseLanguage="Spanish"
+        userSubscription={null}
+        initialLessonChallenges={emptyLessonChallenges}
+        isCourseComplete={true}
+        courseName="Spanish"
+        totalLessons={24}
+        wordsLearned={150}
+      />,
+    );
+
+    const statsSection = screen.getByTestId("course-complete-stats");
+    expect(statsSection).toBeInTheDocument();
+    expect(statsSection).toHaveTextContent("24");
+    expect(statsSection).toHaveTextContent("Lessons");
+    expect(statsSection).toHaveTextContent("150");
+    expect(statsSection).toHaveTextContent("Words");
+    expect(statsSection).toHaveTextContent("Accuracy");
+  });
+
+  it("should render practice, courses, and share CTAs on course complete", () => {
+    render(
+      <Quiz
+        initialPercentage={0}
+        initialHearts={5}
+        initialLessonId={1}
+        initialStreak={3}
+        courseLanguage="Spanish"
+        userSubscription={null}
+        initialLessonChallenges={emptyLessonChallenges}
+        isCourseComplete={true}
+        courseName="Spanish"
+      />,
+    );
+
+    const card = screen.getByTestId("course-complete-card");
+    expect(card).toBeInTheDocument();
+
+    // Practice CTA
+    expect(
+      screen.getByRole("button", { name: "Continue Reviewing" }),
+    ).toBeInTheDocument();
+
+    // Share CTA
+    expect(
+      screen.getByRole("button", { name: "Share Achievement" }),
+    ).toBeInTheDocument();
+
+    // Try new language CTA
+    expect(
+      screen.getByRole("button", { name: "Try Another Language" }),
+    ).toBeInTheDocument();
+  });
+
+  it("should show course complete guide when isFinalLesson is true", () => {
+    render(
+      <Quiz
+        initialPercentage={0}
+        initialHearts={5}
+        initialLessonId={1}
+        initialStreak={3}
+        courseLanguage="Spanish"
+        userSubscription={null}
+        initialLessonChallenges={emptyLessonChallenges}
+        isCourseComplete={true}
+        courseName="Spanish"
+      />,
+    );
+
+    // Course complete card is shown instead of normal finish
+    expect(screen.getByTestId("course-complete-card")).toBeInTheDocument();
+    expect(screen.getByText("Course Complete!")).toBeInTheDocument();
+
+    // Has the 3 CTAs for "what's next" guidance
+    expect(
+      screen.getByRole("button", { name: "Continue Reviewing" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Share Achievement" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Try Another Language" }),
+    ).toBeInTheDocument();
+  });
 });

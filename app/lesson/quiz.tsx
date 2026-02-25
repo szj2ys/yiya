@@ -60,6 +60,7 @@ type Props = {
   unitOrder?: number;
   isCourseComplete?: boolean;
   courseName?: string;
+  totalLessons?: number;
   /** Number of due review items remaining beyond this session (practice mode only). */
   remainingDueCount?: number;
 };
@@ -85,6 +86,7 @@ export const Quiz = ({
   unitOrder,
   isCourseComplete,
   courseName,
+  totalLessons,
   remainingDueCount,
 }: Props) => {
   const { open: openHeartsModal } = useHeartsModal();
@@ -469,6 +471,23 @@ export const Quiz = ({
                 <p className="text-sm text-violet-600 dark:text-violet-400">
                   You&apos;ve completed all lessons in {courseName ?? "this course"}. That&apos;s an incredible achievement.
                 </p>
+
+                {/* Learning stats */}
+                <div className="grid grid-cols-3 gap-3 w-full mt-2" data-testid="course-complete-stats">
+                  <div className="rounded-xl bg-white/80 dark:bg-neutral-800/80 border border-violet-200 dark:border-violet-700 p-3 text-center">
+                    <p className="text-lg font-bold text-violet-700 dark:text-violet-300">{totalLessons ?? 0}</p>
+                    <p className="text-xs text-violet-500 dark:text-violet-400">Lessons</p>
+                  </div>
+                  <div className="rounded-xl bg-white/80 dark:bg-neutral-800/80 border border-violet-200 dark:border-violet-700 p-3 text-center">
+                    <p className="text-lg font-bold text-violet-700 dark:text-violet-300">{wordsLearned ?? 0}</p>
+                    <p className="text-xs text-violet-500 dark:text-violet-400">Words</p>
+                  </div>
+                  <div className="rounded-xl bg-white/80 dark:bg-neutral-800/80 border border-violet-200 dark:border-violet-700 p-3 text-center">
+                    <p className="text-lg font-bold text-violet-700 dark:text-violet-300">{accuracyPercent}%</p>
+                    <p className="text-xs text-violet-500 dark:text-violet-400">Accuracy</p>
+                  </div>
+                </div>
+
                 <div className="flex flex-col gap-y-2 w-full mt-2">
                   <button
                     type="button"

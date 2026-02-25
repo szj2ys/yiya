@@ -54,6 +54,7 @@ export async function getQuizProps(lessonId?: number) {
     todayLessonCount,
     dailyGoal: userProgress.dailyGoal ?? 1,
     wordsLearned: courseStats?.wordsLearned ?? 0,
+    totalLessons: courseStats?.totalLessons ?? 0,
     isLastLessonInUnit: unitInfo?.isLastLesson ?? false,
     unitTitle: unitInfo?.unitTitle ?? undefined,
     unitOrder: unitInfo?.unitOrder ?? undefined,
