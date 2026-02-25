@@ -1,6 +1,6 @@
 import { authMiddleware } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import type { NextRequest, NextFetchEvent } from "next/server";
 
 const isE2E = process.env.E2E_TESTING === "true";
 
@@ -8,7 +8,7 @@ const clerkMiddleware = authMiddleware({
   publicRoutes: ["/", "/api/webhooks/stripe", "/monitoring"],
 });
 
-export default function middleware(req: NextRequest, event: any) {
+export default function middleware(req: NextRequest, event: NextFetchEvent) {
   // During E2E testing, skip Clerk entirely
   if (isE2E) {
     return NextResponse.next();
