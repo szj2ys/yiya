@@ -20,7 +20,8 @@ export const POST = async (req: Request) => {
   const body = await req.json();
 
   const data = await db.insert(courses).values({
-    ...body,
+    title: body.title,
+    imageSrc: body.imageSrc,
   }).returning();
 
   return NextResponse.json(data[0]);

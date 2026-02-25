@@ -28,7 +28,11 @@ export const PUT = async (
 
   const body = await req.json();
   const data = await db.update(challengeOptions).set({
-    ...body,
+    challengeId: body.challengeId,
+    text: body.text,
+    correct: body.correct,
+    imageSrc: body.imageSrc,
+    audioSrc: body.audioSrc,
   }).where(eq(challengeOptions.id, params.challengeOptionId)).returning();
 
   return NextResponse.json(data[0]);
