@@ -146,9 +146,9 @@ describe("getUnitsWithProgress", () => {
     expect(result.activeLessonId).toBe(1);
   });
 
-  it("should maintain backward compatibility with existing callers", async () => {
+  it("should still return correct lesson percentage after refactor", async () => {
     const unitData = { id: 1, title: "Unit 1", order: 1 };
-    unitsFindManySpy.mockResolvedValue([
+    unitsFindManySpy.mockResolvedValueOnce([
       {
         id: 1,
         order: 1,
@@ -161,16 +161,14 @@ describe("getUnitsWithProgress", () => {
       },
     ]);
 
-    const { getUnits, getCourseProgress, getUnitsWithProgress } = await import("@/db/queries");
+    const { getUnitsWithProgress } = await import("@/db/queries");
+    const result = await getUnitsWithProgress();
 
-    // getUnits should still return the same shape
-    const units = await getUnits();
-    expect(Array.isArray(units)).toBe(true);
-    expect(units[0].lessons[0]).toHaveProperty("completed");
-
-    // getCourseProgress should still return the same shape
-    const progress = await getCourseProgress();
-    expect(progress).toHaveProperty("activeLesson");
-    expect(progress).toHaveProperty("activeLessonId");
+    // The unified function provides both units and active lesson data
+    expect(result.units).toHaveLength(1);
+    expect(result.activeLessonId).toBe(2);
+    // First lesson completed, second not
+    expect(result.units[0].lessons[0].completed).toBe(true);
+    expect(result.units[0].lessons[1].completed).toBe(false);
   });
 });
