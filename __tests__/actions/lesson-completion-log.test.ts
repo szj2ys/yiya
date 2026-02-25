@@ -33,11 +33,27 @@ const createReviewCardSpy = vi.fn().mockResolvedValue(undefined);
 const challengeProgressFindFirstSpy = vi.fn();
 const challengesFindFirstSpy = vi.fn();
 
+// Shared tx mock used inside transactions — delegates to the same spies
+const txMock = {
+  update: updateSpy,
+  insert: insertSpy,
+  select: selectSpy,
+  query: {
+    challengeProgress: { findFirst: challengeProgressFindFirstSpy },
+    challenges: { findFirst: challengesFindFirstSpy },
+  },
+};
+
+const transactionSpy = vi.fn(async (cb: (tx: typeof txMock) => Promise<void>) => {
+  await cb(txMock);
+});
+
 vi.mock("@/db/drizzle", () => ({
   default: {
     update: updateSpy,
     insert: insertSpy,
     select: selectSpy,
+    transaction: transactionSpy,
     query: {
       challengeProgress: { findFirst: challengeProgressFindFirstSpy },
       challenges: { findFirst: challengesFindFirstSpy },
@@ -70,6 +86,7 @@ beforeEach(() => {
   updateSpy.mockClear();
   insertSpy.mockClear();
   insertValuesSpy.mockClear();
+  transactionSpy.mockClear();
   selectSpy.mockClear();
   selectFromSpy.mockClear();
   selectWhereSpy.mockClear();

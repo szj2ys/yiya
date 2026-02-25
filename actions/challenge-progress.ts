@@ -84,78 +84,80 @@ export const upsertChallengeProgress = async (
     return;
   }
 
-  await db.insert(challengeProgress).values({
-    challengeId,
-    userId,
-    completed: true,
-  });
-
-  await createReviewCard(userId, challengeId, "correct");
-
   const weekly = computeWeeklyXp(currentWeeklyXp, currentWeeklyXpResetAt, XP_PER_CHALLENGE);
 
-  await db.update(userProgress)
-    .set({
-      points: currentUserProgress.points + XP_PER_CHALLENGE,
-      weeklyXp: weekly.weeklyXp,
-      weeklyXpResetAt: weekly.weeklyXpResetAt,
-    })
-    .where(eq(userProgress.userId, userId));
-
-  // Check if all challenges in the lesson are now completed; if so, log lesson completion
-  const [totalResult] = await db
-    .select({ value: count() })
-    .from(challenges)
-    .where(eq(challenges.lessonId, lessonId));
-
-  const [completedResult] = await db
-    .select({ value: count() })
-    .from(challengeProgress)
-    .where(
-      and(
-        eq(challengeProgress.userId, userId),
-        eq(challengeProgress.completed, true),
-      ),
-    )
-    .innerJoin(challenges, and(
-      eq(challengeProgress.challengeId, challenges.id),
-      eq(challenges.lessonId, lessonId),
-    ));
-
-  if (
-    totalResult.value > 0 &&
-    completedResult.value >= totalResult.value
-  ) {
-    const now = new Date();
-    const offset = timezoneOffset ?? 0;
-    const yesterdayLocal = toLocalDateString(
-      new Date(now.getTime() - DAY_IN_MS),
-      offset,
-    );
-    const freezeForYesterday = await getStreakFreezeForDate(yesterdayLocal);
-
-    const { streak: nextStreak, shouldUpdateStreak, longestStreak } = computeNextStreak({
-      currentStreak: currentUserProgress.streak ?? 0,
-      lastLessonAt: currentUserProgress.lastLessonAt ?? null,
-      now,
-      currentLongestStreak: currentUserProgress.longestStreak ?? 0,
-      hasFreezeForMissedDay: !!freezeForYesterday,
-      userTimezoneOffset: timezoneOffset,
+  await db.transaction(async (tx) => {
+    await tx.insert(challengeProgress).values({
+      challengeId,
+      userId,
+      completed: true,
     });
 
-    await db.update(userProgress)
+    await tx.update(userProgress)
       .set({
-        ...(shouldUpdateStreak ? { streak: nextStreak, longestStreak } : {}),
-        lastLessonAt: now,
+        points: currentUserProgress.points + XP_PER_CHALLENGE,
+        weeklyXp: weekly.weeklyXp,
+        weeklyXpResetAt: weekly.weeklyXpResetAt,
       })
       .where(eq(userProgress.userId, userId));
 
-    await db.insert(lessonCompletions).values({
-      userId,
-      lessonId,
-      completedAt: now,
-    });
-  }
+    // Check if all challenges in the lesson are now completed; if so, log lesson completion
+    const [totalResult] = await tx
+      .select({ value: count() })
+      .from(challenges)
+      .where(eq(challenges.lessonId, lessonId));
+
+    const [completedResult] = await tx
+      .select({ value: count() })
+      .from(challengeProgress)
+      .where(
+        and(
+          eq(challengeProgress.userId, userId),
+          eq(challengeProgress.completed, true),
+        ),
+      )
+      .innerJoin(challenges, and(
+        eq(challengeProgress.challengeId, challenges.id),
+        eq(challenges.lessonId, lessonId),
+      ));
+
+    if (
+      totalResult.value > 0 &&
+      completedResult.value >= totalResult.value
+    ) {
+      const now = new Date();
+      const offset = timezoneOffset ?? 0;
+      const yesterdayLocal = toLocalDateString(
+        new Date(now.getTime() - DAY_IN_MS),
+        offset,
+      );
+      const freezeForYesterday = await getStreakFreezeForDate(yesterdayLocal);
+
+      const { streak: nextStreak, shouldUpdateStreak, longestStreak } = computeNextStreak({
+        currentStreak: currentUserProgress.streak ?? 0,
+        lastLessonAt: currentUserProgress.lastLessonAt ?? null,
+        now,
+        currentLongestStreak: currentUserProgress.longestStreak ?? 0,
+        hasFreezeForMissedDay: !!freezeForYesterday,
+        userTimezoneOffset: timezoneOffset,
+      });
+
+      await tx.update(userProgress)
+        .set({
+          ...(shouldUpdateStreak ? { streak: nextStreak, longestStreak } : {}),
+          lastLessonAt: now,
+        })
+        .where(eq(userProgress.userId, userId));
+
+      await tx.insert(lessonCompletions).values({
+        userId,
+        lessonId,
+        completedAt: now,
+      });
+    }
+  });
+
+  await createReviewCard(userId, challengeId, "correct");
 
   revalidatePath("/learn");
   revalidatePath("/lesson");

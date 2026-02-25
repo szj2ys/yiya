@@ -33,10 +33,12 @@ export default function RootLayout({
         </head>
         <body className={font.className}>
           <Toaster />
-          <ExitModal />
-          <HeartsModal />
-          <PracticeModal />
-          <PostHogProvider>{children}</PostHogProvider>
+          <PostHogProvider>
+            <ExitModal />
+            <HeartsModal />
+            <PracticeModal />
+            {children}
+          </PostHogProvider>
           <Analytics />
         </body>
       </html>
