@@ -19,18 +19,18 @@ export async function POST(req: Request) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!,
     );
-  } catch (error: any) {
-    return new NextResponse(`Webhook error: ${error.message}`, {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new NextResponse(`Webhook error: ${message}`, {
       status: 400,
     });
   }
-
-  const session = event.data.object as Stripe.Checkout.Session;
 
   // Lazy-import DB to avoid failing `next build` when env isn't set.
   const { default: db } = await import("@/db/drizzle");
 
   if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription as string,
     );
@@ -51,8 +51,9 @@ export async function POST(req: Request) {
   }
 
   if (event.type === "invoice.payment_succeeded") {
+    const invoice = event.data.object as Stripe.Invoice;
     const subscription = await stripe.subscriptions.retrieve(
-      session.subscription as string,
+      invoice.subscription as string,
     );
 
     await db

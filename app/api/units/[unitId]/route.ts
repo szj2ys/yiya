@@ -28,7 +28,10 @@ export const PUT = async (
 
   const body = await req.json();
   const data = await db.update(units).set({
-    ...body,
+    title: body.title,
+    description: body.description,
+    courseId: body.courseId,
+    order: body.order,
   }).where(eq(units.id, params.unitId)).returning();
 
   return NextResponse.json(data[0]);
