@@ -112,8 +112,9 @@ describe("LeaderboardPage", () => {
 
   // --- Empty state ---
 
-  it("should show empty state message when no users exist", () => {
-    expect(pageSource).toContain("Be the first to climb the ranks!");
+  it("should show empty state when all users have 0 weekly XP", () => {
+    expect(pageSource).toContain("leaderboard.length === 0");
+    expect(pageSource).toContain("本周还没有人学习");
   });
 
   // --- Layout structure ---

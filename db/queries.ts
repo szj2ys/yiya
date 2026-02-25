@@ -4,6 +4,7 @@ import { unstable_cache } from "next/cache";
 
 import db from "@/db/drizzle";
 import { getAuthUserId } from "@/lib/auth-utils";
+import { getStartOfWeek } from "@/lib/weekly-xp";
 import {
   challengeProgress,
   courses,
@@ -407,7 +408,14 @@ export const getTopTenWeekly = cache(async () => {
     return [];
   }
 
+  const weekStart = getStartOfWeek();
+
   const data = await db.query.userProgress.findMany({
+    where: and(
+      isNotNull(userProgress.weeklyXpResetAt),
+      gte(userProgress.weeklyXpResetAt, weekStart),
+      gt(userProgress.weeklyXp, 0),
+    ),
     orderBy: (userProgress: any, { desc }: any) => [desc(userProgress.weeklyXp)],
     limit: 10,
     columns: {
@@ -696,21 +704,34 @@ export const getUserWeeklyRank = cache(async () => {
     return null;
   }
 
+  const weekStart = getStartOfWeek();
+
   // Get the current user's weeklyXp
   const currentUser = await db.query.userProgress.findFirst({
     where: eq(userProgress.userId, userId),
-    columns: { weeklyXp: true },
+    columns: { weeklyXp: true, weeklyXpResetAt: true },
   });
 
   if (!currentUser) {
     return null;
   }
 
+  const currentUserWeeklyXp =
+    currentUser.weeklyXpResetAt && currentUser.weeklyXpResetAt >= weekStart
+      ? currentUser.weeklyXp
+      : 0;
+
   // Count users with more weeklyXp (rank = that count + 1)
   const [usersAbove] = await db
     .select({ value: count() })
     .from(userProgress)
-    .where(gt(userProgress.weeklyXp, currentUser.weeklyXp));
+    .where(
+      and(
+        isNotNull(userProgress.weeklyXpResetAt),
+        gte(userProgress.weeklyXpResetAt, weekStart),
+        gt(userProgress.weeklyXp, currentUserWeeklyXp),
+      ),
+    );
 
   const rank = (usersAbove?.value ?? 0) + 1;
 
