@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Quests } from "@/components/quests";
 import { getAuthUserId } from "@/lib/auth-utils";
+import { getStartOfWeek } from "@/lib/weekly-xp";
 
 const MEDALS = ["🥇", "🥈", "🥉"] as const;
 
@@ -39,6 +40,12 @@ const LeaderboardPage = async () => {
 
   const isPro = !!userSubscription?.isActive;
 
+  const weekStart = getStartOfWeek();
+  const currentUserWeeklyXp =
+    userProgress.weeklyXpResetAt && userProgress.weeklyXpResetAt >= weekStart
+      ? userProgress.weeklyXp ?? 0
+      : 0;
+
   const top3 = leaderboard.slice(0, 3);
   const rest = leaderboard.slice(3);
 
@@ -50,7 +57,7 @@ const LeaderboardPage = async () => {
   // XP needed to enter top 10 (based on weekly XP)
   const xpToTop10 =
     !currentUserInTop10 && leaderboard.length >= 10
-      ? leaderboard[leaderboard.length - 1].weeklyXp - (userProgress.weeklyXp ?? 0) + 1
+      ? leaderboard[leaderboard.length - 1].weeklyXp - currentUserWeeklyXp + 1
       : 0;
 
   return (
@@ -83,7 +90,7 @@ const LeaderboardPage = async () => {
           {leaderboard.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16">
               <p className="text-muted-foreground text-center text-base">
-                Be the first to climb the ranks!
+                本周还没有人学习
               </p>
             </div>
           )}
@@ -150,7 +157,7 @@ const LeaderboardPage = async () => {
           {/* Graceful handling for fewer than 3 users */}
           {leaderboard.length > 0 && leaderboard.length < 3 && (
             <p className="text-muted-foreground text-center text-sm mb-4">
-              Be the first to climb the ranks!
+              继续学习，冲上榜首！
             </p>
           )}
 
@@ -219,7 +226,7 @@ const LeaderboardPage = async () => {
                     {userProgress.userName}
                   </p>
                   <p className="text-muted-foreground text-sm">
-                    {userProgress.weeklyXp ?? 0} XP this week
+                    {currentUserWeeklyXp} XP this week
                   </p>
                 </div>
                 {xpToTop10 > 0 && (
