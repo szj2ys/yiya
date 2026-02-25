@@ -65,9 +65,10 @@ describe("LearnPage integration", () => {
 
   it("should use getUnitsWithProgress instead of separate getUnits and getCourseProgress", () => {
     expect(pageSource).toContain("getUnitsWithProgress");
-    // Should NOT import the old separate functions on the learn page
+    // Should NOT import the old deprecated functions on the learn page
     expect(pageSource).not.toContain("getUnits,");
-    expect(pageSource).not.toContain("getCourseProgress");
+    // getCourseProgress is no longer exported — only the derived local variable exists
+    expect(pageSource).not.toContain("getCourseProgress,");
   });
 
   it("should render ContinueCta with correct props when active lesson exists", () => {

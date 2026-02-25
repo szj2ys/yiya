@@ -1,18 +1,13 @@
 import dynamic from "next/dynamic";
-import { redirect } from "next/navigation";
-
-import { isAdmin } from "@/lib/admin";
 
 const App = dynamic(() => import("./app"), { ssr: false });
 
-const AdminPage = async () => {
-  if (!(await isAdmin())) {
-    redirect("/");
-  }
-
-  return ( 
+// Admin access is enforced by the layout (app/admin/layout.tsx).
+// No additional guard is needed here.
+const AdminPage = () => {
+  return (
     <App />
   );
 };
- 
+
 export default AdminPage;

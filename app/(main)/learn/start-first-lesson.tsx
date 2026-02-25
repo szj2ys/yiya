@@ -1,16 +1,16 @@
 import Link from "next/link";
 
-import { getCourseProgress } from "@/db/queries";
+import { getUnitsWithProgress } from "@/db/queries";
 
 type Props = {
   primaryCta: React.ReactNode;
 };
 
 export const StartFirstLesson = async ({ primaryCta }: Props) => {
-  const courseProgress = await getCourseProgress();
+  const { activeLessonId } = await getUnitsWithProgress();
 
-  const href = courseProgress?.activeLessonId
-    ? `/lesson/${courseProgress.activeLessonId}`
+  const href = activeLessonId
+    ? `/lesson/${activeLessonId}`
     : "/lesson";
 
   return (

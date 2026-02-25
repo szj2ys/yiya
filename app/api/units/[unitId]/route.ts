@@ -3,15 +3,14 @@ import { NextResponse } from "next/server";
 
 import db from "@/db/drizzle";
 import { units } from "@/db/schema";
-import { isAdmin } from "@/lib/admin";
+import { assertAdmin } from "@/lib/admin-guard";
 
 export const GET = async (
   req: Request,
   { params }: { params: { unitId: number } },
 ) => {
-  if (!(await isAdmin())) {
-    return new NextResponse("Unauthorized", { status: 403 });
-  }
+  const forbidden = await assertAdmin();
+  if (forbidden) return forbidden;
 
   const data = await db.query.units.findFirst({
     where: eq(units.id, params.unitId),
@@ -24,9 +23,8 @@ export const PUT = async (
   req: Request,
   { params }: { params: { unitId: number } },
 ) => {
-  if (!(await isAdmin())) {
-    return new NextResponse("Unauthorized", { status: 403 });
-  }
+  const forbidden = await assertAdmin();
+  if (forbidden) return forbidden;
 
   const body = await req.json();
   const data = await db.update(units).set({
@@ -40,9 +38,8 @@ export const DELETE = async (
   req: Request,
   { params }: { params: { unitId: number } },
 ) => {
-  if (!(await isAdmin())) {
-    return new NextResponse("Unauthorized", { status: 403 });
-  }
+  const forbidden = await assertAdmin();
+  if (forbidden) return forbidden;
 
   const data = await db.delete(units)
     .where(eq(units.id, params.unitId)).returning();
