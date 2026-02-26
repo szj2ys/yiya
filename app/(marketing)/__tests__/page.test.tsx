@@ -113,37 +113,10 @@ describe("Marketing page", () => {
     expect(screen.getByText("Active Learners")).toBeInTheDocument();
   });
 
-  // Task 3 tests
-  it("should render 3 testimonial cards", async () => {
+  it("should not render fake testimonials", async () => {
     await renderPage();
 
-    const section = screen.getByTestId("testimonials");
-    expect(section).toBeInTheDocument();
-
-    expect(screen.getByText("Maria K.")).toBeInTheDocument();
-    expect(screen.getByText("David L.")).toBeInTheDocument();
-    expect(screen.getByText("Yuki T.")).toBeInTheDocument();
-  });
-
-  it("should render testimonial quotes", async () => {
-    await renderPage();
-
-    expect(
-      screen.getByText(/learning Spanish for 2 weeks/)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/daily streak keeps me motivated/)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/more fun than textbook learning/)
-    ).toBeInTheDocument();
-  });
-
-  it("should render What learners say heading", async () => {
-    await renderPage();
-
-    expect(
-      screen.getByRole("heading", { name: /what learners say/i })
-    ).toBeInTheDocument();
+    expect(screen.queryByTestId("testimonials")).not.toBeInTheDocument();
+    expect(screen.queryByText("Maria K.")).not.toBeInTheDocument();
   });
 });
