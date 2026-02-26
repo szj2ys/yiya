@@ -702,25 +702,6 @@ export const Quiz = ({
             )}
           </div>
 
-          {/* 3b. Share your progress (only when daily goal is met, non-practice) */}
-          {!isPractice &&
-            typeof todayLessonCount === "number" &&
-            typeof dailyGoal === "number" &&
-            todayLessonCount >= dailyGoal && (
-              <button
-                type="button"
-                className="w-full rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center mb-5 hover:bg-emerald-100 active:bg-emerald-200 transition"
-                onClick={() => setShowShareCard(true)}
-              >
-                <p className="text-base font-semibold text-emerald-700">
-                  Share your progress
-                </p>
-                <p className="text-sm text-emerald-600 mt-0.5">
-                  You hit your daily goal — celebrate it!
-                </p>
-              </button>
-            )}
-
           {/* 4. All Lessons Complete celebration (inline, non-sticky) */}
           {!isPractice && !nextLessonId && (
             <div className="w-full rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center mb-5">
@@ -804,16 +785,6 @@ export const Quiz = ({
                     onClick={() => router.push("/learn")}
                   >
                     Back to Learn
-                  </button>
-                )}
-
-                {wrongAnswers.length > 0 && (
-                  <button
-                    type="button"
-                    className="w-full h-12 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-700 active:bg-neutral-100 dark:active:bg-neutral-600 transition"
-                    onClick={() => openPracticeModal()}
-                  >
-                    Practice weak items
                   </button>
                 )}
 

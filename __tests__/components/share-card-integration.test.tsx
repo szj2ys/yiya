@@ -75,7 +75,7 @@ const singleChallenge = [
 ];
 
 describe("Share card integration in Quiz", () => {
-  it("should show share button when daily goal is met", async () => {
+  it("should show challenge friend button on lesson completion", async () => {
     fetchSpy.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 
     render(
@@ -92,16 +92,12 @@ describe("Share card integration in Quiz", () => {
       />,
     );
 
-    // Complete the lesson
     fireEvent.click(screen.getByText("Right"));
     fireEvent.click(screen.getByRole("button", { name: "Check" }));
     fireEvent.click(await screen.findByRole("button", { name: "Next" }));
 
-    // Completion screen
     expect(await screen.findByText("Lesson complete")).toBeInTheDocument();
-
-    // Should see the share button
-    expect(screen.getByText("Share your progress")).toBeInTheDocument();
+    expect(screen.getByText("Challenge a Friend")).toBeInTheDocument();
   });
 
   it("should not show share button when goal not met", async () => {
@@ -156,7 +152,7 @@ describe("Share card integration in Quiz", () => {
     expect(screen.queryByText("Share your progress")).not.toBeInTheDocument();
   });
 
-  it("should open share card modal when share button is clicked", async () => {
+  it("should not show share progress block on non-practice completion", async () => {
     fetchSpy.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 
     render(
@@ -174,17 +170,11 @@ describe("Share card integration in Quiz", () => {
       />,
     );
 
-    // Complete the lesson
     fireEvent.click(screen.getByText("Right"));
     fireEvent.click(screen.getByRole("button", { name: "Check" }));
     fireEvent.click(await screen.findByRole("button", { name: "Next" }));
 
     expect(await screen.findByText("Lesson complete")).toBeInTheDocument();
-
-    // Click share button
-    fireEvent.click(screen.getByText("Share your progress"));
-
-    // Share card modal should appear
-    expect(screen.getByTestId("share-card-modal")).toBeInTheDocument();
+    expect(screen.queryByText("You hit your daily goal")).not.toBeInTheDocument();
   });
 });

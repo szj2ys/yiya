@@ -102,6 +102,5 @@ describe("Quiz completion summary", () => {
     expect(screen.getByText("Review these")).toBeInTheDocument();
     expect(screen.getByText("Q1?")).toBeInTheDocument();
     expect(screen.getByText("1 wrong • 2 total challenges")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Practice weak items" })).toBeInTheDocument();
   });
 });
