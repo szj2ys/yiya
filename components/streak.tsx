@@ -1,9 +1,16 @@
 import { CheckCircle, Flame, Snowflake } from "lucide-react";
 
+type NextMilestone = {
+  days: number;
+  xpReward: number;
+  daysUntil: number;
+} | null;
+
 type Props = {
   streak: number;
   lastLessonAt: Date | null;
   freezeActive?: boolean;
+  nextMilestone?: NextMilestone;
 };
 
 const milestones = new Set([7, 30, 100]);
@@ -17,7 +24,7 @@ const isToday = (date: Date): boolean => {
   );
 };
 
-export const Streak = ({ streak, lastLessonAt, freezeActive = false }: Props) => {
+export const Streak = ({ streak, lastLessonAt, freezeActive = false, nextMilestone }: Props) => {
   const isMilestone = milestones.has(streak);
   const completedToday = lastLessonAt ? isToday(lastLessonAt) : false;
   const showReminder = streak > 0 && !completedToday && !freezeActive;
@@ -97,6 +104,11 @@ export const Streak = ({ streak, lastLessonAt, freezeActive = false }: Props) =>
       {showReminder && (
         <p className="text-xs text-amber-600 font-medium pl-[52px]">
           Don&apos;t forget to study today!
+        </p>
+      )}
+      {nextMilestone && nextMilestone.daysUntil > 0 && (
+        <p className="text-xs text-orange-500 font-medium pl-[52px]" data-testid="next-milestone">
+          {nextMilestone.daysUntil} {nextMilestone.daysUntil === 1 ? "day" : "days"} to {nextMilestone.xpReward} XP bonus
         </p>
       )}
     </div>
