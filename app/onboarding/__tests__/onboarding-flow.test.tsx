@@ -195,7 +195,7 @@ describe("OnboardingFlow", () => {
     fireEvent.click(screen.getByRole("button", { name: /start learning/i }));
 
     await waitFor(() => {
-      expect(upsertUserProgress).toHaveBeenCalledWith(3, 1, expect.any(Object));
+      expect(upsertUserProgress).toHaveBeenCalledWith(3, 1, expect.any(Object), expect.any(Number));
     });
   });
 
@@ -217,7 +217,7 @@ describe("OnboardingFlow", () => {
 
     await waitFor(() => {
       // English course id=1, Regular goal=3
-      expect(upsertUserProgress).toHaveBeenCalledWith(1, 3, expect.any(Object));
+      expect(upsertUserProgress).toHaveBeenCalledWith(1, 3, expect.any(Object), expect.any(Number));
     });
 
     // Step 4 loading indicator shown while server action processes
