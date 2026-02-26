@@ -14,12 +14,12 @@ import { Button } from "@/components/ui/button";
 import { getGlobalStats } from "@/db/queries";
 
 const LANGUAGES = [
-  { code: "en", name: "English" },
-  { code: "cn", name: "Chinese" },
-  { code: "es", name: "Spanish" },
-  { code: "fr", name: "French" },
-  { code: "it", name: "Italian" },
-  { code: "jp", name: "Japanese" },
+  { code: "en", name: "English", seoSlug: "english" },
+  { code: "cn", name: "Chinese", seoSlug: "chinese" },
+  { code: "es", name: "Spanish", seoSlug: "spanish" },
+  { code: "fr", name: "French", seoSlug: "french" },
+  { code: "it", name: "Italian", seoSlug: "italian" },
+  { code: "jp", name: "Japanese", seoSlug: "japanese" },
 ] as const;
 
 const STATS = [
@@ -305,30 +305,37 @@ export default async function Home() {
 
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {LANGUAGES.map((language) => (
-              <ClerkLoaded key={language.code}>
-                <SignedOut>
-                  <SignUpButton
-                    mode="modal"
-                    afterSignInUrl="/learn"
-                    afterSignUpUrl="/onboarding"
-                  >
-                    <button
-                      className="group flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/5 transition-all hover:bg-neutral-50 hover:ring-green-200 active:scale-[0.97]"
+              <div key={language.code} className="flex flex-col gap-1.5">
+                <ClerkLoaded>
+                  <SignedOut>
+                    <SignUpButton
+                      mode="modal"
+                      afterSignInUrl="/learn"
+                      afterSignUpUrl="/onboarding"
+                    >
+                      <button
+                        className="group flex w-full items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/5 transition-all hover:bg-neutral-50 hover:ring-green-200 active:scale-[0.97]"
+                      >
+                        <LanguageCardContent name={language.name} code={language.code} />
+                      </button>
+                    </SignUpButton>
+                  </SignedOut>
+                  <SignedIn>
+                    <Link
+                      href="/onboarding"
+                      className="group flex items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/5 transition-all hover:bg-neutral-50 hover:ring-green-200 active:scale-[0.97]"
                     >
                       <LanguageCardContent name={language.name} code={language.code} />
-                    </button>
-                  </SignUpButton>
-                </SignedOut>
-                <SignedIn>
-                  <Link
-                    href="/onboarding"
-                    className="group flex items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/5 transition-all hover:bg-neutral-50 hover:ring-green-200 active:scale-[0.97]"
-                  >
-                    <LanguageCardContent name={language.name} code={language.code} />
-                  </Link>
-                </SignedIn>
-              </ClerkLoaded>
-
+                    </Link>
+                  </SignedIn>
+                </ClerkLoaded>
+                <Link
+                  href={`/learn/${language.seoSlug}`}
+                  className="text-center text-xs text-neutral-400 hover:text-green-600 transition-colors"
+                >
+                  Learn more
+                </Link>
+              </div>
             ))}
           </div>
         </div>
