@@ -18,6 +18,8 @@ export const DAILY_QUESTS = [
  */
 export const ACTIVATION_LESSON_COUNT = 1;
 
+export const STREAK_MILESTONES = [7, 14, 30, 60, 100, 365] as const;
+
 export const quests = [
   {
     title: "Earn 20 XP",

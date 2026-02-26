@@ -27,6 +27,7 @@ import { Footer } from "./footer";
 import { Challenge } from "./challenge";
 import { ResultCard } from "./result-card";
 import { QuestionBubble } from "./question-bubble";
+import { StreakMilestone } from "./streak-milestone";
 
 type WrongAnswer = {
   challengeId: number;
@@ -449,6 +450,13 @@ export const Quiz = ({
                 </div>
               </div>
             </div>
+          )}
+
+          {!isPractice && (
+            <StreakMilestone
+              streak={streak}
+              onShare={() => setShowShareCard(true)}
+            />
           )}
 
           {!isPractice && isLastLessonInUnit && (

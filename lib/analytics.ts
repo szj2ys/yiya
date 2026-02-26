@@ -46,6 +46,8 @@ export type AnalyticsEventMap = {
   challenge_share: BaseProperties & { challenge_id: string };
   landing_cta_click: BaseProperties & { cta_location: string };
   landing_language_click: BaseProperties & { language: string };
+  daily_goal_achieved: BaseProperties & { lesson_count: number; daily_goal: number };
+  streak_milestone: BaseProperties & { streak: number; milestone: number };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;

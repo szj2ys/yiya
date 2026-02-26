@@ -1,7 +1,7 @@
 "use server";
 
 import { getAuthUserId } from "@/lib/auth-utils";
-import { and, eq, count } from "drizzle-orm";
+import { and, eq, count, gte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import db from "@/db/drizzle";
@@ -10,7 +10,7 @@ import { challengeProgress, challenges, lessonCompletions, userProgress } from "
 import { createReviewCard } from "@/actions/review";
 import { computeNextStreak, toLocalDateString } from "@/lib/streak";
 import { computeWeeklyXp } from "@/lib/weekly-xp";
-import { DAY_IN_MS, MAX_HEARTS, XP_PER_CHALLENGE, ACTIVATION_LESSON_COUNT } from "@/constants";
+import { DAY_IN_MS, MAX_HEARTS, XP_PER_CHALLENGE, ACTIVATION_LESSON_COUNT, STREAK_MILESTONES } from "@/constants";
 import { track } from "@/lib/analytics";
 import { getServerReferralData } from "@/lib/referral";
 import { cookies } from "next/headers";
@@ -157,6 +157,29 @@ export const upsertChallengeProgress = async (
         lessonId,
         completedAt: now,
       });
+
+      if (shouldUpdateStreak) {
+        const milestone = STREAK_MILESTONES.find((m) => m === nextStreak);
+        if (milestone) {
+          track("streak_milestone", { streak: nextStreak, milestone });
+        }
+      }
+
+      const startOfToday = new Date(now);
+      startOfToday.setHours(0, 0, 0, 0);
+      const [todayCount] = await tx
+        .select({ value: count() })
+        .from(lessonCompletions)
+        .where(
+          and(
+            eq(lessonCompletions.userId, userId),
+            gte(lessonCompletions.completedAt, startOfToday),
+          ),
+        );
+      const dailyGoal = currentUserProgress.dailyGoal ?? 1;
+      if (todayCount.value === dailyGoal) {
+        track("daily_goal_achieved", { lesson_count: todayCount.value, daily_goal: dailyGoal });
+      }
     }
   });
 
