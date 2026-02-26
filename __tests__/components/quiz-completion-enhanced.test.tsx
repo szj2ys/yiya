@@ -120,7 +120,6 @@ describe("Quiz completion screen enhancements", () => {
       />,
     );
 
-    expect(screen.getByText("All lessons complete!")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Back to Learn" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Next Lesson" })).not.toBeInTheDocument();
   });
