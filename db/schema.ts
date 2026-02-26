@@ -134,6 +134,7 @@ export const userProgress = pgTable("user_progress", {
   lastLessonAt: timestamp("last_lesson_at"),
   weeklyXp: integer("weekly_xp").notNull().default(0),
   weeklyXpResetAt: timestamp("weekly_xp_reset_at"),
+  emailReminders: boolean("email_reminders").notNull().default(true),
 });
 
 export const userProgressRelations = relations(userProgress, ({ one }) => ({
