@@ -135,6 +135,7 @@ export const Quiz = ({
   const [explanationLoading, setExplanationLoading] = useState(false);
   const [explanationData, setExplanationData] = useState<ExplanationResult | null>(null);
   const [showShareCard, setShowShareCard] = useState(false);
+  const [challengeCreating, setChallengeCreating] = useState(false);
 
   const isPractice = initialPercentage === 100;
 
@@ -819,6 +820,54 @@ export const Quiz = ({
                     Back to Learn
                   </button>
                 )}
+
+                <button
+                  type="button"
+                  data-testid="challenge-friend-btn"
+                  disabled={challengeCreating}
+                  className="w-full h-12 rounded-2xl bg-violet-600 text-white font-semibold hover:bg-violet-700 active:bg-violet-800 transition disabled:opacity-50"
+                  onClick={async () => {
+                    setChallengeCreating(true);
+                    try {
+                      const res = await fetch("/api/challenge/create", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ challengerScore: correctCount }),
+                      });
+                      if (!res.ok) {
+                        toast.error("Could not create challenge. Try again.");
+                        return;
+                      }
+                      const { shareUrl, challengeId } = await res.json();
+                      trackPayload(
+                        buildTrackPayload("challenge_created", {
+                          challenge_id: challengeId,
+                          language: courseLanguage,
+                        }),
+                      ).catch(() => undefined);
+                      if (typeof navigator !== "undefined" && navigator.share) {
+                        try {
+                          await navigator.share({
+                            title: "Yiya Challenge",
+                            text: `I scored ${correctCount}/${challenges.length} on a ${courseLanguage} quiz. Can you beat me?`,
+                            url: shareUrl,
+                          });
+                          return;
+                        } catch {
+                          // fall through to clipboard
+                        }
+                      }
+                      await navigator.clipboard.writeText(shareUrl);
+                      toast.success("Challenge link copied!");
+                    } catch {
+                      toast.error("Something went wrong.");
+                    } finally {
+                      setChallengeCreating(false);
+                    }
+                  }}
+                >
+                  {challengeCreating ? "Creating..." : "Challenge a Friend"}
+                </button>
               </>
             )}
           </div>
