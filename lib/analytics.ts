@@ -44,6 +44,8 @@ export type AnalyticsEventMap = {
   challenge_completed: BaseProperties & { challenge_id: string; friend_score: number; challenger_score: number };
   challenge_signup_click: BaseProperties & { challenge_id: string };
   challenge_share: BaseProperties & { challenge_id: string };
+  landing_cta_click: BaseProperties & { cta_location: string };
+  landing_language_click: BaseProperties & { language: string };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;
