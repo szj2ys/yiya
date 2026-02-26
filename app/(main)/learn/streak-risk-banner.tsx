@@ -1,4 +1,4 @@
-import { Flame, Snowflake } from "lucide-react";
+import { CheckCircle2, Flame, Snowflake } from "lucide-react";
 
 type Props = {
   streak: number;
@@ -12,8 +12,26 @@ export const StreakRiskBanner = ({
   hasFreezeToday,
 }: Props) => {
   const isAtRisk = streak > 0 && todayLessonCount === 0;
+  const hasProgress = todayLessonCount > 0;
 
-  if (!isAtRisk) return null;
+  if (!isAtRisk && !hasProgress) return null;
+
+  if (hasProgress) {
+    return (
+      <div
+        data-testid="streak-progress-banner"
+        className="mb-4 flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 dark:border-green-800 dark:bg-green-950"
+      >
+        <CheckCircle2 className="h-5 w-5 shrink-0 text-green-500" />
+        <p className="text-sm font-medium text-green-700 dark:text-green-300">
+          {todayLessonCount === 1
+            ? "1 lesson done today — keep going!"
+            : `${todayLessonCount} lessons done today — great work!`}
+          {streak > 0 && ` 🔥 ${streak}-day streak`}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -39,8 +57,8 @@ export const StreakRiskBanner = ({
         ].join(" ")}
       >
         {hasFreezeToday
-          ? `冻结保护中，但今天学习可以延续 ${streak} 天连胜`
-          : `你的 ${streak} 天连胜还差今天的课程！`}
+          ? `Freeze active — but a lesson today keeps your ${streak}-day streak growing!`
+          : `Your ${streak}-day streak needs today's lesson!`}
       </p>
     </div>
   );
