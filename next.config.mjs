@@ -6,6 +6,15 @@ const nextConfig = {
     // Required for instrumentation.ts in Next.js 14 (stable in 15+)
     instrumentationHook: true,
   },
+  async redirects() {
+    return [
+      {
+        source: "/courses",
+        destination: "/onboarding",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       // Admin CRUD APIs — same-origin so no CORS needed,

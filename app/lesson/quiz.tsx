@@ -511,7 +511,7 @@ export const Quiz = ({
                   <button
                     type="button"
                     className="w-full h-11 rounded-2xl bg-white dark:bg-neutral-800 border border-violet-200 dark:border-violet-700 text-violet-700 dark:text-violet-300 font-semibold hover:bg-violet-50 dark:hover:bg-neutral-700 active:bg-violet-100 dark:active:bg-neutral-600 transition"
-                    onClick={() => router.push("/courses")}
+                    onClick={() => router.push("/onboarding")}
                   >
                     Try Another Language
                   </button>
