@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
 
+import { track } from "@/lib/analytics";
+
 interface Question {
   prompt: string;
   options: string[];
@@ -143,9 +145,11 @@ export function InteractiveSample({ languageName }: InteractiveSampleProps) {
   const handleAnswer = (index: number) => {
     if (selectedAnswer !== null) return;
     setSelectedAnswer(index);
-    if (index === question.correctIndex) {
+    const correct = index === question.correctIndex;
+    if (correct) {
       setScore((s) => s + 1);
     }
+    track("landing_demo_interaction", { correct, language: languageName.toLowerCase() });
   };
 
   const handleNext = () => {
