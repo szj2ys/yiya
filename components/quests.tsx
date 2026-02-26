@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { useCallback, useState, useTransition } from "react";
 import { Check } from "lucide-react";
@@ -8,6 +7,7 @@ import { Check } from "lucide-react";
 import { quests } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+
 import { claimQuestReward } from "@/actions/quest-rewards";
 
 type Props = {
@@ -39,19 +39,9 @@ export const Quests = ({ points, claimedQuestValues = [] }: Props) => {
 
   return (
     <div className="border-2 rounded-xl p-4 space-y-4">
-      <div className="flex items-center justify-between w-full space-y-2">
-        <h3 className="font-bold text-lg">
-          Quests
-        </h3>
-        <Link href="/quests">
-          <Button
-            size="sm"
-            variant="primaryOutline"
-          >
-            View all
-          </Button>
-        </Link>
-      </div>
+      <h3 className="font-bold text-lg">
+        Quests
+      </h3>
       <ul className="w-full space-y-4">
         {quests.map((quest) => {
           const progress = Math.min((points / quest.value) * 100, 100);
