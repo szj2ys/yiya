@@ -99,6 +99,7 @@ const LearnPage = async () => {
   const isPro = !!userSubscription?.isActive;
   const shouldShowStartCta = !courseProgress.activeLesson;
   const hasFreezeToday = !!todayFreeze;
+  const isNewUser = (courseStats?.completedLessons ?? 0) < 3;
 
   const dailyQuests = DAILY_QUESTS.map((quest) => ({
     id: quest.id,
@@ -157,11 +158,13 @@ const LearnPage = async () => {
           )}
         </div>
 
-        <StreakRiskBanner
-          streak={userStreak?.streak ?? 0}
-          todayLessonCount={todayLessonCount}
-          hasFreezeToday={hasFreezeToday}
-        />
+        {!isNewUser && (
+          <StreakRiskBanner
+            streak={userStreak?.streak ?? 0}
+            todayLessonCount={todayLessonCount}
+            hasFreezeToday={hasFreezeToday}
+          />
+        )}
 
         {courseProgress.activeLesson && (
           <ContinueCta
@@ -189,25 +192,31 @@ const LearnPage = async () => {
           </div>
         )}
 
-        <DailyGoal
+        {!isNewUser && (
+          <DailyGoal
           todayLessonCount={todayLessonCount}
-          dailyGoal={userProgress.dailyGoal ?? 1}
-        />
+            dailyGoal={userProgress.dailyGoal ?? 1}
+          />
+        )}
 
-        <PracticeEntry
+        {!isNewUser && (
+          <PracticeEntry
           reviewItemCount={todayReviewItems.length}
-          dueCount={reviewDueCount}
-        />
+            dueCount={reviewDueCount}
+          />
+        )}
 
-        <DailyQuestsCard quests={dailyQuests} />
+        {!isNewUser && <DailyQuestsCard quests={dailyQuests} />}
 
-        <LearningProgress
-          courseStats={courseStats}
-          memoryStrength={memoryStrength}
-          accuracyPercent={learningStats?.averageAccuracy ?? 0}
-        />
+        {!isNewUser && (
+          <LearningProgress
+            courseStats={courseStats}
+            memoryStrength={memoryStrength}
+            accuracyPercent={learningStats?.averageAccuracy ?? 0}
+          />
+        )}
 
-        {weeklyActivity.length > 0 && (
+        {!isNewUser && weeklyActivity.length > 0 && (
           <WeeklyActivity data={weeklyActivity} />
         )}
 
