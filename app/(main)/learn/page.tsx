@@ -23,6 +23,7 @@ import {
   getUserSubscription,
   getUserStreak,
   getWeeklyActivity,
+  getNextStreakMilestoneForUser,
 } from "@/db/queries";
 import { DAILY_QUESTS } from "@/constants";
 import { getReviewDueCount } from "@/actions/review";
@@ -74,6 +75,7 @@ const LearnPage = async () => {
   let dailyQuestProgress: Awaited<ReturnType<typeof getDailyQuestProgress>> = { complete_lesson: false, hit_daily_goal: false, practice_review: false };
   let claimedDailyQuests: Awaited<ReturnType<typeof getClaimedDailyQuests>> = [];
   let hasFreezeToday = false;
+  let nextMilestone: Awaited<ReturnType<typeof getNextStreakMilestoneForUser>> = null;
 
   if (!isNewUser) {
     const [
@@ -86,6 +88,7 @@ const LearnPage = async () => {
       _dailyQuestProgress,
       _claimedDailyQuests,
       _todayFreeze,
+      _nextMilestone,
     ] = await Promise.all([
       getTodayReviewItems(),
       getReviewDueCount(),
@@ -96,6 +99,7 @@ const LearnPage = async () => {
       getDailyQuestProgress(),
       getClaimedDailyQuests(),
       getStreakFreezeForDate(),
+      getNextStreakMilestoneForUser(),
     ]);
 
     todayReviewItems = _todayReviewItems;
@@ -107,6 +111,7 @@ const LearnPage = async () => {
     dailyQuestProgress = _dailyQuestProgress;
     claimedDailyQuests = _claimedDailyQuests;
     hasFreezeToday = !!_todayFreeze;
+    nextMilestone = _nextMilestone;
   }
 
   const dailyQuests = DAILY_QUESTS.map((quest) => ({
@@ -132,6 +137,7 @@ const LearnPage = async () => {
             streak={userStreak?.streak ?? 0}
             lastLessonAt={userStreak?.lastLessonAt ?? null}
             freezeActive={hasFreezeToday}
+            nextMilestone={nextMilestone}
           />
         )}
         {!isNewUser && <Quests points={userProgress.points} />}
@@ -146,6 +152,7 @@ const LearnPage = async () => {
                 streak={userStreak?.streak ?? 0}
                 lastLessonAt={userStreak?.lastLessonAt ?? null}
                 freezeActive={hasFreezeToday}
+                nextMilestone={nextMilestone}
               />
             </div>
 
