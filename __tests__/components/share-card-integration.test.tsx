@@ -48,6 +48,14 @@ vi.mock("@/components/share-card", () => ({
   ),
 }));
 
+vi.mock("next/dynamic", () => ({
+  default: (loader: () => Promise<any>) => {
+    let Component: any = null;
+    loader().then((mod: any) => { Component = mod.default; });
+    return (props: any) => Component ? <Component {...props} /> : null;
+  },
+}));
+
 const fetchSpy = vi.fn();
 global.fetch = fetchSpy as unknown as typeof global.fetch;
 

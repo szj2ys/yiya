@@ -6,6 +6,7 @@ import Confetti from "react-confetti";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { useAudio, useWindowSize, useMount } from "react-use";
+import dynamic from "next/dynamic";
 
 import { reduceHearts } from "@/actions/user-progress";
 import { speak } from "@/lib/tts";
@@ -18,7 +19,8 @@ import { submitReview } from "@/actions/review";
 import type { ExplanationResult } from "@/lib/ai/explain";
 import type { VariantQuestion } from "@/lib/ai/variants";
 import { ExplanationPanel } from "@/components/explanation-panel";
-import { ShareCard } from "@/components/share-card";
+
+const ShareCard = dynamic(() => import("@/components/share-card").then(m => ({ default: m.ShareCard })), { ssr: false });
 
 import { Header } from "./header";
 import { Footer } from "./footer";
