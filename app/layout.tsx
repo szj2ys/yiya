@@ -6,6 +6,8 @@ import { ExitModal } from "@/components/modals/exit-modal";
 import { HeartsModal } from "@/components/modals/hearts-modal";
 import { PracticeModal } from "@/components/modals/practice-modal";
 import { PostHogProvider } from "@/components/posthog-provider";
+import { ServiceWorkerRegister } from "@/components/sw-register";
+import { InstallPrompt } from "@/components/install-prompt";
 import { Analytics } from '@vercel/analytics/react';
 import "./globals.css";
 
@@ -48,6 +50,9 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <head>
+          <link rel="manifest" href="/manifest.json" />
+          <meta name="theme-color" content="#22c55e" />
+          <link rel="apple-touch-icon" href="/icon-192.png" />
           <script
             dangerouslySetInnerHTML={{
               __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})();`,
@@ -62,6 +67,8 @@ export default function RootLayout({
             <PracticeModal />
             {children}
           </PostHogProvider>
+          <ServiceWorkerRegister />
+          <InstallPrompt />
           <Analytics />
         </body>
       </html>

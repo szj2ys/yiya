@@ -35,6 +35,10 @@ export type AnalyticsEventMap = {
   signup_completed: BaseProperties & { user_id: string };
   first_lesson_started: BaseProperties & { user_id: string; lesson_id: number; course_id: number };
   user_activated: BaseProperties & { user_id: string; lesson_count: number };
+  pwa_install_prompt_shown: BaseProperties;
+  pwa_installed: BaseProperties;
+  push_subscribed: BaseProperties;
+  push_declined: BaseProperties;
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;
