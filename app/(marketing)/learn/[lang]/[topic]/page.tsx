@@ -6,7 +6,7 @@ import { ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FAQSchema } from "@/components/seo/faq-schema";
-import { getTopicBySlug, getAllTopicParams } from "@/lib/seo/topics";
+import { getTopicBySlug, getTopicsForLanguage, getAllTopicParams } from "@/lib/seo/topics";
 
 interface PageProps {
   params: { lang: string; topic: string };
@@ -49,6 +49,10 @@ export function generateMetadata({ params }: PageProps): Metadata {
 export default function TopicPage({ params }: PageProps) {
   const topic = getTopicBySlug(params.lang, params.topic);
   if (!topic) notFound();
+
+  const relatedTopics = getTopicsForLanguage(topic.languageSlug).filter(
+    (t) => t.slug !== topic.slug,
+  );
 
   return (
     <div className="w-full">
@@ -177,6 +181,39 @@ export default function TopicPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      {/* Related Topics */}
+      {relatedTopics.length > 0 && (
+        <section className="w-full bg-white">
+          <div className="mx-auto w-full max-w-screen-lg px-4 py-12">
+            <h2 className="text-center text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+              More {topic.languageName} Topics
+            </h2>
+            <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedTopics.map((related) => (
+                <Link
+                  key={related.slug}
+                  href={`/learn/${related.languageSlug}/${related.slug}`}
+                  className="group flex items-center justify-between rounded-2xl bg-neutral-50 p-4 ring-1 ring-black/5 transition-all hover:bg-white hover:ring-green-200"
+                >
+                  <span className="text-sm font-semibold text-neutral-900 group-hover:text-green-600 transition-colors">
+                    {related.title}
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-neutral-400 group-hover:text-green-600 transition-colors" />
+                </Link>
+              ))}
+            </div>
+            <p className="mt-4 text-center">
+              <Link
+                href={`/learn/${topic.languageSlug}`}
+                className="text-sm font-medium text-green-600 hover:text-green-700 transition-colors"
+              >
+                View all {topic.languageName} resources
+              </Link>
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="w-full bg-green-600">
