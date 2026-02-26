@@ -10,6 +10,14 @@ export const DAILY_QUESTS = [
   { id: "practice_review", title: "Review your cards", description: "Do at least one practice review session", xpReward: 10 },
 ] as const;
 
+/**
+ * Number of completed lessons required to consider a user "activated".
+ * Activation = the user has completed their first full lesson (not the
+ * onboarding sample challenge). Used to fire the `user_activated` analytics
+ * event exactly once per user.
+ */
+export const ACTIVATION_LESSON_COUNT = 1;
+
 export const quests = [
   {
     title: "Earn 20 XP",
