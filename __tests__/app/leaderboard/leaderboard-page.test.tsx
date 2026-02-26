@@ -114,7 +114,7 @@ describe("LeaderboardPage", () => {
 
   it("should show empty state when all users have 0 weekly XP", () => {
     expect(pageSource).toContain("leaderboard.length === 0");
-    expect(pageSource).toContain("本周还没有人学习");
+    expect(pageSource).toContain("No one has studied this week");
   });
 
   // --- Layout structure ---

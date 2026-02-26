@@ -8,7 +8,6 @@ describe("Footer", () => {
   it("should render footer links", () => {
     render(<Footer />);
 
-    expect(screen.getByText("About")).toBeInTheDocument();
     expect(screen.getByText("Privacy")).toBeInTheDocument();
     expect(screen.getByText("Terms")).toBeInTheDocument();
   });
@@ -26,9 +25,8 @@ describe("Footer", () => {
     render(<Footer />);
 
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(3);
-    expect(links[0]).toHaveTextContent("About");
-    expect(links[1]).toHaveTextContent("Privacy");
-    expect(links[2]).toHaveTextContent("Terms");
+    expect(links).toHaveLength(2);
+    expect(links[0]).toHaveTextContent("Privacy");
+    expect(links[1]).toHaveTextContent("Terms");
   });
 });
