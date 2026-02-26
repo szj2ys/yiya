@@ -241,7 +241,7 @@ export default async function Home() {
               What learners say
             </h2>
             <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-neutral-600 sm:text-base">
-              Real stories from people building a daily learning habit.
+              Stories from our learning community.
             </p>
           </div>
 
