@@ -27,6 +27,9 @@ import {
 } from "@/db/queries";
 import { DAILY_QUESTS } from "@/constants";
 import { getReviewDueCount } from "@/actions/review";
+import { getAndMarkUnnotifiedReferrals } from "@/actions/referral-reward";
+import { ReferralRewardToast } from "@/components/referral-reward-toast";
+import { getAuthUserId } from "@/lib/auth-utils";
 
 import { UnitWithProgress } from "./unit-with-progress";
 import { Header } from "./header";
@@ -76,6 +79,7 @@ const LearnPage = async () => {
   let claimedDailyQuests: Awaited<ReturnType<typeof getClaimedDailyQuests>> = [];
   let hasFreezeToday = false;
   let nextMilestone: Awaited<ReturnType<typeof getNextStreakMilestoneForUser>> = null;
+  let referralRewardCount = 0;
 
   if (!isNewUser) {
     const [
@@ -114,6 +118,11 @@ const LearnPage = async () => {
     nextMilestone = _nextMilestone;
   }
 
+  const userId = await getAuthUserId();
+  if (userId) {
+    referralRewardCount = await getAndMarkUnnotifiedReferrals(userId);
+  }
+
   const dailyQuests = DAILY_QUESTS.map((quest) => ({
     id: quest.id,
     title: quest.title,
@@ -125,6 +134,7 @@ const LearnPage = async () => {
 
   return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
+      <ReferralRewardToast count={referralRewardCount} />
       <StickyWrapper>
         <UserProgress
           activeCourse={userProgress.activeCourse}

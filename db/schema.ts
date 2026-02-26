@@ -249,6 +249,17 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   userEndpointUnique: uniqueIndex("push_subscriptions_user_endpoint_unique").on(t.userId, t.endpoint),
 }));
 
+export const referrals = pgTable("referrals", {
+  id: serial("id").primaryKey(),
+  referrerId: text("referrer_id").notNull(),
+  referredUserId: text("referred_user_id").notNull(),
+  rewardedAt: timestamp("rewarded_at"),
+  notifiedAt: timestamp("notified_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  referrerReferredUnique: uniqueIndex("referrals_referrer_referred_unique").on(t.referrerId, t.referredUserId),
+}));
+
 export const dailyQuestClaims = pgTable("daily_quest_claims", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),

@@ -4,18 +4,21 @@ import {
   ClerkLoading,
   ClerkLoaded,
   UserButton,
+  auth,
 } from "@clerk/nextjs";
 import { Loader } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 import { SidebarItem } from "./sidebar-item";
+import { InviteButton } from "./invite-button";
 
 type Props = {
   className?: string;
 };
 
-export const Sidebar = ({ className }: Props) => {
+export const Sidebar = async ({ className }: Props) => {
+  const { userId } = await auth();
   return (
     <div className={cn(
       "flex h-full lg:w-[256px] lg:fixed left-0 top-0 px-4 border-r-2 flex-col",
@@ -50,6 +53,7 @@ export const Sidebar = ({ className }: Props) => {
           href="/settings"
           iconSrc="/settings.svg"
         />
+        {userId && <InviteButton userId={userId} />}
       </div>
       <div className="p-4">
         <ClerkLoading>

@@ -46,6 +46,8 @@ export type AnalyticsEventMap = {
   challenge_share: BaseProperties & { challenge_id: string };
   landing_cta_click: BaseProperties & { cta_location: string };
   landing_language_click: BaseProperties & { language: string };
+  referral_reward_granted: BaseProperties & { referrer_id: string; referred_user_id: string; xp_reward: number };
+  referral_invite_shared: BaseProperties & { user_id: string; method: string };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;

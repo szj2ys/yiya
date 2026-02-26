@@ -1,4 +1,5 @@
 const REF_KEY = "yiya_ref_challenge";
+const REFERRAL_REF_KEY = "yiya_ref_user";
 const UTM_KEY = "yiya_utm";
 const COOKIE_KEY = "yiya_ref";
 
@@ -29,10 +30,16 @@ export function getReferralData(): ReferralData {
   if (typeof window === "undefined") return {};
   try {
     const data: ReferralData = {};
-    const challengeId = localStorage.getItem(REF_KEY);
-    if (challengeId) {
-      data.ref_source = "challenge";
-      data.ref_id = challengeId;
+    const userRef = localStorage.getItem(REFERRAL_REF_KEY);
+    if (userRef) {
+      data.ref_source = "referral";
+      data.ref_id = userRef;
+    } else {
+      const challengeId = localStorage.getItem(REF_KEY);
+      if (challengeId) {
+        data.ref_source = "challenge";
+        data.ref_id = challengeId;
+      }
     }
     const utmRaw = localStorage.getItem(UTM_KEY);
     if (utmRaw) {
@@ -51,6 +58,7 @@ export function clearReferralData() {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(REF_KEY);
+    localStorage.removeItem(REFERRAL_REF_KEY);
     localStorage.removeItem(UTM_KEY);
     clearReferralCookie();
   } catch {}
@@ -70,6 +78,19 @@ export function getServerReferralData(cookieValue?: string | null): ReferralData
   } catch {
     return {};
   }
+}
+
+export function captureReferralParams() {
+  if (typeof window === "undefined") return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    const refSource = params.get("ref_source");
+    if (ref && refSource === "referral") {
+      localStorage.setItem(REFERRAL_REF_KEY, ref);
+      setReferralCookie({ ...getReferralData(), ref_source: "referral", ref_id: ref });
+    }
+  } catch {}
 }
 
 export function captureUtmParams() {

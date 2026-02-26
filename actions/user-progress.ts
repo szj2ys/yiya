@@ -15,6 +15,7 @@ import {
 } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 import { createReviewCard } from "@/actions/review";
+import { grantReferralRewards } from "@/actions/referral-reward";
 import { track } from "@/lib/analytics";
 import type { ReferralData } from "@/lib/referral";
 
@@ -70,6 +71,10 @@ export const upsertUserProgress = async (
   });
 
   track("signup_completed", { user_id: userId, ...referral });
+
+  if (referral?.ref_source === "referral" && referral.ref_id) {
+    grantReferralRewards(referral.ref_id, userId).catch(() => {});
+  }
 
   const firstLessonId = course.units[0].lessons[0].id;
 
