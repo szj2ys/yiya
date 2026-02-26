@@ -5,7 +5,7 @@ import type { NextRequest, NextFetchEvent } from "next/server";
 const isE2E = process.env.E2E_TESTING === "true";
 
 const clerkMiddleware = authMiddleware({
-  publicRoutes: ["/", "/api/webhooks/stripe", "/monitoring"],
+  publicRoutes: ["/", "/api/webhooks/stripe", "/monitoring", "/challenge/:path*", "/api/challenge/:path*"],
 });
 
 export default function middleware(req: NextRequest, event: NextFetchEvent) {
