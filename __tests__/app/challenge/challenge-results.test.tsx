@@ -79,7 +79,7 @@ describe("ChallengeResults", () => {
 
     expect(screen.getByTestId("challenge-signup-btn")).toBeTruthy();
     expect(
-      screen.getByText("Want to keep learning? Sign up free"),
+      screen.getByText(/Sign up free/),
     ).toBeTruthy();
   });
 

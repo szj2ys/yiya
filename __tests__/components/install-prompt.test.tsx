@@ -30,8 +30,8 @@ describe("InstallPrompt", () => {
   });
 
   it("should show install prompt on 2nd session when beforeinstallprompt fires", () => {
-    // Simulate 1st session was already counted
     localStorage.setItem("yiya_session_count", "1");
+    localStorage.setItem("yiya_first_lesson_completed", "true");
 
     render(<InstallPrompt />);
 
@@ -74,6 +74,7 @@ describe("InstallPrompt", () => {
   it("should track analytics events when prompt shown", async () => {
     const { track } = await import("@/lib/analytics");
     localStorage.setItem("yiya_session_count", "1");
+    localStorage.setItem("yiya_first_lesson_completed", "true");
 
     render(<InstallPrompt />);
 
@@ -93,6 +94,7 @@ describe("InstallPrompt", () => {
 
   it("should dismiss when Not now is clicked", () => {
     localStorage.setItem("yiya_session_count", "1");
+    localStorage.setItem("yiya_first_lesson_completed", "true");
     render(<InstallPrompt />);
 
     const event = new Event("beforeinstallprompt");
