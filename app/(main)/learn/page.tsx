@@ -30,6 +30,7 @@ import { getReviewDueCount } from "@/actions/review";
 import { getAndMarkUnnotifiedReferrals } from "@/actions/referral-reward";
 import { ReferralRewardToast } from "@/components/referral-reward-toast";
 import { getAuthUserId } from "@/lib/auth-utils";
+import { getCachedDashboard } from "@/lib/learn-cache";
 
 import { UnitWithProgress } from "./unit-with-progress";
 import { Header } from "./header";
@@ -41,6 +42,7 @@ import { StartFirstLesson } from "./start-first-lesson";
 import { StreakRiskBanner } from "./streak-risk-banner";
 import { WeeklyActivity } from "./weekly-activity";
 import { DailyQuestsCard } from "./daily-quests-card";
+import { DashboardSection } from "./dashboard-section";
 
 const LearnPage = async () => {
   const [
@@ -68,31 +70,46 @@ const LearnPage = async () => {
   const isPro = !!userSubscription?.isActive;
   const shouldShowStartCta = !courseProgress.activeLesson;
   const isNewUser = (courseStats?.completedLessons ?? 0) < 3;
+  const userId = await getAuthUserId();
 
-  let todayReviewItems: Awaited<ReturnType<typeof getTodayReviewItems>> = [];
-  let reviewDueCount = 0;
-  let weeklyActivity: Awaited<ReturnType<typeof getWeeklyActivity>> = [];
-  let todayLessonCount = 0;
-  let memoryStrength: Awaited<ReturnType<typeof getMemoryStrength>> = { total: 0, mastered: 0, strong: 0, weak: 0, newCount: 0 };
-  let learningStats: Awaited<ReturnType<typeof getLearningStats>> = null;
-  let dailyQuestProgress: Awaited<ReturnType<typeof getDailyQuestProgress>> = { complete_lesson: false, hit_daily_goal: false, practice_review: false };
-  let claimedDailyQuests: Awaited<ReturnType<typeof getClaimedDailyQuests>> = [];
-  let hasFreezeToday = false;
-  let nextMilestone: Awaited<ReturnType<typeof getNextStreakMilestoneForUser>> = null;
-  let referralRewardCount = 0;
+  type DashboardData = {
+    todayReviewItems: Awaited<ReturnType<typeof getTodayReviewItems>>;
+    reviewDueCount: number;
+    weeklyActivity: Awaited<ReturnType<typeof getWeeklyActivity>>;
+    todayLessonCount: number;
+    memoryStrength: Awaited<ReturnType<typeof getMemoryStrength>>;
+    learningStats: Awaited<ReturnType<typeof getLearningStats>>;
+    dailyQuestProgress: Awaited<ReturnType<typeof getDailyQuestProgress>>;
+    claimedDailyQuests: Awaited<ReturnType<typeof getClaimedDailyQuests>>;
+    hasFreezeToday: boolean;
+    nextMilestone: Awaited<ReturnType<typeof getNextStreakMilestoneForUser>>;
+  };
 
-  if (!isNewUser) {
+  const defaultDashboard: DashboardData = {
+    todayReviewItems: [],
+    reviewDueCount: 0,
+    weeklyActivity: [],
+    todayLessonCount: 0,
+    memoryStrength: { total: 0, mastered: 0, strong: 0, weak: 0, newCount: 0 },
+    learningStats: null,
+    dailyQuestProgress: { complete_lesson: false, hit_daily_goal: false, practice_review: false },
+    claimedDailyQuests: [],
+    hasFreezeToday: false,
+    nextMilestone: null,
+  };
+
+  const fetchDashboard = async (): Promise<DashboardData> => {
     const [
-      _todayReviewItems,
-      _reviewDueCount,
-      _weeklyActivity,
-      _todayLessonCount,
-      _memoryStrength,
-      _learningStats,
-      _dailyQuestProgress,
-      _claimedDailyQuests,
-      _todayFreeze,
-      _nextMilestone,
+      todayReviewItems,
+      reviewDueCount,
+      weeklyActivity,
+      todayLessonCount,
+      memoryStrength,
+      learningStats,
+      dailyQuestProgress,
+      claimedDailyQuests,
+      todayFreeze,
+      nextMilestone,
     ] = await Promise.all([
       getTodayReviewItems(),
       getReviewDueCount(),
@@ -105,20 +122,38 @@ const LearnPage = async () => {
       getStreakFreezeForDate(),
       getNextStreakMilestoneForUser(),
     ]);
+    return {
+      todayReviewItems,
+      reviewDueCount,
+      weeklyActivity,
+      todayLessonCount,
+      memoryStrength,
+      learningStats,
+      dailyQuestProgress,
+      claimedDailyQuests,
+      hasFreezeToday: !!todayFreeze,
+      nextMilestone,
+    };
+  };
 
-    todayReviewItems = _todayReviewItems;
-    reviewDueCount = _reviewDueCount;
-    weeklyActivity = _weeklyActivity;
-    todayLessonCount = _todayLessonCount;
-    memoryStrength = _memoryStrength;
-    learningStats = _learningStats;
-    dailyQuestProgress = _dailyQuestProgress;
-    claimedDailyQuests = _claimedDailyQuests;
-    hasFreezeToday = !!_todayFreeze;
-    nextMilestone = _nextMilestone;
-  }
+  const dashboard = !isNewUser && userId
+    ? await getCachedDashboard(userId, fetchDashboard)
+    : defaultDashboard;
 
-  const userId = await getAuthUserId();
+  const {
+    todayReviewItems,
+    reviewDueCount,
+    weeklyActivity,
+    todayLessonCount,
+    memoryStrength,
+    learningStats,
+    dailyQuestProgress,
+    claimedDailyQuests,
+    hasFreezeToday,
+    nextMilestone,
+  } = dashboard;
+
+  let referralRewardCount = 0;
   if (userId) {
     referralRewardCount = await getAndMarkUnnotifiedReferrals(userId);
   }
@@ -156,36 +191,28 @@ const LearnPage = async () => {
         <Header title={userProgress.activeCourse.title} />
 
         {!isNewUser && (
-          <>
-            <div className="lg:hidden mb-4" data-testid="mobile-streak">
-              <Streak
-                streak={userStreak?.streak ?? 0}
-                lastLessonAt={userStreak?.lastLessonAt ?? null}
-                freezeActive={hasFreezeToday}
-                nextMilestone={nextMilestone}
-              />
+          <div className="lg:hidden mb-4 flex items-center gap-x-4 rounded-xl border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 px-4 py-2.5" data-testid="mobile-stats-bar">
+            <div className="flex items-center gap-x-1 text-sm font-medium text-neutral-600">
+              <Flame className="h-4 w-4 text-orange-500" />
+              <span>{userStreak?.streak ?? 0}</span>
             </div>
-
-            <div className="lg:hidden mb-4 flex items-center gap-x-4" data-testid="mobile-stats-bar">
-              <div className="flex items-center gap-x-1 text-sm text-neutral-600">
-                <Heart className="h-4 w-4 text-rose-500" />
-                {isPro ? (
-                  <InfinityIcon className="h-4 w-4 stroke-[3] text-rose-500" />
-                ) : (
-                  <span>{userProgress.hearts}</span>
-                )}
-              </div>
-              <div className="flex items-center gap-x-1 text-sm text-neutral-600">
-                <Flame className="h-4 w-4 text-orange-500" />
-                <span>{userProgress.points} XP</span>
-              </div>
-              {isPro && (
-                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
-                  Pro
-                </span>
+            <div className="flex items-center gap-x-1 text-sm font-medium text-neutral-600">
+              <Heart className="h-4 w-4 text-rose-500" />
+              {isPro ? (
+                <InfinityIcon className="h-4 w-4 stroke-[3] text-rose-500" />
+              ) : (
+                <span>{userProgress.hearts}</span>
               )}
             </div>
-          </>
+            <div className="flex items-center gap-x-1 text-sm font-medium text-neutral-600">
+              <span>{userProgress.points} XP</span>
+            </div>
+            {isPro && (
+              <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+                Pro
+              </span>
+            )}
+          </div>
         )}
 
         {!isNewUser && (
@@ -223,31 +250,25 @@ const LearnPage = async () => {
         )}
 
         {!isNewUser && (
-          <DailyGoal
-          todayLessonCount={todayLessonCount}
-            dailyGoal={userProgress.dailyGoal ?? 1}
-          />
-        )}
-
-        {!isNewUser && (
-          <PracticeEntry
-          reviewItemCount={todayReviewItems.length}
-            dueCount={reviewDueCount}
-          />
-        )}
-
-        {!isNewUser && <DailyQuestsCard quests={dailyQuests} />}
-
-        {!isNewUser && (
-          <LearningProgress
-            courseStats={courseStats}
-            memoryStrength={memoryStrength}
-            accuracyPercent={learningStats?.averageAccuracy ?? 0}
-          />
-        )}
-
-        {!isNewUser && weeklyActivity.length > 0 && (
-          <WeeklyActivity data={weeklyActivity} />
+          <DashboardSection>
+            <DailyGoal
+              todayLessonCount={todayLessonCount}
+              dailyGoal={userProgress.dailyGoal ?? 1}
+            />
+            <PracticeEntry
+              reviewItemCount={todayReviewItems.length}
+              dueCount={reviewDueCount}
+            />
+            <DailyQuestsCard quests={dailyQuests} />
+            <LearningProgress
+              courseStats={courseStats}
+              memoryStrength={memoryStrength}
+              accuracyPercent={learningStats?.averageAccuracy ?? 0}
+            />
+            {weeklyActivity.length > 0 && (
+              <WeeklyActivity data={weeklyActivity} />
+            )}
+          </DashboardSection>
         )}
 
         {units.map((unit: typeof units[number]) => (
