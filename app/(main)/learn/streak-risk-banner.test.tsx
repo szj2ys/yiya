@@ -11,19 +11,22 @@ describe("StreakRiskBanner", () => {
 
     expect(screen.getByTestId("streak-risk-banner")).toBeInTheDocument();
     expect(
-      screen.getByText("你的 5 天连胜还差今天的课程！"),
+      screen.getByText("Your 5-day streak needs today's lesson!"),
     ).toBeInTheDocument();
   });
 
-  it("should not render when todayLessonCount > 0", () => {
-    const { container } = render(
-      <StreakRiskBanner streak={5} todayLessonCount={1} hasFreezeToday={false} />,
+  it("should show progress banner when todayLessonCount > 0", () => {
+    render(
+      <StreakRiskBanner streak={5} todayLessonCount={2} hasFreezeToday={false} />,
     );
 
-    expect(container.innerHTML).toBe("");
+    expect(screen.getByTestId("streak-progress-banner")).toBeInTheDocument();
+    expect(
+      screen.getByText(/2 lessons done today/),
+    ).toBeInTheDocument();
   });
 
-  it("should not render when streak is 0", () => {
+  it("should not render when streak is 0 and no lessons today", () => {
     const { container } = render(
       <StreakRiskBanner streak={0} todayLessonCount={0} hasFreezeToday={false} />,
     );
@@ -39,9 +42,8 @@ describe("StreakRiskBanner", () => {
     const banner = screen.getByTestId("streak-risk-banner");
     expect(banner).toBeInTheDocument();
     expect(
-      screen.getByText("冻结保护中，但今天学习可以延续 10 天连胜"),
+      screen.getByText(/Freeze active.*10-day streak/),
     ).toBeInTheDocument();
-    // Freeze uses sky color scheme
     expect(banner.className).toContain("border-sky-200");
     expect(banner.className).toContain("bg-sky-50");
   });
@@ -54,5 +56,13 @@ describe("StreakRiskBanner", () => {
     const banner = screen.getByTestId("streak-risk-banner");
     expect(banner.className).toContain("border-amber-200");
     expect(banner.className).toContain("bg-amber-50");
+  });
+
+  it("should show singular text for 1 lesson", () => {
+    render(
+      <StreakRiskBanner streak={0} todayLessonCount={1} hasFreezeToday={false} />,
+    );
+
+    expect(screen.getByText(/1 lesson done today/)).toBeInTheDocument();
   });
 });

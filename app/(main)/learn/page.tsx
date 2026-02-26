@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Quests } from "@/components/quests";
@@ -6,7 +7,7 @@ import { UserProgress } from "@/components/user-progress";
 import { Streak } from "@/components/streak";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Button } from "@/components/ui/button";
-import { Flame, Heart, InfinityIcon } from "lucide-react";
+import { BookOpen, Flame, Heart, InfinityIcon } from "lucide-react";
 import { lessons, units as unitsSchema } from "@/db/schema";
 import {
   getCourseStats,
@@ -211,6 +212,16 @@ const LearnPage = async () => {
               <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
                 Pro
               </span>
+            )}
+            {reviewDueCount > 0 && (
+              <Link
+                href="/practice"
+                className="ml-auto flex items-center gap-x-1 rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-700 transition-colors hover:bg-sky-200"
+                data-testid="mobile-review-btn"
+              >
+                <BookOpen className="h-3.5 w-3.5" />
+                Review ({reviewDueCount})
+              </Link>
             )}
           </div>
         )}
