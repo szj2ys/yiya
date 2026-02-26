@@ -10,6 +10,7 @@ type BaseProperties = {
 };
 
 export type AnalyticsEventMap = {
+  page_view: BaseProperties & { page: string };
   session_start: BaseProperties;
   lesson_start: BaseProperties & { lesson_id: number };
   lesson_complete: BaseProperties & { lesson_id: number; hearts_remaining: number };
