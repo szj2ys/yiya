@@ -101,6 +101,7 @@ export const upsertChallengeProgress = async (
         points: currentUserProgress.points + XP_PER_CHALLENGE,
         weeklyXp: weekly.weeklyXp,
         weeklyXpResetAt: weekly.weeklyXpResetAt,
+        ...(timezoneOffset !== undefined && { timezoneOffset }),
       })
       .where(eq(userProgress.userId, userId));
 
