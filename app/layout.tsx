@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { ServiceWorkerRegister } from "@/components/sw-register";
 import { Analytics } from '@vercel/analytics/react';
+import { UtmCapture } from "@/components/utm-capture";
 import "./globals.css";
 
 const ExitModal = dynamic(() => import("@/components/modals/exit-modal").then(m => ({ default: m.ExitModal })), { ssr: false });
@@ -105,6 +106,7 @@ export default function RootLayout({
           </PostHogProvider>
           <ServiceWorkerRegister />
           <InstallPrompt />
+          <UtmCapture />
           <Analytics />
         </body>
       </html>

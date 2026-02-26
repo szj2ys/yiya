@@ -7,6 +7,7 @@ import { Check, Loader2 } from "lucide-react";
 
 import { courses } from "@/db/schema";
 import { upsertUserProgress } from "@/actions/user-progress";
+import { getReferralData, clearReferralData } from "@/lib/referral";
 
 import { getSampleChallenge } from "./sample-challenges";
 
@@ -141,11 +142,14 @@ export const OnboardingFlow = ({ courses }: Props) => {
     if (selectedCourseId === null) return;
     setStep(4);
 
+    const referral = getReferralData();
     startTransition(() => {
-      upsertUserProgress(selectedCourseId, selectedGoal ?? 1).catch(() => {
-        toast.error("Something went wrong. Please try again.");
-        setStep(3);
-      });
+      upsertUserProgress(selectedCourseId, selectedGoal ?? 1, referral)
+        .then(() => clearReferralData())
+        .catch(() => {
+          toast.error("Something went wrong. Please try again.");
+          setStep(3);
+        });
     });
   }, [selectedCourseId, selectedGoal, startTransition]);
 
