@@ -111,6 +111,16 @@ vi.mock("./daily-quests-card", () => ({
   DailyQuestsCard: () => <div>DailyQuestsCard</div>,
 }));
 
+vi.mock("./dashboard-section", () => ({
+  DashboardSection: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dashboard-section">{children}</div>
+  ),
+}));
+
+vi.mock("@/lib/learn-cache", () => ({
+  getCachedDashboard: vi.fn().mockImplementation((_userId: string, fetcher: () => Promise<any>) => fetcher()),
+}));
+
 vi.mock("./streak-risk-banner", () => ({
   StreakRiskBanner: ({ streak, todayLessonCount, hasFreezeToday }: { streak: number; todayLessonCount: number; hasFreezeToday: boolean }) => {
     if (streak > 0 && todayLessonCount === 0) {
@@ -222,7 +232,7 @@ describe("LearnPage", () => {
     expect(screen.getByText("Continue")).toBeInTheDocument();
   });
 
-  it("should render DailyGoal with correct todayLessonCount and dailyGoal", async () => {
+  it("should render DailyGoal inside dashboard section", async () => {
     mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } }, activeLessonId: 1 });
 
     const LearnPage = (await import("./page")).default;
@@ -230,10 +240,11 @@ describe("LearnPage", () => {
     const element = await LearnPage();
     render(element);
 
-    expect(screen.getByText("DailyGoal")).toBeInTheDocument();
+    const dashboard = screen.getByTestId("dashboard-section");
+    expect(dashboard.textContent).toContain("DailyGoal");
   });
 
-  it("should render Streak component in mobile wrapper when viewport < lg", async () => {
+  it("should render compact mobile stats bar with streak and hearts", async () => {
     mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } }, activeLessonId: 1 });
 
     const LearnPage = (await import("./page")).default;
@@ -241,22 +252,25 @@ describe("LearnPage", () => {
     const element = await LearnPage();
     render(element);
 
-    const mobileStreak = screen.getByTestId("mobile-streak");
-    expect(mobileStreak).toBeInTheDocument();
-    expect(mobileStreak.className).toContain("lg:hidden");
+    const mobileStatsBar = screen.getByTestId("mobile-stats-bar");
+    expect(mobileStatsBar).toBeInTheDocument();
+    expect(mobileStatsBar.className).toContain("lg:hidden");
+    expect(mobileStatsBar.textContent).toContain("7");
   });
 
-  it("should render DailyGoal before LearningProgress", async () => {
+  it("should render DailyGoal before LearningProgress inside dashboard section", async () => {
     mockGetUnitsWithProgress.mockResolvedValueOnce({ units: [], activeLesson: { id: 1, title: "Greetings", unit: { description: "Basics" } }, activeLessonId: 1 });
 
     const LearnPage = (await import("./page")).default;
 
     const element = await LearnPage();
-    const { container } = render(element);
+    render(element);
 
-    const allText = container.textContent ?? "";
-    const dailyGoalIndex = allText.indexOf("DailyGoal");
-    const learningProgressIndex = allText.indexOf("LearningProgress");
+    const dashboard = screen.getByTestId("dashboard-section");
+    expect(dashboard).toBeInTheDocument();
+    const dashboardText = dashboard.textContent ?? "";
+    const dailyGoalIndex = dashboardText.indexOf("DailyGoal");
+    const learningProgressIndex = dashboardText.indexOf("LearningProgress");
 
     expect(dailyGoalIndex).toBeGreaterThan(-1);
     expect(learningProgressIndex).toBeGreaterThan(-1);

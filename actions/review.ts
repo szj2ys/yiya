@@ -7,6 +7,7 @@ import { State, fsrs } from "ts-fsrs";
 import db from "@/db/drizzle";
 import { reviewCards } from "@/db/schema";
 import { DAY_IN_MS } from "@/constants";
+import { invalidateDashboardCache } from "@/lib/learn-cache";
 
 const MAX_SESSION_SIZE = 20;
 
@@ -155,6 +156,8 @@ export const submitReview = async (cardId: number, rating: ReviewRating) => {
     })
     .where(eq(reviewCards.id, existing.id))
     .returning();
+
+  await invalidateDashboardCache(userId);
 
   return updated;
 };

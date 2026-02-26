@@ -13,6 +13,7 @@ import { computeWeeklyXp } from "@/lib/weekly-xp";
 import { DAY_IN_MS, MAX_HEARTS, XP_PER_CHALLENGE, ACTIVATION_LESSON_COUNT } from "@/constants";
 import { track } from "@/lib/analytics";
 import { getServerReferralData } from "@/lib/referral";
+import { invalidateDashboardCache } from "@/lib/learn-cache";
 import { cookies } from "next/headers";
 
 export const upsertChallengeProgress = async (
@@ -179,6 +180,8 @@ export const upsertChallengeProgress = async (
       ...referral,
     });
   }
+
+  await invalidateDashboardCache(userId);
 
   revalidatePath("/learn");
   revalidatePath("/lesson");
