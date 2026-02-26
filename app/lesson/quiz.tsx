@@ -25,7 +25,6 @@ const ShareCard = dynamic(() => import("@/components/share-card").then(m => ({ d
 import { Header } from "./header";
 import { Footer } from "./footer";
 import { Challenge } from "./challenge";
-import { ResultCard } from "./result-card";
 import { QuestionBubble } from "./question-bubble";
 
 type WrongAnswer = {
@@ -622,38 +621,17 @@ export const Quiz = ({
                 )}
               </>
             ) : (
-              <>
-                <div className="flex flex-col gap-y-2">
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Accuracy</p>
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-y-1">
                   <p className="text-xl font-semibold text-neutral-700 dark:text-neutral-200">
                     {correctCount}/{challenges.length} correct
                   </p>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                    {wrongAnswers.length} wrong • {challenges.length} total challenges
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                    +{challenges.length * 10} XP earned
                   </p>
                 </div>
-
-                <div className="flex flex-col gap-y-3">
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Stats</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4 text-center">
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400">Streak</p>
-                      <p className="text-lg font-semibold text-neutral-700 dark:text-neutral-200">
-                        {streak > 0 ? `\uD83D\uDD25 ${streak}` : "\u2014"}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-4 text-center">
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400">Hearts</p>
-                      <p className="text-lg font-semibold text-neutral-700 dark:text-neutral-200">{hearts}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-x-4 w-full">
-                    <ResultCard variant="points" value={challenges.length * 10} />
-                    <ResultCard variant="hearts" value={hearts} />
-                  </div>
-                </div>
-              </>
+                <div className="text-3xl font-bold text-emerald-600">{accuracyPercent}%</div>
+              </div>
             )}
 
             {/* 3. Review Queue Bridge */}
@@ -702,15 +680,6 @@ export const Quiz = ({
             )}
           </div>
 
-          {/* 4. All Lessons Complete celebration (inline, non-sticky) */}
-          {!isPractice && !nextLessonId && (
-            <div className="w-full rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center mb-5">
-              <p className="text-lg font-bold text-emerald-700">All lessons complete!</p>
-              <p className="text-sm text-emerald-600 mt-1">
-                You&apos;ve finished every lesson. Amazing dedication!
-              </p>
-            </div>
-          )}
         </div>
 
         {/* 5. Sticky bottom CTAs on mobile */}
