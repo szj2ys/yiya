@@ -49,6 +49,7 @@ export type AnalyticsEventMap = {
   landing_demo_interaction: BaseProperties & { correct: boolean; language: string };
   referral_reward_granted: BaseProperties & { referrer_id: string; referred_user_id: string; xp_reward: number };
   referral_invite_shared: BaseProperties & { user_id: string; method: string };
+  lesson_share: BaseProperties & { lesson_id: number; method: "native" | "clipboard"; accuracy: number };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;
