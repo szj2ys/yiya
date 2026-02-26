@@ -90,7 +90,7 @@ const LeaderboardPage = async () => {
           {leaderboard.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16">
               <p className="text-muted-foreground text-center text-base">
-                本周还没有人学习
+                No one has studied this week
               </p>
             </div>
           )}
@@ -157,7 +157,7 @@ const LeaderboardPage = async () => {
           {/* Graceful handling for fewer than 3 users */}
           {leaderboard.length > 0 && leaderboard.length < 3 && (
             <p className="text-muted-foreground text-center text-sm mb-4">
-              继续学习，冲上榜首！
+              Keep learning to reach the top!
             </p>
           )}
 
