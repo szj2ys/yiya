@@ -227,6 +227,16 @@ export const streakFreezes = pgTable("streak_freezes", {
   userDateUnique: uniqueIndex("streak_freezes_user_id_used_date_unique").on(t.userId, t.usedDate),
 }));
 
+export const streakMilestoneClaims = pgTable("streak_milestone_claims", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  milestoneDays: integer("milestone_days").notNull(),
+  xpRewarded: integer("xp_rewarded").notNull(),
+  claimedAt: timestamp("claimed_at").notNull().defaultNow(),
+}, (t) => ({
+  userMilestoneUnique: uniqueIndex("streak_milestone_claims_user_milestone_unique").on(t.userId, t.milestoneDays),
+}));
+
 export const pushSubscriptions = pgTable("push_subscriptions", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),

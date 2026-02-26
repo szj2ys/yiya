@@ -16,10 +16,12 @@ import {
   questClaims,
   reviewCards,
   streakFreezes,
+  streakMilestoneClaims,
   units,
   userProgress,
   userSubscription
 } from "@/db/schema";
+import { STREAK_MILESTONES } from "@/constants";
 
 type ReviewItem =
   | {
@@ -902,4 +904,36 @@ export const getStreakFreezeForDate = cache(async (date?: string) => {
   });
 
   return freeze ?? null;
+});
+
+export const getNextStreakMilestoneForUser = cache(async () => {
+  const userId = await getAuthUserId();
+  if (!userId) return null;
+
+  const progress = await db.query.userProgress.findFirst({
+    where: eq(userProgress.userId, userId),
+    columns: { streak: true },
+  });
+
+  const currentStreak = progress?.streak ?? 0;
+  if (currentStreak === 0) return null;
+
+  const claimed = await db
+    .select({ milestoneDays: streakMilestoneClaims.milestoneDays })
+    .from(streakMilestoneClaims)
+    .where(eq(streakMilestoneClaims.userId, userId));
+
+  const claimedSet = new Set(claimed.map((c) => c.milestoneDays));
+
+  const next = STREAK_MILESTONES.find(
+    (m) => !claimedSet.has(m.days) && m.days > currentStreak,
+  );
+
+  if (!next) return null;
+
+  return {
+    days: next.days,
+    xpReward: next.xpReward,
+    daysUntil: next.days - currentStreak,
+  };
 });

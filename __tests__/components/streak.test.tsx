@@ -43,4 +43,40 @@ describe("Streak", () => {
     expect(screen.getByText("Completed today")).toBeInTheDocument();
     expect(screen.queryByText("Protected today")).not.toBeInTheDocument();
   });
+
+  it("should show next milestone text when provided", () => {
+    render(
+      <Streak
+        streak={11}
+        lastLessonAt={null}
+        nextMilestone={{ days: 14, xpReward: 50, daysUntil: 3 }}
+      />,
+    );
+
+    expect(screen.getByTestId("next-milestone")).toHaveTextContent(
+      "3 days to 50 XP bonus",
+    );
+  });
+
+  it("should not show milestone text when null", () => {
+    render(
+      <Streak streak={5} lastLessonAt={null} nextMilestone={null} />,
+    );
+
+    expect(screen.queryByTestId("next-milestone")).not.toBeInTheDocument();
+  });
+
+  it("should show singular day when daysUntil is 1", () => {
+    render(
+      <Streak
+        streak={6}
+        lastLessonAt={null}
+        nextMilestone={{ days: 7, xpReward: 25, daysUntil: 1 }}
+      />,
+    );
+
+    expect(screen.getByTestId("next-milestone")).toHaveTextContent(
+      "1 day to 25 XP bonus",
+    );
+  });
 });

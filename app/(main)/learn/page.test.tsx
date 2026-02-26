@@ -52,6 +52,7 @@ vi.mock("@/db/queries", () => ({
   }),
   getClaimedDailyQuests: vi.fn().mockResolvedValue([]),
   getStreakFreezeForDate: vi.fn().mockResolvedValue(null),
+  getNextStreakMilestoneForUser: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock("@/actions/review", () => ({

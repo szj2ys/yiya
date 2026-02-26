@@ -18,6 +18,15 @@ export const DAILY_QUESTS = [
  */
 export const ACTIVATION_LESSON_COUNT = 1;
 
+export const STREAK_MILESTONES = [
+  { days: 3, xpReward: 10, label: "3-day streak" },
+  { days: 7, xpReward: 25, label: "1-week streak", grantsShield: true },
+  { days: 14, xpReward: 50, label: "2-week streak" },
+  { days: 30, xpReward: 100, label: "1-month streak" },
+  { days: 60, xpReward: 200, label: "2-month streak" },
+  { days: 100, xpReward: 500, label: "100-day streak" },
+] as const;
+
 export const quests = [
   {
     title: "Earn 20 XP",
