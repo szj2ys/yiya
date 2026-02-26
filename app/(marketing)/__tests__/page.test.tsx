@@ -5,6 +5,10 @@ import { render, screen } from "@testing-library/react";
 // Mock getGlobalStats before importing the page
 const mockGetGlobalStats = vi.fn();
 
+vi.mock("../sticky-cta", () => ({
+  StickyCta: () => null,
+}));
+
 vi.mock("@/db/queries", () => ({
   getGlobalStats: (...args: unknown[]) => mockGetGlobalStats(...args),
 }));

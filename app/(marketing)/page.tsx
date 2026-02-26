@@ -12,6 +12,7 @@ import { BookOpenCheck, Flame, Globe2, Loader, Sparkles, TrendingUp, Users } fro
 
 import { Button } from "@/components/ui/button";
 import { getGlobalStats } from "@/db/queries";
+import { StickyCta } from "./sticky-cta";
 
 const LANGUAGES = [
   { code: "en", name: "English", seoSlug: "english" },
@@ -93,6 +94,7 @@ export default async function Home() {
 
   return (
     <div className="w-full">
+      <div id="hero-sentinel" />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-green-50 via-white to-white" />
@@ -288,6 +290,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <StickyCta />
     </div>
   )
 }
