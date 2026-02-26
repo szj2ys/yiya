@@ -226,6 +226,17 @@ export const streakFreezes = pgTable("streak_freezes", {
   userDateUnique: uniqueIndex("streak_freezes_user_id_used_date_unique").on(t.userId, t.usedDate),
 }));
 
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  endpoint: text("endpoint").notNull(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  userEndpointUnique: uniqueIndex("push_subscriptions_user_endpoint_unique").on(t.userId, t.endpoint),
+}));
+
 export const dailyQuestClaims = pgTable("daily_quest_claims", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),
