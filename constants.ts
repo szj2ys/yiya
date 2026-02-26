@@ -27,6 +27,9 @@ export const STREAK_MILESTONES = [
   { days: 100, xpReward: 500, label: "100-day streak" },
 ] as const;
 
+export const REFERRAL_REWARD_XP = 100;
+export const REFERRAL_REWARD_HEARTS = 5;
+
 export const quests = [
   {
     title: "Earn 20 XP",
