@@ -32,6 +32,9 @@ export type AnalyticsEventMap = {
   checkout_complete: BaseProperties & { surface: string };
   explanation_view: BaseProperties & { challenge_id: number; cached: boolean };
   explanation_practice_click: BaseProperties & { challenge_id: number };
+  signup_completed: BaseProperties & { user_id: string };
+  first_lesson_started: BaseProperties & { user_id: string; lesson_id: number; course_id: number };
+  user_activated: BaseProperties & { user_id: string; lesson_count: number };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;

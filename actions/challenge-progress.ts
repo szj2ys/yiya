@@ -10,7 +10,8 @@ import { challengeProgress, challenges, lessonCompletions, userProgress } from "
 import { createReviewCard } from "@/actions/review";
 import { computeNextStreak, toLocalDateString } from "@/lib/streak";
 import { computeWeeklyXp } from "@/lib/weekly-xp";
-import { DAY_IN_MS, MAX_HEARTS, XP_PER_CHALLENGE } from "@/constants";
+import { DAY_IN_MS, MAX_HEARTS, XP_PER_CHALLENGE, ACTIVATION_LESSON_COUNT } from "@/constants";
+import { track } from "@/lib/analytics";
 
 export const upsertChallengeProgress = async (
   challengeId: number,
@@ -158,6 +159,19 @@ export const upsertChallengeProgress = async (
   });
 
   await createReviewCard(userId, challengeId, "correct");
+
+  // Fire user_activated event when user completes their first lesson
+  const [lessonCountResult] = await db
+    .select({ value: count() })
+    .from(lessonCompletions)
+    .where(eq(lessonCompletions.userId, userId));
+
+  if (lessonCountResult.value === ACTIVATION_LESSON_COUNT) {
+    track("user_activated", {
+      user_id: userId,
+      lesson_count: lessonCountResult.value,
+    });
+  }
 
   revalidatePath("/learn");
   revalidatePath("/lesson");

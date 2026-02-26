@@ -15,6 +15,7 @@ import {
 } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 import { createReviewCard } from "@/actions/review";
+import { track } from "@/lib/analytics";
 
 export const upsertUserProgress = async (
   courseId: number,
@@ -62,6 +63,8 @@ export const upsertUserProgress = async (
     userImageSrc: user.imageUrl || "/mascot.svg",
     ...(dailyGoal !== undefined && { dailyGoal }),
   });
+
+  track("signup_completed", { user_id: userId });
 
   const firstLessonId = course.units[0].lessons[0].id;
 
