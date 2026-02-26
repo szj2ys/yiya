@@ -13,7 +13,9 @@ import { BookOpenCheck, Flame, Globe2, Loader, Sparkles, TrendingUp, Users } fro
 import { Button } from "@/components/ui/button";
 import { InteractiveSample } from "@/components/seo/interactive-sample";
 import { getGlobalStats } from "@/db/queries";
-import { StickyCta } from "./sticky-cta";
+import dynamic from "next/dynamic";
+
+const StickyCta = dynamic(() => import("./sticky-cta").then(m => ({ default: m.StickyCta })), { ssr: false });
 
 const LANGUAGES = [
   { code: "en", name: "English", seoSlug: "english" },
@@ -179,6 +181,7 @@ export default async function Home() {
                 <Image
                   src="/hero.svg"
                   fill
+                  sizes="(max-width: 768px) 100vw, 420px"
                   alt="Yiya mascot"
                   className="object-contain p-6"
                   priority
