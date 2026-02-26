@@ -7,6 +7,7 @@ import { getUserProgress, getCourses } from "@/db/queries";
 import { SettingsForm } from "./settings-form";
 import { ThemeToggle } from "./theme-toggle";
 import { SoundToggle } from "./sound-toggle";
+import { EmailReminderToggle } from "./email-reminder-toggle";
 
 const SettingsPage = async () => {
   const userProgressData = getUserProgress();
@@ -47,6 +48,11 @@ const SettingsPage = async () => {
           </div>
           <div className="mt-10 w-full">
             <SoundToggle />
+          </div>
+          <div className="mt-10 w-full">
+            <EmailReminderToggle
+              defaultEnabled={userProgress.emailReminders ?? true}
+            />
           </div>
         </div>
       </FeedWrapper>

@@ -44,6 +44,7 @@
     "react-confetti": "^6.1.0",
     "react-dom": "^18",
     "react-use": "^17.5.0",
+    "resend": "^4.1.2",
     "sonner": "^1.4.3",
     "stripe": "^14.20.0",
     "tailwind-merge": "^2.2.1",
