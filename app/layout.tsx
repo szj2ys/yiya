@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { Nunito } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs'
 import { Toaster } from "@/components/ui/sonner";
-import { ExitModal } from "@/components/modals/exit-modal";
-import { HeartsModal } from "@/components/modals/hearts-modal";
-import { PracticeModal } from "@/components/modals/practice-modal";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { ServiceWorkerRegister } from "@/components/sw-register";
-import { InstallPrompt } from "@/components/install-prompt";
 import { Analytics } from '@vercel/analytics/react';
 import "./globals.css";
+
+const ExitModal = dynamic(() => import("@/components/modals/exit-modal").then(m => ({ default: m.ExitModal })), { ssr: false });
+const HeartsModal = dynamic(() => import("@/components/modals/hearts-modal").then(m => ({ default: m.HeartsModal })), { ssr: false });
+const PracticeModal = dynamic(() => import("@/components/modals/practice-modal").then(m => ({ default: m.PracticeModal })), { ssr: false });
+const InstallPrompt = dynamic(() => import("@/components/install-prompt").then(m => ({ default: m.InstallPrompt })), { ssr: false });
 
 const font = Nunito({ subsets: ["latin"] });
 
