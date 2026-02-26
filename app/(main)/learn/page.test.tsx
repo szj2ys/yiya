@@ -26,10 +26,10 @@ vi.mock("@/db/queries", () => ({
   getTodayLessonCount: vi.fn().mockResolvedValue(0),
   getCourseStats: vi.fn().mockResolvedValue({
     totalLessons: 10,
-    completedLessons: 0,
+    completedLessons: 5,
     totalChallenges: 50,
-    completedChallenges: 0,
-    wordsLearned: 0,
+    completedChallenges: 25,
+    wordsLearned: 25,
   }),
   getMemoryStrength: vi.fn().mockResolvedValue({
     total: 0,
