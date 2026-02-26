@@ -55,7 +55,7 @@ describe("LearnPage integration", () => {
 
   it("should fetch weekly activity data", () => {
     expect(pageSource).toContain("getWeeklyActivity");
-    expect(pageSource).toContain("weeklyActivityData");
+    expect(pageSource).toContain("weeklyActivity");
   });
 
   it("should pass todayLessonCount to DailyGoal instead of lastLessonAt", () => {
