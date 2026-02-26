@@ -58,6 +58,40 @@ export default function RootLayout({
               __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})();`,
             }}
           />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@graph": [
+                  {
+                    "@type": "Organization",
+                    name: "Yiya",
+                    url: BASE_URL,
+                    logo: `${BASE_URL}/icon-512.png`,
+                  },
+                  {
+                    "@type": "WebSite",
+                    name: "Yiya",
+                    url: BASE_URL,
+                  },
+                  {
+                    "@type": "SoftwareApplication",
+                    name: "Yiya",
+                    applicationCategory: "EducationalApplication",
+                    operatingSystem: "Web",
+                    offers: {
+                      "@type": "Offer",
+                      price: "0",
+                      priceCurrency: "USD",
+                    },
+                    description:
+                      "Interactive language learning app with spaced repetition, streaks, and AI-powered explanations for 6 languages.",
+                  },
+                ],
+              }),
+            }}
+          />
         </head>
         <body className={font.className}>
           <Toaster />
