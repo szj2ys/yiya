@@ -39,67 +39,75 @@ import { WeeklyActivity } from "./weekly-activity";
 import { DailyQuestsCard } from "./daily-quests-card";
 
 const LearnPage = async () => {
-  const userProgressData = getUserProgress();
-  const unitsWithProgressData = getUnitsWithProgress();
-  const lessonPercentageData = getLessonPercentage();
-  const userSubscriptionData = getUserSubscription();
-  const userStreakData = getUserStreak();
-  const todayReviewItemsData = getTodayReviewItems();
-  const reviewDueCountData = getReviewDueCount();
-  const weeklyActivityData = getWeeklyActivity();
-  const todayLessonCountData = getTodayLessonCount();
-  const courseStatsData = getCourseStats();
-  const memoryStrengthData = getMemoryStrength();
-  const learningStatsData = getLearningStats();
-  const dailyQuestProgressData = getDailyQuestProgress();
-  const claimedDailyQuestsData = getClaimedDailyQuests();
-  const todayFreezeData = getStreakFreezeForDate();
-
   const [
     userProgress,
     unitsWithProgress,
     lessonPercentage,
     userSubscription,
     userStreak,
-    todayReviewItems,
-    reviewDueCount,
-    weeklyActivity,
-    todayLessonCount,
     courseStats,
-    memoryStrength,
-    learningStats,
-    dailyQuestProgress,
-    claimedDailyQuests,
-    todayFreeze,
   ] = await Promise.all([
-    userProgressData,
-    unitsWithProgressData,
-    lessonPercentageData,
-    userSubscriptionData,
-    userStreakData,
-    todayReviewItemsData,
-    reviewDueCountData,
-    weeklyActivityData,
-    todayLessonCountData,
-    courseStatsData,
-    memoryStrengthData,
-    learningStatsData,
-    dailyQuestProgressData,
-    claimedDailyQuestsData,
-    todayFreezeData,
+    getUserProgress(),
+    getUnitsWithProgress(),
+    getLessonPercentage(),
+    getUserSubscription(),
+    getUserStreak(),
+    getCourseStats(),
   ]);
-
-  const { units, activeLesson, activeLessonId } = unitsWithProgress;
-  const courseProgress = { activeLesson, activeLessonId };
 
   if (!userProgress || !userProgress.activeCourse) {
     redirect("/onboarding");
   }
 
+  const { units, activeLesson, activeLessonId } = unitsWithProgress;
+  const courseProgress = { activeLesson, activeLessonId };
   const isPro = !!userSubscription?.isActive;
   const shouldShowStartCta = !courseProgress.activeLesson;
-  const hasFreezeToday = !!todayFreeze;
   const isNewUser = (courseStats?.completedLessons ?? 0) < 3;
+
+  let todayReviewItems: Awaited<ReturnType<typeof getTodayReviewItems>> = [];
+  let reviewDueCount = 0;
+  let weeklyActivity: Awaited<ReturnType<typeof getWeeklyActivity>> = [];
+  let todayLessonCount = 0;
+  let memoryStrength: Awaited<ReturnType<typeof getMemoryStrength>> = { total: 0, mastered: 0, strong: 0, weak: 0, newCount: 0 };
+  let learningStats: Awaited<ReturnType<typeof getLearningStats>> = null;
+  let dailyQuestProgress: Awaited<ReturnType<typeof getDailyQuestProgress>> = { complete_lesson: false, hit_daily_goal: false, practice_review: false };
+  let claimedDailyQuests: Awaited<ReturnType<typeof getClaimedDailyQuests>> = [];
+  let hasFreezeToday = false;
+
+  if (!isNewUser) {
+    const [
+      _todayReviewItems,
+      _reviewDueCount,
+      _weeklyActivity,
+      _todayLessonCount,
+      _memoryStrength,
+      _learningStats,
+      _dailyQuestProgress,
+      _claimedDailyQuests,
+      _todayFreeze,
+    ] = await Promise.all([
+      getTodayReviewItems(),
+      getReviewDueCount(),
+      getWeeklyActivity(),
+      getTodayLessonCount(),
+      getMemoryStrength(),
+      getLearningStats(),
+      getDailyQuestProgress(),
+      getClaimedDailyQuests(),
+      getStreakFreezeForDate(),
+    ]);
+
+    todayReviewItems = _todayReviewItems;
+    reviewDueCount = _reviewDueCount;
+    weeklyActivity = _weeklyActivity;
+    todayLessonCount = _todayLessonCount;
+    memoryStrength = _memoryStrength;
+    learningStats = _learningStats;
+    dailyQuestProgress = _dailyQuestProgress;
+    claimedDailyQuests = _claimedDailyQuests;
+    hasFreezeToday = !!_todayFreeze;
+  }
 
   const dailyQuests = DAILY_QUESTS.map((quest) => ({
     id: quest.id,
@@ -119,44 +127,49 @@ const LearnPage = async () => {
           points={userProgress.points}
           hasActiveSubscription={isPro}
         />
-        <Streak
-          streak={userStreak?.streak ?? 0}
-          lastLessonAt={userStreak?.lastLessonAt ?? null}
-          freezeActive={hasFreezeToday}
-        />
-        <Quests points={userProgress.points} />
-      </StickyWrapper>
-      <FeedWrapper>
-        <Header title={userProgress.activeCourse.title} />
-
-        {/* Mobile-only streak + stats bar */}
-        <div className="lg:hidden mb-4" data-testid="mobile-streak">
+        {!isNewUser && (
           <Streak
             streak={userStreak?.streak ?? 0}
             lastLessonAt={userStreak?.lastLessonAt ?? null}
             freezeActive={hasFreezeToday}
           />
-        </div>
+        )}
+        {!isNewUser && <Quests points={userProgress.points} />}
+      </StickyWrapper>
+      <FeedWrapper>
+        <Header title={userProgress.activeCourse.title} />
 
-        <div className="lg:hidden mb-4 flex items-center gap-x-4" data-testid="mobile-stats-bar">
-          <div className="flex items-center gap-x-1 text-sm text-neutral-600">
-            <Heart className="h-4 w-4 text-rose-500" />
-            {isPro ? (
-              <InfinityIcon className="h-4 w-4 stroke-[3] text-rose-500" />
-            ) : (
-              <span>{userProgress.hearts}</span>
-            )}
-          </div>
-          <div className="flex items-center gap-x-1 text-sm text-neutral-600">
-            <Flame className="h-4 w-4 text-orange-500" />
-            <span>{userProgress.points} XP</span>
-          </div>
-          {isPro && (
-            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
-              Pro
-            </span>
-          )}
-        </div>
+        {!isNewUser && (
+          <>
+            <div className="lg:hidden mb-4" data-testid="mobile-streak">
+              <Streak
+                streak={userStreak?.streak ?? 0}
+                lastLessonAt={userStreak?.lastLessonAt ?? null}
+                freezeActive={hasFreezeToday}
+              />
+            </div>
+
+            <div className="lg:hidden mb-4 flex items-center gap-x-4" data-testid="mobile-stats-bar">
+              <div className="flex items-center gap-x-1 text-sm text-neutral-600">
+                <Heart className="h-4 w-4 text-rose-500" />
+                {isPro ? (
+                  <InfinityIcon className="h-4 w-4 stroke-[3] text-rose-500" />
+                ) : (
+                  <span>{userProgress.hearts}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-x-1 text-sm text-neutral-600">
+                <Flame className="h-4 w-4 text-orange-500" />
+                <span>{userProgress.points} XP</span>
+              </div>
+              {isPro && (
+                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+                  Pro
+                </span>
+              )}
+            </div>
+          </>
+        )}
 
         {!isNewUser && (
           <StreakRiskBanner
@@ -180,7 +193,7 @@ const LearnPage = async () => {
               Ready for your first lesson?
             </h2>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              Your first lesson takes about 2 minutes. Let's go!
+              Your first lesson takes about 2 minutes. Let&apos;s go!
             </p>
             <StartFirstLesson
               primaryCta={
