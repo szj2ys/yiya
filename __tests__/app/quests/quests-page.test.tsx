@@ -8,13 +8,7 @@ describe("QuestsPage", () => {
     "utf-8",
   );
 
-  it("should not render Promo on quests page", () => {
-    expect(pageSource).not.toContain("<Promo");
-    expect(pageSource).not.toContain("@/components/promo");
-  });
-
-  it("should keep StickyWrapper sidebar with UserProgress", () => {
-    expect(pageSource).toContain("<StickyWrapper");
-    expect(pageSource).toContain("<UserProgress");
+  it("should redirect to /learn", () => {
+    expect(pageSource).toContain('redirect("/learn")');
   });
 });
