@@ -144,7 +144,7 @@ export const OnboardingFlow = ({ courses }: Props) => {
 
     const referral = getReferralData();
     startTransition(() => {
-      upsertUserProgress(selectedCourseId, selectedGoal ?? 1, referral)
+      upsertUserProgress(selectedCourseId, selectedGoal ?? 1, referral, new Date().getTimezoneOffset())
         .then(() => clearReferralData())
         .catch(() => {
           toast.error("Something went wrong. Please try again.");

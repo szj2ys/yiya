@@ -10,13 +10,14 @@ import {
 } from "@/lib/email/templates/streak-reminder";
 
 const MAX_EMAILS_PER_RUN = 100;
+const TARGET_LOCAL_HOUR = 20;
 
-/**
- * Cron-triggered endpoint: sends streak reminder emails to users
- * who have an active streak but haven't completed a lesson today.
- *
- * Protected by CRON_SECRET header.
- */
+function isLocalEveningForUser(utcHour: number, timezoneOffset: number | null): boolean {
+  if (timezoneOffset === null) return false;
+  const localHour = (utcHour - timezoneOffset / 60 + 24) % 24;
+  return Math.floor(localHour) === TARGET_LOCAL_HOUR;
+}
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
@@ -27,17 +28,17 @@ export async function GET(request: Request) {
 
   try {
     const now = new Date();
+    const utcHour = now.getUTCHours();
     const startOfToday = new Date(now);
     startOfToday.setUTCHours(0, 0, 0, 0);
 
     const todayDateStr = now.toISOString().slice(0, 10);
 
-    // Find users with active streaks who haven't completed a lesson today
-    // and who have email reminders enabled
     const atRiskUsers = await db
       .select({
         userId: userProgress.userId,
         streak: userProgress.streak,
+        timezoneOffset: userProgress.timezoneOffset,
       })
       .from(userProgress)
       .where(
@@ -48,10 +49,13 @@ export async function GET(request: Request) {
           lt(userProgress.lastLessonAt, startOfToday),
         ),
       )
-      .limit(MAX_EMAILS_PER_RUN);
+      .limit(MAX_EMAILS_PER_RUN * 2);
 
-    // Filter out users with active streak freezes for today
-    const freezes = atRiskUsers.length > 0
+    const eveningUsers = atRiskUsers.filter((u) =>
+      isLocalEveningForUser(utcHour, u.timezoneOffset),
+    );
+
+    const freezes = eveningUsers.length > 0
       ? await db
           .select({ userId: streakFreezes.userId })
           .from(streakFreezes)
@@ -59,13 +63,13 @@ export async function GET(request: Request) {
       : [];
 
     const frozenUserIds = new Set(freezes.map((f) => f.userId));
-    const eligibleUsers = atRiskUsers.filter((u) => !frozenUserIds.has(u.userId));
+    const eligibleUsers = eveningUsers
+      .filter((u) => !frozenUserIds.has(u.userId))
+      .slice(0, MAX_EMAILS_PER_RUN);
 
-    // Fetch emails from Clerk and send reminders
     let sent = 0;
     let failed = 0;
 
-    // Dynamic import to avoid issues in environments where Clerk is not configured
     const { clerkClient } = await import("@clerk/nextjs");
 
     for (const user of eligibleUsers) {
@@ -93,7 +97,9 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({
+      utcHour,
       atRisk: atRiskUsers.length,
+      eveningMatch: eveningUsers.length,
       frozen: frozenUserIds.size,
       eligible: eligibleUsers.length,
       sent,

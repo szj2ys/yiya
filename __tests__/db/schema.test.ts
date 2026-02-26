@@ -32,4 +32,13 @@ describe("userProgress schema", () => {
     expect(weeklyXpResetAtCol.name).toBe("weekly_xp_reset_at");
     expect(weeklyXpResetAtCol.notNull).toBe(false);
   });
+
+  it("should have timezoneOffset integer column that is nullable", () => {
+    const columns = userProgress as Record<string, any>;
+    const timezoneOffsetCol = columns.timezoneOffset;
+
+    expect(timezoneOffsetCol).toBeDefined();
+    expect(timezoneOffsetCol.name).toBe("timezone_offset");
+    expect(timezoneOffsetCol.notNull).toBe(false);
+  });
 });

@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// --- Mocks setup ---
 const selectMock = vi.fn();
 const fromMock = vi.fn();
 const whereMock = vi.fn();
@@ -13,7 +12,6 @@ const dbChain = {
   limit: limitMock,
 };
 
-// Each chained method returns the chain
 selectMock.mockReturnValue(dbChain);
 fromMock.mockReturnValue(dbChain);
 whereMock.mockReturnValue(dbChain);
@@ -27,6 +25,7 @@ vi.mock("@/db/schema", () => ({
     emailReminders: "emailReminders",
     lastLessonAt: "lastLessonAt",
     userId: "userId",
+    timezoneOffset: "timezoneOffset",
   },
   streakFreezes: {
     userId: "userId",
@@ -63,7 +62,6 @@ vi.mock("drizzle-orm", () => ({
 describe("GET /api/cron/streak-reminder", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Re-setup chain returns after clearAllMocks
     selectMock.mockReturnValue(dbChain);
     fromMock.mockReturnValue(dbChain);
     process.env.CRON_SECRET = "test-secret";
@@ -85,15 +83,16 @@ describe("GET /api/cron/streak-reminder", () => {
     expect(response.status).toBe(401);
   });
 
-  it("should send emails only to users at risk of losing streak", async () => {
-    // First chain: user query
+  it("should send emails to users whose local time is evening", async () => {
+    const utcHour = new Date().getUTCHours();
+    const offsetForEvening = (utcHour - 20) * 60;
+
     whereMock.mockReturnValueOnce(dbChain);
     limitMock.mockResolvedValueOnce([
-      { userId: "user_1", streak: 5 },
-      { userId: "user_2", streak: 10 },
+      { userId: "user_1", streak: 5, timezoneOffset: offsetForEvening },
+      { userId: "user_2", streak: 10, timezoneOffset: offsetForEvening },
     ]);
 
-    // Second chain: freeze query (no freezes)
     whereMock.mockResolvedValueOnce([]);
 
     clerkGetUserMock.mockResolvedValue({
@@ -110,19 +109,56 @@ describe("GET /api/cron/streak-reminder", () => {
 
     expect(response.status).toBe(200);
     expect(data.atRisk).toBe(2);
-    expect(data.eligible).toBe(2);
     expect(data.sent).toBe(2);
     expect(sendEmailMock).toHaveBeenCalledTimes(2);
   });
 
-  it("should skip users with streak freeze", async () => {
+  it("should skip users whose local time is not evening", async () => {
     whereMock.mockReturnValueOnce(dbChain);
     limitMock.mockResolvedValueOnce([
-      { userId: "user_1", streak: 5 },
-      { userId: "user_2", streak: 10 },
+      { userId: "user_1", streak: 5, timezoneOffset: 999 },
     ]);
 
-    // user_1 has a streak freeze
+    const { GET } = await import("@/app/api/cron/streak-reminder/route");
+    const request = new Request("http://localhost/api/cron/streak-reminder", {
+      headers: { authorization: "Bearer test-secret" },
+    });
+    const response = await GET(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.eveningMatch).toBe(0);
+    expect(data.sent).toBe(0);
+  });
+
+  it("should skip users with unknown timezone", async () => {
+    whereMock.mockReturnValueOnce(dbChain);
+    limitMock.mockResolvedValueOnce([
+      { userId: "user_1", streak: 5, timezoneOffset: null },
+    ]);
+
+    const { GET } = await import("@/app/api/cron/streak-reminder/route");
+    const request = new Request("http://localhost/api/cron/streak-reminder", {
+      headers: { authorization: "Bearer test-secret" },
+    });
+    const response = await GET(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.eveningMatch).toBe(0);
+    expect(data.sent).toBe(0);
+  });
+
+  it("should skip users with streak freeze", async () => {
+    const utcHour = new Date().getUTCHours();
+    const offsetForEvening = (utcHour - 20) * 60;
+
+    whereMock.mockReturnValueOnce(dbChain);
+    limitMock.mockResolvedValueOnce([
+      { userId: "user_1", streak: 5, timezoneOffset: offsetForEvening },
+      { userId: "user_2", streak: 10, timezoneOffset: offsetForEvening },
+    ]);
+
     whereMock.mockResolvedValueOnce([{ userId: "user_1" }]);
 
     clerkGetUserMock.mockResolvedValue({
@@ -143,8 +179,7 @@ describe("GET /api/cron/streak-reminder", () => {
     expect(data.sent).toBe(1);
   });
 
-  it("should not send email when user has opted out", async () => {
-    // DB query filters out opted-out users, so 0 results
+  it("should not send email when no users are at risk", async () => {
     whereMock.mockReturnValueOnce(dbChain);
     limitMock.mockResolvedValueOnce([]);
 

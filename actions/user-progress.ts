@@ -22,6 +22,7 @@ export const upsertUserProgress = async (
   courseId: number,
   dailyGoal?: number,
   referral?: ReferralData,
+  timezoneOffset?: number,
 ) => {
   const userId = await getAuthUserId();
   const user = await currentUser();
@@ -50,6 +51,7 @@ export const upsertUserProgress = async (
         userName: user.firstName || "User",
         userImageSrc: user.imageUrl || "/mascot.svg",
         ...(dailyGoal !== undefined && { dailyGoal }),
+        ...(timezoneOffset !== undefined && { timezoneOffset }),
       })
       .where(eq(userProgress.userId, userId));
 
@@ -64,6 +66,7 @@ export const upsertUserProgress = async (
     userName: user.firstName || "User",
     userImageSrc: user.imageUrl || "/mascot.svg",
     ...(dailyGoal !== undefined && { dailyGoal }),
+    ...(timezoneOffset !== undefined && { timezoneOffset }),
   });
 
   track("signup_completed", { user_id: userId, ...referral });
