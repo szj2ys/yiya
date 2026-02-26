@@ -68,6 +68,12 @@ export const upsertUserProgress = async (
 
   const firstLessonId = course.units[0].lessons[0].id;
 
+  track("first_lesson_started", {
+    user_id: userId,
+    lesson_id: firstLessonId,
+    course_id: courseId,
+  });
+
   revalidatePath("/courses");
   revalidatePath("/learn");
   redirect(`/lesson/${firstLessonId}`);
