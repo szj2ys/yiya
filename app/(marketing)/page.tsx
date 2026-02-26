@@ -11,6 +11,7 @@ import {
 import { BookOpenCheck, Flame, Globe2, Loader, Sparkles, TrendingUp, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { InteractiveSample } from "@/components/seo/interactive-sample";
 import { getGlobalStats } from "@/db/queries";
 import { StickyCta } from "./sticky-cta";
 
@@ -216,6 +217,23 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      {/* Try a Quick Quiz */}
+      <section className="w-full bg-neutral-50">
+        <div className="mx-auto w-full max-w-screen-lg px-4 py-12">
+          <div className="flex flex-col items-center text-center">
+            <h2 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+              Try a quick quiz
+            </h2>
+            <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-neutral-600 sm:text-base">
+              See what learning with Yiya feels like. No signup required.
+            </p>
+          </div>
+          <div className="mx-auto mt-8 max-w-md">
+            <InteractiveSample languageName="Spanish" />
+          </div>
+        </div>
+      </section>
 
       {/* Features / Stats */}
       <section className="w-full border-y border-black/5 bg-white">
