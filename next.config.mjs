@@ -6,6 +6,9 @@ const nextConfig = {
     // Required for instrumentation.ts in Next.js 14 (stable in 15+)
     instrumentationHook: true,
   },
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
   async redirects() {
     return [
       {
@@ -55,6 +58,14 @@ const nextConfig = {
             key: "Access-Control-Allow-Headers",
             value: "Content-Type, Authorization",
           },
+        ],
+      },
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "DENY" },
         ],
       },
     ];
