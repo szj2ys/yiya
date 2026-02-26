@@ -45,7 +45,7 @@ export function ChallengeResults({ challenge, result }: Props) {
         challenge_id: challenge.id,
       }),
     ).catch(() => undefined);
-    window.location.href = "/";
+    window.location.href = `/?ref=challenge&challenge_id=${challenge.id}`;
   }, [challenge.id]);
 
   const handleShare = useCallback(async () => {
@@ -200,18 +200,43 @@ export function ChallengeResults({ challenge, result }: Props) {
               Download Score Card
             </button>
 
+          </div>
+
+          <div
+            className="w-full rounded-3xl bg-gradient-to-b from-emerald-50 to-white border border-emerald-200 p-6 mb-4"
+            data-testid="signup-cta-card"
+          >
+            <h2 className="text-xl font-extrabold text-neutral-800 text-center mb-2">
+              Start learning {challenge.language} for free
+            </h2>
+            <p className="text-sm text-neutral-500 text-center mb-4">
+              Interactive lessons, streaks, leaderboards, and AI-powered feedback
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 mb-5 text-xs text-neutral-600">
+              <span className="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 ring-1 ring-black/5">
+                Daily streaks
+              </span>
+              <span className="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 ring-1 ring-black/5">
+                Spaced repetition
+              </span>
+              <span className="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 ring-1 ring-black/5">
+                Leaderboard
+              </span>
+              <span className="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 ring-1 ring-black/5">
+                AI explanations
+              </span>
+            </div>
             <button
               type="button"
               onClick={handleSignupClick}
               className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold text-lg hover:bg-emerald-700 active:bg-emerald-800 transition"
               data-testid="challenge-signup-btn"
             >
-              Want to keep learning? Sign up free
+              Sign up free — takes 30 seconds
             </button>
           </div>
         </div>
 
-        {/* Footer branding */}
         <div className="text-center py-6">
           <p className="text-sm text-neutral-400">
             Powered by <span className="font-semibold text-emerald-600">Yiya</span>
