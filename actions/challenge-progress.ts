@@ -12,6 +12,8 @@ import { computeNextStreak, toLocalDateString } from "@/lib/streak";
 import { computeWeeklyXp } from "@/lib/weekly-xp";
 import { DAY_IN_MS, MAX_HEARTS, XP_PER_CHALLENGE, ACTIVATION_LESSON_COUNT } from "@/constants";
 import { track } from "@/lib/analytics";
+import { getServerReferralData } from "@/lib/referral";
+import { cookies } from "next/headers";
 
 export const upsertChallengeProgress = async (
   challengeId: number,
@@ -167,9 +169,13 @@ export const upsertChallengeProgress = async (
     .where(eq(lessonCompletions.userId, userId));
 
   if (lessonCountResult.value === ACTIVATION_LESSON_COUNT) {
+    const cookieStore = cookies();
+    const refCookie = cookieStore.get("yiya_ref")?.value;
+    const referral = getServerReferralData(refCookie);
     track("user_activated", {
       user_id: userId,
       lesson_count: lessonCountResult.value,
+      ...referral,
     });
   }
 

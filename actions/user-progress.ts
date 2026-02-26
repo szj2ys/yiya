@@ -16,10 +16,12 @@ import {
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 import { createReviewCard } from "@/actions/review";
 import { track } from "@/lib/analytics";
+import type { ReferralData } from "@/lib/referral";
 
 export const upsertUserProgress = async (
   courseId: number,
   dailyGoal?: number,
+  referral?: ReferralData,
 ) => {
   const userId = await getAuthUserId();
   const user = await currentUser();
@@ -64,7 +66,7 @@ export const upsertUserProgress = async (
     ...(dailyGoal !== undefined && { dailyGoal }),
   });
 
-  track("signup_completed", { user_id: userId });
+  track("signup_completed", { user_id: userId, ...referral });
 
   const firstLessonId = course.units[0].lessons[0].id;
 

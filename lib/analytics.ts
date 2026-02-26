@@ -33,9 +33,9 @@ export type AnalyticsEventMap = {
   checkout_complete: BaseProperties & { surface: string };
   explanation_view: BaseProperties & { challenge_id: number; cached: boolean };
   explanation_practice_click: BaseProperties & { challenge_id: number };
-  signup_completed: BaseProperties & { user_id: string };
+  signup_completed: BaseProperties & { user_id: string; ref_source?: string; ref_id?: string; utm_source?: string; utm_medium?: string; utm_campaign?: string };
   first_lesson_started: BaseProperties & { user_id: string; lesson_id: number; course_id: number };
-  user_activated: BaseProperties & { user_id: string; lesson_count: number };
+  user_activated: BaseProperties & { user_id: string; lesson_count: number; ref_source?: string; ref_id?: string; utm_source?: string; utm_medium?: string; utm_campaign?: string };
   pwa_install_prompt_shown: BaseProperties;
   pwa_installed: BaseProperties;
   push_subscribed: BaseProperties;

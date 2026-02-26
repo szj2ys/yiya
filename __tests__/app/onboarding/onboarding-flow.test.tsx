@@ -52,7 +52,7 @@ describe("OnboardingFlow", () => {
     fireEvent.click(screen.getByText("Start Learning"));
 
     await waitFor(() => {
-      expect(mockUpsert).toHaveBeenCalledWith(1, 3);
+      expect(mockUpsert).toHaveBeenCalledWith(1, 3, expect.any(Object));
     });
   });
 
@@ -73,7 +73,7 @@ describe("OnboardingFlow", () => {
     fireEvent.click(screen.getByText("Start Learning"));
 
     await waitFor(() => {
-      expect(mockUpsert).toHaveBeenCalledWith(1, 1);
+      expect(mockUpsert).toHaveBeenCalledWith(1, 1, expect.any(Object));
     });
   });
 });

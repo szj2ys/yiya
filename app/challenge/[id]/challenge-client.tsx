@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import type { ChallengePublic, ChallengeResult } from "@/lib/challenge";
+import { syncReferralCookie } from "@/lib/referral";
 
 import { ChallengeQuiz } from "./quiz";
 import { ChallengeResults } from "./results";
@@ -21,6 +22,11 @@ export function ChallengeClient({ challengeId }: Props) {
   const [state, setState] = useState<State>({ phase: "loading" });
 
   useEffect(() => {
+    try {
+      localStorage.setItem("yiya_ref_challenge", challengeId);
+      syncReferralCookie();
+    } catch {}
+
     fetch(`/api/challenge/${challengeId}`)
       .then(async (res) => {
         if (!res.ok) {
