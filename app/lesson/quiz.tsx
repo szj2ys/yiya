@@ -4,9 +4,10 @@ import { toast } from "sonner";
 import Image from "next/image";
 import Confetti from "react-confetti";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { useAudio, useWindowSize, useMount } from "react-use";
 import dynamic from "next/dynamic";
+import { Share2 } from "lucide-react";
 
 import { reduceHearts } from "@/actions/user-progress";
 import { speak } from "@/lib/tts";
@@ -137,8 +138,38 @@ export const Quiz = ({
   const [explanationData, setExplanationData] = useState<ExplanationResult | null>(null);
   const [showShareCard, setShowShareCard] = useState(false);
   const [challengeCreating, setChallengeCreating] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
 
   const isPractice = initialPercentage === 100;
+
+  const handleShare = useCallback(async () => {
+    const accuracy = challenges.length > 0 ? Math.round((correctCount / challenges.length) * 100) : 0;
+    const shareText = `I just scored ${accuracy}% on a ${courseLanguage} lesson on Yiya! ${streak > 1 ? `${streak}-day streak!` : ""}`;
+    const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://yiya.app";
+
+    let method: "native" | "clipboard" = "clipboard";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: "Yiya", text: shareText, url: shareUrl });
+        method = "native";
+        setShareSuccess(true);
+        setTimeout(() => setShareSuccess(false), 2000);
+        trackPayload(buildTrackPayload("lesson_share", { lesson_id: lessonId, method, accuracy })).catch(() => undefined);
+        return;
+      } catch {
+        // User cancelled or API unavailable, fall through to clipboard
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+      toast.success("Copied to clipboard!");
+      setShareSuccess(true);
+      setTimeout(() => setShareSuccess(false), 2000);
+      trackPayload(buildTrackPayload("lesson_share", { lesson_id: lessonId, method, accuracy })).catch(() => undefined);
+    } catch {
+      toast.error("Could not copy to clipboard.");
+    }
+  }, [challenges.length, correctCount, courseLanguage, streak, lessonId]);
 
   const submitReviewIfNeeded = async (params: { correct: boolean }) => {
     if (!isPractice) return;
@@ -766,6 +797,15 @@ export const Quiz = ({
                     Back to Learn
                   </button>
                 )}
+
+                <button
+                  type="button"
+                  className="w-full h-12 rounded-2xl bg-white dark:bg-neutral-800 border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 font-semibold hover:bg-emerald-50 dark:hover:bg-neutral-700 active:bg-emerald-100 dark:active:bg-neutral-600 transition flex items-center justify-center gap-x-2"
+                  onClick={handleShare}
+                >
+                  <Share2 className="h-4 w-4" />
+                  {shareSuccess ? "Shared!" : "Share Result"}
+                </button>
 
                 <button
                   type="button"
