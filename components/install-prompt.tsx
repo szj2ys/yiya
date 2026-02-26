@@ -23,6 +23,9 @@ export function InstallPrompt() {
     // Don't show if previously dismissed
     if (localStorage.getItem(INSTALL_DISMISSED_KEY)) return;
 
+    // Don't show until user has completed at least one lesson
+    if (!localStorage.getItem("yiya_first_lesson_completed")) return;
+
     // Track session count
     const count = parseInt(localStorage.getItem(SESSION_COUNT_KEY) ?? "0", 10) + 1;
     localStorage.setItem(SESSION_COUNT_KEY, String(count));
