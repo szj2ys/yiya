@@ -8,14 +8,65 @@ import {
   SignInButton,
   SignUpButton,
 } from "@clerk/nextjs";
-import { BookOpenCheck, Flame, Globe2, Loader, Sparkles, TrendingUp, Users } from "lucide-react";
+import { BookOpenCheck, ChevronDown, Flame, Globe2, Loader, MessageSquareQuote, Sparkles, TrendingUp, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FAQSchema } from "@/components/seo/faq-schema";
 import { InteractiveSample } from "@/components/seo/interactive-sample";
 import { getGlobalStats } from "@/db/queries";
 import dynamic from "next/dynamic";
 
 const StickyCta = dynamic(() => import("./sticky-cta").then(m => ({ default: m.StickyCta })), { ssr: false });
+
+const TESTIMONIALS = [
+  {
+    name: "Maria S.",
+    language: "Spanish",
+    quote: "I tried so many apps before Yiya. The spaced repetition actually works — I remember words weeks later without cramming.",
+  },
+  {
+    name: "Kenji T.",
+    language: "English",
+    quote: "The streak system keeps me coming back every day. I have done 45 days straight and my reading comprehension has improved a lot.",
+  },
+  {
+    name: "Sarah L.",
+    language: "French",
+    quote: "I love that lessons are only 5 minutes. I do one on my commute every morning and I am already having basic conversations.",
+  },
+  {
+    name: "Wei C.",
+    language: "Japanese",
+    quote: "The AI explanations when I get something wrong are incredibly helpful. It is like having a tutor who never gets frustrated.",
+  },
+] as const;
+
+const LANDING_FAQS = [
+  {
+    question: "Is Yiya really free?",
+    answer: "Yes! You can start learning immediately with no credit card required. The free tier includes full access to all lessons with a hearts system. Pro users get unlimited hearts for uninterrupted learning.",
+  },
+  {
+    question: "What languages can I learn?",
+    answer: "Yiya currently offers English, Chinese, Spanish, French, Italian, and Japanese. Each language includes structured lessons from beginner to intermediate level.",
+  },
+  {
+    question: "How long does each lesson take?",
+    answer: "Each lesson takes about 3 to 5 minutes. Yiya is designed for daily bite-sized practice — consistency beats marathon study sessions.",
+  },
+  {
+    question: "What is spaced repetition?",
+    answer: "Spaced repetition is a scientifically proven method that schedules reviews right before you are about to forget. Yiya uses the FSRS algorithm to optimize your review timing for maximum retention.",
+  },
+  {
+    question: "Can I use Yiya on my phone?",
+    answer: "Absolutely. Yiya is a progressive web app that works beautifully on mobile browsers. You can even install it to your home screen for a native app-like experience.",
+  },
+  {
+    question: "How is Yiya different from other language apps?",
+    answer: "Yiya combines AI-powered explanations with scientifically-backed spaced repetition. When you make a mistake, AI explains why — so you learn from errors instead of just memorizing. Plus, three challenge types keep practice varied and engaging.",
+  },
+] as const;
 
 const LANGUAGES = [
   { code: "en", name: "English", seoSlug: "english" },
@@ -221,6 +272,42 @@ export default async function Home() {
         </section>
       )}
 
+      {/* Testimonials */}
+      <section className="w-full bg-neutral-50">
+        <div className="mx-auto w-full max-w-screen-lg px-4 py-12">
+          <div className="flex flex-col items-center text-center">
+            <h2 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+              What learners are saying
+            </h2>
+            <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-neutral-600 sm:text-base">
+              Join thousands of learners building real language skills every day.
+            </p>
+          </div>
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {TESTIMONIALS.map((t) => (
+              <div
+                key={t.name}
+                className="rounded-2xl bg-white p-5 ring-1 ring-black/5"
+              >
+                <MessageSquareQuote className="h-5 w-5 text-green-600 mb-3" />
+                <p className="text-sm leading-relaxed text-neutral-700">
+                  {t.quote}
+                </p>
+                <div className="mt-4 flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-sm font-bold text-green-700">
+                    {t.name[0]}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-neutral-900">{t.name}</p>
+                    <p className="text-xs text-neutral-500">Learning {t.language}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Try a Quick Quiz */}
       <section className="w-full bg-neutral-50">
         <div className="mx-auto w-full max-w-screen-lg px-4 py-12">
@@ -258,6 +345,32 @@ export default async function Home() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <FAQSchema faqs={[...LANDING_FAQS]} />
+      <section className="w-full bg-white">
+        <div className="mx-auto w-full max-w-screen-lg px-4 py-12">
+          <div className="flex flex-col items-center text-center">
+            <h2 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+              Frequently asked questions
+            </h2>
+            <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-neutral-600 sm:text-base">
+              Everything you need to know about learning with Yiya.
+            </p>
+          </div>
+          <div className="mx-auto mt-8 max-w-2xl flex flex-col gap-4">
+            {LANDING_FAQS.map((faq) => (
+              <div
+                key={faq.question}
+                className="rounded-2xl bg-neutral-50 p-5 ring-1 ring-black/5"
+              >
+                <h3 className="text-base font-bold text-neutral-900">{faq.question}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-neutral-600">{faq.answer}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
