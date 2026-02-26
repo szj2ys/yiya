@@ -35,7 +35,7 @@ const LeaderboardPage = async () => {
   ]);
 
   if (!userProgress || !userProgress.activeCourse) {
-    redirect("/courses");
+    redirect("/onboarding");
   }
 
   const isPro = !!userSubscription?.isActive;

@@ -121,7 +121,7 @@ describe("Quiz course complete card", () => {
     expect(pushSpy).toHaveBeenCalledWith("/practice");
   });
 
-  it("should navigate to /courses when Try Another Language is clicked", () => {
+  it("should navigate to /onboarding when Try Another Language is clicked", () => {
     render(
       <Quiz
         initialPercentage={0}
@@ -139,7 +139,7 @@ describe("Quiz course complete card", () => {
     fireEvent.click(
       screen.getByRole("button", { name: "Try Another Language" }),
     );
-    expect(pushSpy).toHaveBeenCalledWith("/courses");
+    expect(pushSpy).toHaveBeenCalledWith("/onboarding");
   });
 
   it("should not show course complete card when isCourseComplete is false", () => {

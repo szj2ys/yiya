@@ -49,7 +49,7 @@ export default function MainAreaError({
             variant="default"
             className="h-12 w-full rounded-2xl text-base normal-case tracking-normal"
           >
-            <Link href="/courses">Go to courses</Link>
+            <Link href="/learn">Go to courses</Link>
           </Button>
         </div>
       </div>

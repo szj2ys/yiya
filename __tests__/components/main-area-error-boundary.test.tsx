@@ -17,7 +17,7 @@ describe("app/(main)/error.tsx", () => {
     expect(screen.getByText("Something went wrong")).toBeInTheDocument();
 
     const coursesLink = screen.getByRole("link", { name: "Go to courses" });
-    expect(coursesLink).toHaveAttribute("href", "/courses");
+    expect(coursesLink).toHaveAttribute("href", "/learn");
 
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(reset).toHaveBeenCalledTimes(1);

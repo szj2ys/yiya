@@ -150,6 +150,6 @@ describe("LeaderboardPage", () => {
   });
 
   it("should redirect to courses when no user progress", () => {
-    expect(pageSource).toContain('redirect("/courses")');
+    expect(pageSource).toContain('redirect("/onboarding")');
   });
 });
