@@ -395,6 +395,10 @@ export const Quiz = ({
   };
 
   if (!challenge) {
+    if (typeof window !== "undefined" && !localStorage.getItem("yiya_first_lesson_completed")) {
+      localStorage.setItem("yiya_first_lesson_completed", "true");
+    }
+
     if (isPractice) {
       trackPayload(
         buildTrackPayload("review_session_complete", {
