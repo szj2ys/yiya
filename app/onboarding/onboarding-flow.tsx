@@ -47,7 +47,7 @@ type Props = {
 export const OnboardingFlow = ({ courses }: Props) => {
   const [step, setStep] = useState(1);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
-  const [selectedGoal, setSelectedGoal] = useState<number | null>(null);
+  const [selectedGoal, setSelectedGoal] = useState<number>(3); // Default to Regular (3 lessons)
   const [pending, startTransition] = useTransition();
 
   const selectedCourse = useMemo(
@@ -157,20 +157,25 @@ export const OnboardingFlow = ({ courses }: Props) => {
     <div className="flex min-h-screen flex-col">
       <style>{TRY_IT_ANIMATION_CSS}</style>
 
-      {/* Progress dots */}
-      <div className="flex items-center justify-center gap-2 px-4 pt-6 pb-2">
-        {Array.from({ length: STEP_COUNT }, (_, i) => (
-          <div
-            key={i}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              i + 1 === step
-                ? "w-8 bg-green-600"
-                : i + 1 < step
-                  ? "w-2 bg-green-600"
-                  : "w-2 bg-neutral-200"
-            }`}
-          />
-        ))}
+      {/* Progress dots with step label */}
+      <div className="flex flex-col items-center gap-2 px-4 pt-6 pb-2">
+        <div className="flex items-center gap-2">
+          {Array.from({ length: STEP_COUNT - 1 }, (_, i) => (
+            <div
+              key={i}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                i + 1 === step
+                  ? "w-8 bg-green-600"
+                  : i + 1 < step
+                    ? "w-2 bg-green-600"
+                    : "w-2 bg-neutral-200"
+              }`}
+            />
+          ))}
+        </div>
+        <p className="text-xs text-neutral-400">
+          Step {Math.min(step, STEP_COUNT - 1)} of {STEP_COUNT - 1}
+        </p>
       </div>
 
       {/* Step content */}
@@ -384,7 +389,7 @@ export const OnboardingFlow = ({ courses }: Props) => {
             <div className="mx-auto mt-auto w-full max-w-lg pt-6 pb-2">
               <button
                 onClick={handleFinish}
-                disabled={selectedGoal === null || pending}
+                disabled={pending}
                 className="flex h-12 w-full items-center justify-center rounded-2xl bg-green-600 text-base font-semibold text-white transition-all duration-200 hover:bg-green-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {pending ? (
