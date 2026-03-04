@@ -41,10 +41,11 @@ export async function POST(req: Request) {
 
     await db.insert(userSubscription).values({
       userId: session.metadata.userId,
+      provider: "stripe",
       stripeSubscriptionId: subscription.id,
       stripeCustomerId: subscription.customer as string,
       stripePriceId: subscription.items.data[0].price.id,
-      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
     });
 
     await track("checkout_complete", { surface: "shop" });
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
       .update(userSubscription)
       .set({
         stripePriceId: subscription.items.data[0].price.id,
-        stripeCurrentPeriodEnd: new Date(
+        currentPeriodEnd: new Date(
           subscription.current_period_end * 1000,
         ),
       })
