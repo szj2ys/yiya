@@ -51,3 +51,7 @@ T*-TODO.md
 /playwright/.cache/
 /playwright/.auth/
 /e2e/.auth/
+
+# CEO Worktree TODOs
+T*-TODO.md
+TODO-*.md
