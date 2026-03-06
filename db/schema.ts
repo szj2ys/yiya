@@ -277,3 +277,18 @@ export const dailyQuestClaims = pgTable("daily_quest_claims", {
 }, (t) => ({
   userQuestDateUnique: uniqueIndex("daily_quest_claims_user_quest_date_unique").on(t.userId, t.questId, t.claimedDate),
 }));
+
+// User churn risk tracking
+export const userChurnRisk = pgTable("user_churn_risk", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  riskLevel: text("risk_level").notNull(), // 'low' | 'medium' | 'high'
+  riskReasons: text("risk_reasons").array().notNull(),
+  detectedAt: timestamp("detected_at").notNull().defaultNow(),
+  intervened: boolean("intervened").notNull().default(false),
+  intervenedAt: timestamp("intervened_at"),
+}, (t) => ({
+  userIndex: index("user_churn_risk_user_id_idx").on(t.userId),
+  riskLevelIndex: index("user_churn_risk_level_idx").on(t.riskLevel),
+  detectedAtIndex: index("user_churn_risk_detected_at_idx").on(t.detectedAt),
+}));
