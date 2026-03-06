@@ -145,13 +145,21 @@ export const userProgressRelations = relations(userProgress, ({ one }) => ({
   }),
 }));
 
+export const subscriptionProviderEnum = pgEnum("subscription_provider", ["stripe", "paypal"]);
+
 export const userSubscription = pgTable("user_subscription", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull().unique(),
-  stripeCustomerId: text("stripe_customer_id").notNull().unique(),
-  stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(),
-  stripePriceId: text("stripe_price_id").notNull(),
-  stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(),
+  provider: subscriptionProviderEnum("provider").notNull().default("stripe"),
+  // Stripe fields
+  stripeCustomerId: text("stripe_customer_id").unique(),
+  stripeSubscriptionId: text("stripe_subscription_id").unique(),
+  stripePriceId: text("stripe_price_id"),
+  // PayPal fields
+  paypalSubscriptionId: text("paypal_subscription_id").unique(),
+  paypalOrderId: text("paypal_order_id").unique(),
+  // Common fields
+  currentPeriodEnd: timestamp("current_period_end").notNull(),
 });
 
 export const questClaims = pgTable("quest_claims", {

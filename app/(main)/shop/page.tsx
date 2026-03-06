@@ -66,6 +66,7 @@ const ShopPage = async () => {
             points={userProgress.points}
             hasActiveSubscription={isPro}
             hasActiveFreezeToday={!!todayFreeze}
+            provider={userSubscription?.provider || null}
           />
         </div>
       </FeedWrapper>
