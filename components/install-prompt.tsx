@@ -37,10 +37,12 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-declare global {
-  interface WindowEventMap {
-    beforeinstallprompt: BeforeInstallPromptEvent;
-  }
+function getPlatform(): 'ios' | 'android' | 'desktop' {
+  if (typeof navigator === "undefined") return 'desktop';
+  const ua = navigator.userAgent;
+  if (/iPad|iPhone|iPod/.test(ua)) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  return 'desktop';
 }
 
 /**
@@ -81,7 +83,7 @@ export function InstallPrompt() {
       e.preventDefault();
       deferredPromptRef.current = e as BeforeInstallPromptEvent;
       setVisible(true);
-      track("pwa_install_prompt_shown", {});
+      track("pwa_install_prompt_shown", { platform: getPlatform() });
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -91,7 +93,7 @@ export function InstallPrompt() {
       const timer = setTimeout(() => {
         if (!isStandalone()) {
           setVisible(true);
-          track("pwa_install_prompt_shown", {});
+          track("pwa_install_prompt_shown", { platform: getPlatform() });
         }
       }, 3000);
       return () => clearTimeout(timer);
@@ -107,7 +109,7 @@ export function InstallPrompt() {
     if (typeof window === "undefined") return;
 
     const handleAppInstalled = () => {
-      track("pwa_installed", {});
+      track("pwa_installed", { platform: getPlatform() });
       setVisible(false);
     };
 
@@ -124,12 +126,12 @@ export function InstallPrompt() {
     const prompt = deferredPromptRef.current;
     if (!prompt) return;
 
-    track("pwa_install_clicked", {});
+    track("pwa_install_clicked", { platform: getPlatform() });
     prompt.prompt();
     const result = await prompt.userChoice;
 
     if (result.outcome === "accepted") {
-      track("pwa_installed", {});
+      track("pwa_installed", { platform: getPlatform() });
     }
 
     deferredPromptRef.current = null;
@@ -140,14 +142,14 @@ export function InstallPrompt() {
   const handleDismiss = useCallback(() => {
     setVisible(false);
     localStorage.setItem(INSTALL_DISMISSED_KEY, Date.now().toString());
-    track("pwa_install_dismissed", {});
+    track("pwa_install_dismissed", { platform: getPlatform() });
   }, []);
 
   const handleNeverShow = useCallback(() => {
     setVisible(false);
     // Set dismissal far in the future (effectively permanent)
     localStorage.setItem(INSTALL_DISMISSED_KEY, "9999999999999");
-    track("pwa_install_never", {});
+    track("pwa_install_never", { platform: getPlatform() });
   }, []);
 
   if (!visible) return null;
