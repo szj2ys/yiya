@@ -45,7 +45,7 @@ test.describe("Landing Page — Unauthenticated Visitor", () => {
 
   test("renders all four stat cards", async ({ page }) => {
     const statTitles = [
-      "5 languages",
+      "6 languages",
       "Interactive lessons",
       "Track progress",
       "Free to start",
@@ -62,7 +62,7 @@ test.describe("Landing Page — Unauthenticated Visitor", () => {
   // Language showcase
   // -----------------------------------------------------------------------
 
-  test("displays all five language cards", async ({ page }) => {
+  test("displays all six language cards", async ({ page }) => {
     for (const lang of languages) {
       await expect(page.getByText(lang).first()).toBeVisible();
     }
