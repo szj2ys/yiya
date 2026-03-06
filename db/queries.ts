@@ -333,9 +333,8 @@ export const getUserSubscription = cache(async () => {
 
   if (!data) return null;
 
-  const periodEnd = data.stripeCurrentPeriodEnd?.getTime();
+  const periodEnd = data.currentPeriodEnd?.getTime();
   const isActive =
-    data.stripePriceId &&
     periodEnd !== undefined &&
     periodEnd + DAY_IN_MS > Date.now();
 
