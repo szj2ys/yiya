@@ -105,7 +105,8 @@ export const urls = {
 // ---------------------------------------------------------------------------
 
 export const languages = [
-  "Croatian",
+  "English",
+  "Chinese",
   "Spanish",
   "French",
   "Italian",
