@@ -4,7 +4,7 @@
  * Used by both the AI cache and rate-limit modules.
  */
 
-export function useKv(): boolean {
+export function isKvConfigured(): boolean {
   return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 }
 

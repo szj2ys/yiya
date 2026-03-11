@@ -101,7 +101,6 @@ function consoleDispatcher(payload: TrackPayload<AnalyticsEventName>) {
 function defaultDispatcher(payload: TrackPayload<AnalyticsEventName>) {
   if (typeof window === "undefined") {
     // Server-side: dynamically import to avoid bundling posthog-node on client
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { serverPosthogDispatcher } = require("@/lib/analytics-server") as {
       serverPosthogDispatcher: TrackDispatcher;
     };

@@ -66,7 +66,7 @@ export const LearningProgress = ({
       <div className="mb-6 rounded-2xl border border-neutral-200 bg-white p-5">
         <h2 className="text-lg font-bold text-neutral-800">Your Progress</h2>
         <p className="mt-2 text-sm text-neutral-600">
-          Start your first lesson! We'll track words learned and memory strength as you go.
+          Start your first lesson! We&apos;ll track words learned and memory strength as you go.
         </p>
       </div>
     );
