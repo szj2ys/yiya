@@ -1,4 +1,4 @@
-import { useKv, getKv } from "@/lib/kv";
+import { isKvConfigured, getKv } from "@/lib/kv";
 
 type Feature = "explain" | "review_variant" | (string & {});
 
@@ -64,7 +64,7 @@ export async function checkRateLimit(
   const windowMs = options.windowMs ?? ONE_DAY_MS;
   const limit = getLimit(feature, limits);
 
-  if (useKv()) {
+  if (isKvConfigured()) {
     return checkRateLimitKv(userId, feature, limit, windowMs);
   }
 

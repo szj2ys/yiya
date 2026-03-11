@@ -23,9 +23,8 @@ function isStandalone(): boolean {
   if (typeof window === "undefined") return false;
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
-    // iOS specific
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window.navigator as any).standalone === true
+    // iOS specific check for standalone mode
+    (window.navigator as { standalone?: boolean }).standalone === true
   );
 }
 

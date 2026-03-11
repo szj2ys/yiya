@@ -1,6 +1,6 @@
 "use server";
 
-import { useKv, getKv } from "@/lib/kv";
+import { isKvConfigured, getKv } from "@/lib/kv";
 
 const DASHBOARD_TTL_SECONDS = 300;
 
@@ -12,7 +12,7 @@ export async function getCachedDashboard<T>(
   userId: string,
   fetcher: () => Promise<T>,
 ): Promise<T> {
-  if (!useKv()) {
+  if (!isKvConfigured()) {
     return fetcher();
   }
 
@@ -38,7 +38,7 @@ export async function getCachedDashboard<T>(
 }
 
 export async function invalidateDashboardCache(userId: string): Promise<void> {
-  if (!useKv()) return;
+  if (!isKvConfigured()) return;
 
   try {
     const kv = await getKv();

@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { useKv, getKv } from "@/lib/kv";
+import { isKvConfigured, getKv } from "@/lib/kv";
 
 type CacheEntry<T> = {
   value: T;
@@ -52,7 +52,7 @@ export async function getCachedOrFetch<T>(
 ): Promise<T> {
   const ttlMs = options.ttlMs ?? DEFAULT_TTL_MS;
 
-  if (useKv()) {
+  if (isKvConfigured()) {
     return getCachedOrFetchKv<T>(key, fetchFn, ttlMs);
   }
 
