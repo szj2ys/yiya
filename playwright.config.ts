@@ -19,7 +19,7 @@ export default defineConfig({
   globalSetup: "./e2e/global-setup.ts",
 
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: process.env.E2E_BASE_URL || "http://localhost:3999",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -39,9 +39,12 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
+    command: process.env.E2E_DEV_CMD || "npm run dev:e2e",
+    url: process.env.E2E_BASE_URL || "http://localhost:3999",
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 180_000,
+    env: {
+      NODE_ENV: "development",
+    },
   },
 });
