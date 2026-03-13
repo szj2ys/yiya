@@ -69,7 +69,7 @@ export default function AgentsPage() {
               <Button asChild size="lg" className="rounded-xl">
                 <Link href="#endpoints">View Endpoints</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-xl">
+              <Button asChild variant="primaryOutline" size="lg" className="rounded-xl">
                 <Link href="https://github.com/szj2ys/yiya/blob/main/docs/AGENT_API.md">
                   Documentation
                 </Link>
@@ -172,7 +172,7 @@ export default function AgentsPage() {
                 Try API
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="rounded-xl">
+            <Button asChild variant="primaryOutline" size="lg" className="rounded-xl">
               <Link href="https://github.com/szj2ys/yiya">GitHub</Link>
             </Button>
           </div>

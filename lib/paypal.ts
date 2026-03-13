@@ -1,4 +1,4 @@
-import { LoadScriptOptions } from "@paypal/paypal-js";
+import { PayPalScriptOptions } from "@paypal/paypal-js";
 
 export const PAYPAL_CONFIG = {
   clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "",
@@ -7,7 +7,7 @@ export const PAYPAL_CONFIG = {
   planId: process.env.PAYPAL_PLAN_ID || "", // For subscription-based billing
 };
 
-export const PAYPAL_SCRIPT_OPTIONS: LoadScriptOptions = {
+export const PAYPAL_SCRIPT_OPTIONS: PayPalScriptOptions = {
   clientId: PAYPAL_CONFIG.clientId,
   currency: PAYPAL_CONFIG.currency,
   intent: "subscription",
