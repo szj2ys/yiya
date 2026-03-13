@@ -147,6 +147,13 @@ export const Quiz = ({
     const shareText = `I just scored ${accuracy}% on a ${courseLanguage} lesson on Yiya! ${streak > 1 ? `${streak}-day streak!` : ""}`;
     const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://yiya.app";
 
+    // Track share clicked
+    trackPayload(buildTrackPayload("lesson_share_clicked", {
+      lesson_id: lessonId,
+      method: "native",
+      accuracy,
+    })).catch(() => undefined);
+
     let method: "native" | "clipboard" = "clipboard";
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
@@ -170,6 +177,17 @@ export const Quiz = ({
       toast.error("Could not copy to clipboard.");
     }
   }, [challenges.length, correctCount, courseLanguage, streak, lessonId]);
+
+  const handleOpenShareCard = useCallback(() => {
+    // Track when user clicks to open share card
+    const accuracy = challenges.length > 0 ? Math.round((correctCount / challenges.length) * 100) : 0;
+    trackPayload(buildTrackPayload("lesson_share_clicked", {
+      lesson_id: lessonId,
+      method: "card",
+      accuracy,
+    })).catch(() => undefined);
+    setShowShareCard(true);
+  }, [challenges.length, correctCount, lessonId]);
 
   const submitReviewIfNeeded = async (params: { correct: boolean }) => {
     if (!isPractice) return;
@@ -450,6 +468,19 @@ export const Quiz = ({
           }),
     ).catch(() => undefined);
 
+    // Track share prompt shown for non-practice lessons
+    if (!isPractice) {
+      const accuracyPercentForShare = challenges.length > 0
+        ? Math.round((correctCount / challenges.length) * 100)
+        : 0;
+      trackPayload(
+        buildTrackPayload("lesson_share_prompt_shown", {
+          lesson_id: lessonId,
+          accuracy: accuracyPercentForShare,
+        }),
+      ).catch(() => undefined);
+    }
+
     // Track streak saved if user had 0 lessons today before this one
     if (!isPractice && (todayLessonCount ?? 0) === 0 && streak > 0) {
       trackPayload(
@@ -546,7 +577,7 @@ export const Quiz = ({
                   <button
                     type="button"
                     className="w-full h-11 rounded-2xl bg-white dark:bg-neutral-800 border border-violet-200 dark:border-violet-700 text-violet-700 dark:text-violet-300 font-semibold hover:bg-violet-50 dark:hover:bg-neutral-700 active:bg-violet-100 dark:active:bg-neutral-600 transition"
-                    onClick={() => setShowShareCard(true)}
+                    onClick={handleOpenShareCard}
                   >
                     Share Achievement
                   </button>
@@ -744,7 +775,7 @@ export const Quiz = ({
                     <button
                       type="button"
                       className="w-full h-12 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-700 active:bg-neutral-100 dark:active:bg-neutral-600 transition"
-                      onClick={() => setShowShareCard(true)}
+                      onClick={handleOpenShareCard}
                     >
                       Share your progress
                     </button>
@@ -768,7 +799,7 @@ export const Quiz = ({
                     <button
                       type="button"
                       className="w-full h-12 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold hover:bg-neutral-50 dark:hover:bg-neutral-700 active:bg-neutral-100 dark:active:bg-neutral-600 transition"
-                      onClick={() => setShowShareCard(true)}
+                      onClick={handleOpenShareCard}
                     >
                       Share your progress
                     </button>
@@ -871,10 +902,12 @@ export const Quiz = ({
 
         {showShareCard && (
           <ShareCard
+            type="lesson_complete"
             streak={streak}
             wordsLearned={wordsLearned ?? 0}
             language={courseLanguage}
             accuracy={accuracyPercent}
+            xpGained={challenges.length * 10}
             onClose={() => setShowShareCard(false)}
           />
         )}
