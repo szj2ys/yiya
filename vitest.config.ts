@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(process.cwd(), "."),
+      "@paypal/paypal-js": path.resolve(process.cwd(), "__tests__/mocks/paypal-js.ts"),
     },
   },
   test: {
