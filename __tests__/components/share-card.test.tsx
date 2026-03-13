@@ -10,6 +10,8 @@ vi.mock("lucide-react", () => ({
   Download: (props: any) => <span data-testid="download-icon" {...props} />,
   Share2: (props: any) => <span data-testid="share-icon" {...props} />,
   X: (props: any) => <span data-testid="x-icon" {...props} />,
+  Copy: (props: any) => <span data-testid="copy-icon" {...props} />,
+  Check: (props: any) => <span data-testid="check-icon" {...props} />,
 }));
 
 import { ShareCard } from "@/components/share-card";
