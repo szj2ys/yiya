@@ -77,6 +77,9 @@ export type AnalyticsEventMap = {
   quest_reminder_sent: BaseProperties & { quest_id: string; user_id: string; channel: "push" | "email" };
   quest_reminder_clicked: BaseProperties & { quest_id: string; user_id: string };
   quest_completed_via_reminder: BaseProperties & { quest_id: string; user_id: string };
+  // A/B test analytics for paywall
+  paywall_variant_shown: BaseProperties & { variant: "a" | "b" | "c"; surface: string };
+  paywall_conversion_by_variant: BaseProperties & { variant: "a" | "b" | "c"; surface: string; converted: boolean };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;
