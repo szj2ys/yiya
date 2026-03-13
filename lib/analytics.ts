@@ -31,6 +31,10 @@ export type AnalyticsEventMap = {
   paywall_view: BaseProperties & { surface: string };
   checkout_start: BaseProperties & { surface: string };
   checkout_complete: BaseProperties & { surface: string };
+  subscription_activated: BaseProperties & { provider: string; subscription_id: string };
+  subscription_payment_failed: BaseProperties & { provider: string; subscription_id: string };
+  subscription_payment_success: BaseProperties & { provider: string; subscription_id: string };
+  subscription_cancelled: BaseProperties & { provider: string; subscription_id: string; reason?: string };
   explanation_view: BaseProperties & { challenge_id: number; cached: boolean };
   explanation_practice_click: BaseProperties & { challenge_id: number };
   signup_completed: BaseProperties & { user_id: string; ref_source?: string; ref_id?: string; utm_source?: string; utm_medium?: string; utm_campaign?: string };
@@ -53,6 +57,7 @@ export type AnalyticsEventMap = {
   referral_reward_granted: BaseProperties & { referrer_id: string; referred_user_id: string; xp_reward: number };
   referral_invite_shared: BaseProperties & { user_id: string; method: string };
   lesson_share: BaseProperties & { lesson_id: number; method: "native" | "clipboard"; accuracy: number };
+  milestone_share_clicked: BaseProperties & { type: string; value: number; method: string };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;

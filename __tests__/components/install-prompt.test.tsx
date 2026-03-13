@@ -114,7 +114,7 @@ describe("InstallPrompt", () => {
       window.dispatchEvent(event);
     });
 
-    expect(track).toHaveBeenCalledWith("pwa_install_prompt_shown", {});
+    expect(track).toHaveBeenCalledWith("pwa_install_prompt_shown", { platform: "desktop" });
   });
 
   it("should dismiss when Not now is clicked and set timestamp", async () => {
