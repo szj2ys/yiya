@@ -58,6 +58,12 @@ export type AnalyticsEventMap = {
   referral_invite_shared: BaseProperties & { user_id: string; method: string };
   lesson_share: BaseProperties & { lesson_id: number; method: "native" | "clipboard"; accuracy: number };
   milestone_share_clicked: BaseProperties & { type: string; value: number; method: string };
+  onboarding_step_viewed: BaseProperties & { step: number };
+  onboarding_step_completed: BaseProperties & { step: number };
+  onboarding_step_skipped: BaseProperties & { step: number };
+  onboarding_course_selected: BaseProperties & { course_id: number };
+  onboarding_goal_selected: BaseProperties & { goal: number };
+  onboarding_try_it_result: BaseProperties & { correct: boolean };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;

@@ -8,6 +8,7 @@ import { Check, Loader2 } from "lucide-react";
 import { courses } from "@/db/schema";
 import { upsertUserProgress } from "@/actions/user-progress";
 import { getReferralData, clearReferralData } from "@/lib/referral";
+import { track } from "@/lib/analytics";
 
 import { getSampleChallenge } from "./sample-challenges";
 
@@ -50,6 +51,11 @@ export const OnboardingFlow = ({ courses }: Props) => {
   const [selectedGoal, setSelectedGoal] = useState<number | null>(null); // No default, user must select
   const [pending, startTransition] = useTransition();
 
+  // Track initial step view
+  useEffect(() => {
+    track("onboarding_step_viewed", { step: 1 });
+  }, []);
+
   const selectedCourse = useMemo(
     () => courses.find((course) => course.id === selectedCourseId),
     [courses, selectedCourseId],
@@ -79,7 +85,9 @@ export const OnboardingFlow = ({ courses }: Props) => {
 
   const goToGoalStep = useCallback(() => {
     clearAdvanceTimeout();
+    track("onboarding_step_completed", { step: 2 });
     setStep(3);
+    track("onboarding_step_viewed", { step: 3 });
   }, [clearAdvanceTimeout]);
 
   useEffect(() => {
@@ -109,19 +117,25 @@ export const OnboardingFlow = ({ courses }: Props) => {
 
   const handleLanguageSelect = useCallback((courseId: number) => {
     setSelectedCourseId(courseId);
+    track("onboarding_course_selected", { course_id: courseId });
   }, []);
 
   const handleGoalSelect = useCallback((lessons: number) => {
     setSelectedGoal(lessons);
+    track("onboarding_goal_selected", { goal: lessons });
   }, []);
 
   const handleContinueToTryIt = useCallback(() => {
     if (selectedCourseId === null) return;
+    track("onboarding_step_completed", { step: 1 });
     setStep(2);
+    track("onboarding_step_viewed", { step: 2 });
   }, [selectedCourseId]);
 
   const handleSkipTryIt = useCallback(() => {
     if (selectedCourseId === null) return;
+    track("onboarding_step_skipped", { step: 2 });
+    track("onboarding_step_completed", { step: 1 });
     goToGoalStep();
   }, [selectedCourseId, goToGoalStep]);
 
@@ -134,13 +148,16 @@ export const OnboardingFlow = ({ courses }: Props) => {
       const isCorrect = sampleChallenge.options[optionIndex].correct;
       setSelectedOptionIndex(optionIndex);
       setTryItStatus(isCorrect ? "correct" : "wrong");
+      track("onboarding_try_it_result", { correct: isCorrect });
     },
     [sampleChallenge, tryItStatus],
   );
 
   const handleFinish = useCallback(() => {
     if (selectedCourseId === null) return;
+    track("onboarding_step_completed", { step: 3 });
     setStep(4);
+    track("onboarding_step_viewed", { step: 4 });
 
     const referral = getReferralData();
     startTransition(() => {
