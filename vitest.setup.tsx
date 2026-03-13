@@ -2,6 +2,15 @@ import React from "react";
 import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
 
+// Mock React cache before other imports
+vi.mock("react", async () => {
+  const actual = await vi.importActual("react");
+  return {
+    ...actual,
+    cache: (fn: any) => fn,
+  };
+});
+
 // Next.js / app router mocks
 vi.mock("next/image", () => ({
   default: ({ fill, priority, ...props }: any) => {
@@ -35,3 +44,8 @@ vi.mock("@clerk/nextjs", () => {
     }),
   };
 });
+
+// PayPal SDK mock
+vi.mock("@paypal/paypal-js", () => ({
+  loadScript: vi.fn(),
+}));
