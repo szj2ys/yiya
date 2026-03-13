@@ -21,7 +21,7 @@ export type NotificationPayload = {
   body: string;
   icon?: string;
   badge?: string;
-  data?: { url?: string };
+  data?: { url?: string; [key: string]: string | undefined };
 };
 
 /**

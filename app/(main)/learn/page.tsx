@@ -231,7 +231,6 @@ const LearnPage = async () => {
             streak={userStreak?.streak ?? 0}
             todayLessonCount={todayLessonCount}
             hasFreezeToday={hasFreezeToday}
-            activeLessonId={activeLessonId}
           />
         )}
 

@@ -97,7 +97,7 @@ export async function GET(request: Request) {
     }
 
     // Filter users with incomplete quests
-    const eligibleUsers: typeof usersWithSubs = [];
+    const eligibleUsers: Array<typeof usersWithSubs[number] & { incompleteQuests: string[] }> = [];
     for (const user of usersWithSubs) {
       const todayLessons = lessonCountMap.get(user.userId) ?? 0;
       const dailyGoal = user.dailyGoal ?? 1;

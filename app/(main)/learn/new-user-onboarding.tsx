@@ -108,7 +108,7 @@ export function NewUserOnboarding({ userId, onComplete }: Props) {
             Welcome to Yiya!
           </h2>
           <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">
-            Let's take a quick tour to get you started on your language learning journey.
+            Let&apos;s take a quick tour to get you started on your language learning journey.
           </p>
           <div className="flex gap-3">
             <Button variant="ghost" className="flex-1" onClick={handleSkip}>
