@@ -67,6 +67,9 @@ export type AnalyticsEventMap = {
   onboarding_course_selected: BaseProperties & { course_id: number };
   onboarding_goal_selected: BaseProperties & { goal: number };
   onboarding_try_it_result: BaseProperties & { correct: boolean };
+  // A/B test analytics for paywall
+  paywall_variant_shown: BaseProperties & { variant: "a" | "b" | "c"; surface: string };
+  paywall_conversion_by_variant: BaseProperties & { variant: "a" | "b" | "c"; surface: string; converted: boolean };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;
