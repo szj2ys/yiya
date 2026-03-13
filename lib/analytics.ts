@@ -58,6 +58,9 @@ export type AnalyticsEventMap = {
   referral_invite_shared: BaseProperties & { user_id: string; method: string };
   lesson_share: BaseProperties & { lesson_id: number; method: "native" | "clipboard"; accuracy: number };
   milestone_share_clicked: BaseProperties & { type: string; value: number; method: string };
+  share_card_opened: BaseProperties & { type: string; streak?: number; accuracy?: number };
+  share_attempted: BaseProperties & { type: string; method: "native" | "clipboard" | "download" };
+  share_completed: BaseProperties & { type: string; method: "native" | "clipboard" | "download"; success: boolean };
   onboarding_step_viewed: BaseProperties & { step: number };
   onboarding_step_completed: BaseProperties & { step: number };
   onboarding_step_skipped: BaseProperties & { step: number };
