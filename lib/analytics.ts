@@ -80,6 +80,9 @@ export type AnalyticsEventMap = {
   // A/B test analytics for paywall
   paywall_variant_shown: BaseProperties & { variant: "a" | "b" | "c"; surface: string };
   paywall_conversion_by_variant: BaseProperties & { variant: "a" | "b" | "c"; surface: string; converted: boolean };
+  // Empty state events
+  empty_state_shown: BaseProperties & { state_type: "new_user" | "no_progress" | "first_lesson"; user_id: string };
+  empty_state_cta_clicked: BaseProperties & { state_type: "new_user" | "no_progress" | "first_lesson"; user_id: string; cta_action: string };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;
