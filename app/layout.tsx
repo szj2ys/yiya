@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { ServiceWorkerRegister } from "@/components/sw-register";
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { UtmCapture } from "@/components/utm-capture";
 import "./globals.css";
 
@@ -108,6 +109,7 @@ export default function RootLayout({
           <InstallPrompt />
           <UtmCapture />
           <Analytics />
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>

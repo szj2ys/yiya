@@ -5,6 +5,7 @@ const nextConfig = {
   experimental: {
     // Required for instrumentation.ts in Next.js 14 (stable in 15+)
     instrumentationHook: true,
+    optimizeCss: true,
   },
   images: {
     formats: ["image/avif", "image/webp"],
