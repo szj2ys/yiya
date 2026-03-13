@@ -23,7 +23,7 @@ export const createPayPalCheckout = async () => {
 
   const existingSubscription = await getUserSubscription();
 
-  await track("checkout_start", { surface: "shop", provider: "paypal" });
+  await track("checkout_start", { surface: "shop" });
 
   // If user already has a PayPal subscription, redirect to PayPal to manage it
   if (existingSubscription?.provider === "paypal" && existingSubscription.paypalSubscriptionId) {
@@ -104,8 +104,6 @@ export const cancelPayPalSubscriptionAction = async () => {
   }
 
   await cancelPayPalSubscription(subscription.paypalSubscriptionId);
-
-  await track("subscription_cancelled", { provider: "paypal" });
 
   return { success: true };
 };

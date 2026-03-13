@@ -74,7 +74,7 @@ export function StreakMilestoneModal({ streak, onClose }: Props) {
             <Share2 className="h-4 w-4" />
             Share
           </Button>
-          <Button variant="outline" onClick={onClose} className="flex-1">
+          <Button variant="primaryOutline" onClick={onClose} className="flex-1">
             Continue
           </Button>
         </div>
