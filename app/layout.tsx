@@ -11,7 +11,7 @@ import { UtmCapture } from "@/components/utm-capture";
 import "./globals.css";
 
 const ExitModal = dynamic(() => import("@/components/modals/exit-modal").then(m => ({ default: m.ExitModal })), { ssr: false });
-const HeartsModal = dynamic(() => import("@/components/modals/hearts-modal").then(m => ({ default: m.HeartsModal })), { ssr: false });
+const HeartsModalWithABTest = dynamic(() => import("@/app/(main)/shop/paywall-tracker").then(m => ({ default: m.HeartsModalWithABTest })), { ssr: false });
 const PracticeModal = dynamic(() => import("@/components/modals/practice-modal").then(m => ({ default: m.PracticeModal })), { ssr: false });
 const InstallPrompt = dynamic(() => import("@/components/install-prompt").then(m => ({ default: m.InstallPrompt })), { ssr: false });
 
@@ -101,7 +101,7 @@ export default function RootLayout({
           <Toaster />
           <PostHogProvider>
             <ExitModal />
-            <HeartsModal />
+            <HeartsModalWithABTest userId={null} />
             <PracticeModal />
             {children}
           </PostHogProvider>
