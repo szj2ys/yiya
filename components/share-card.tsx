@@ -6,10 +6,13 @@ import { Download, Share2, X, Copy, Check } from "lucide-react";
 import { track } from "@/lib/analytics";
 
 type Props = {
-  streak: number;
-  wordsLearned: number;
+  type?: "streak_milestone" | "lesson_complete";
+  streak?: number;
+  wordsLearned?: number;
   language: string;
   accuracy: number;
+  xpGained?: number;
+  lessonTitle?: string;
   onClose: () => void;
 };
 
@@ -58,12 +61,21 @@ function drawCard(
   const w = CARD_WIDTH * scale;
   const h = CARD_HEIGHT * scale;
   const s = scale;
+  const isLesson = props.type === "lesson_complete";
 
-  // --- Vibrant gradient background (green-500 to green-600) ---
+  // --- Vibrant gradient background ---
   const gradient = ctx.createLinearGradient(0, 0, w, h);
-  gradient.addColorStop(0, "#22c55e"); // green-500
-  gradient.addColorStop(0.6, "#16a34a"); // green-600
-  gradient.addColorStop(1, "#15803d"); // green-700
+  if (isLesson) {
+    // Blue gradient for lesson completion
+    gradient.addColorStop(0, "#3b82f6"); // blue-500
+    gradient.addColorStop(0.6, "#2563eb"); // blue-600
+    gradient.addColorStop(1, "#1d4ed8"); // blue-700
+  } else {
+    // Green gradient for streak milestone
+    gradient.addColorStop(0, "#22c55e"); // green-500
+    gradient.addColorStop(0.6, "#16a34a"); // green-600
+    gradient.addColorStop(1, "#15803d"); // green-700
+  }
 
   // Rounded rect clip
   const radius = 24 * s;
@@ -100,42 +112,90 @@ function drawCard(
   const statsStartY = 130 * s;
   const rowHeight = 95 * s;
 
-  // Streak - biggest number
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `bold ${56 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-  ctx.textAlign = "center";
-  ctx.fillText(`\uD83D\uDD25 ${props.streak}`, w / 2, statsStartY);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.font = `600 ${16 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-  ctx.fillText("day streak", w / 2, statsStartY + 28 * s);
+  if (isLesson) {
+    // Lesson Complete Layout
+    // XP Gained - biggest number
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `bold ${48 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText(`${props.xpGained ?? 0} XP`, w / 2, statsStartY);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.font = `600 ${16 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText("earned this lesson", w / 2, statsStartY + 28 * s);
 
-  // Words learned
-  const wordsY = statsStartY + rowHeight;
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `bold ${40 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-  ctx.fillText(`${props.wordsLearned}`, w / 2, wordsY);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.font = `600 ${14 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-  ctx.fillText("words learned", w / 2, wordsY + 24 * s);
+    // Lesson Title (if provided)
+    if (props.lessonTitle) {
+      const titleY = statsStartY + rowHeight;
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `bold ${28 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+      // Truncate if too long
+      const maxWidth = w - 80 * s;
+      const title = props.lessonTitle.length > 25
+        ? props.lessonTitle.substring(0, 22) + "..."
+        : props.lessonTitle;
+      ctx.fillText(title, w / 2, titleY);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+      ctx.font = `600 ${14 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+      ctx.fillText("completed", w / 2, titleY + 24 * s);
+    }
 
-  // Language
-  const langY = statsStartY + rowHeight * 2;
-  const flag = getFlag(props.language);
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `bold ${32 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-  ctx.fillText(`${flag} ${props.language}`, w / 2, langY);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.font = `600 ${14 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-  ctx.fillText("studying", w / 2, langY + 24 * s);
+    // Accuracy
+    const accY = statsStartY + rowHeight * (props.lessonTitle ? 2 : 1);
+    ctx.fillStyle = "#fbbf24"; // amber-400 for contrast
+    ctx.font = `bold ${40 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText(`${props.accuracy}%`, w / 2, accY);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.font = `600 ${14 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText("accuracy", w / 2, accY + 24 * s);
 
-  // Accuracy
-  const accY = statsStartY + rowHeight * 3;
-  ctx.fillStyle = "#fbbf24"; // amber-400 for contrast
-  ctx.font = `bold ${40 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-  ctx.fillText(`${props.accuracy}%`, w / 2, accY);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.font = `600 ${14 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-  ctx.fillText("accuracy", w / 2, accY + 24 * s);
+    // Language
+    const langY = statsStartY + rowHeight * (props.lessonTitle ? 3 : 2);
+    const flag = getFlag(props.language);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `bold ${28 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText(`${flag} ${props.language}`, w / 2, langY);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.font = `600 ${14 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText("studying", w / 2, langY + 24 * s);
+  } else {
+    // Streak Milestone Layout
+    // Streak - biggest number
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `bold ${56 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText(`\uD83D\uDD25 ${props.streak ?? 0}`, w / 2, statsStartY);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.font = `600 ${16 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText("day streak", w / 2, statsStartY + 28 * s);
+
+    // Words learned
+    const wordsY = statsStartY + rowHeight;
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `bold ${40 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText(`${props.wordsLearned ?? 0}`, w / 2, wordsY);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.font = `600 ${14 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText("words learned", w / 2, wordsY + 24 * s);
+
+    // Language
+    const langY = statsStartY + rowHeight * 2;
+    const flag = getFlag(props.language);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `bold ${32 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText(`${flag} ${props.language}`, w / 2, langY);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.font = `600 ${14 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText("studying", w / 2, langY + 24 * s);
+
+    // Accuracy
+    const accY = statsStartY + rowHeight * 3;
+    ctx.fillStyle = "#fbbf24"; // amber-400 for contrast
+    ctx.font = `bold ${40 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText(`${props.accuracy}%`, w / 2, accY);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.font = `600 ${14 * s}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.fillText("accuracy", w / 2, accY + 24 * s);
+  }
 
   // --- Bottom: CTA + Date ---
   ctx.fillStyle = "#ffffff";
@@ -148,10 +208,13 @@ function drawCard(
 }
 
 export const ShareCard = ({
-  streak,
-  wordsLearned,
+  type = "streak_milestone",
+  streak = 0,
+  wordsLearned = 0,
   language,
   accuracy,
+  xpGained,
+  lessonTitle,
   onClose,
 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -163,8 +226,8 @@ export const ShareCard = ({
 
   // Track when card is opened
   useEffect(() => {
-    track("share_card_opened", { type: "streak_card", streak, accuracy });
-  }, [streak, accuracy]);
+    track("share_card_opened", { type: type === "lesson_complete" ? "lesson_card" : "streak_card", streak, accuracy });
+  }, [streak, accuracy, type]);
 
   // Draw canvas on mount
   useEffect(() => {
@@ -180,39 +243,45 @@ export const ShareCard = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    drawCard(ctx, { streak, wordsLearned, language, accuracy }, scale);
+    drawCard(ctx, { type, streak, wordsLearned, language, accuracy, xpGained, lessonTitle }, scale);
     setIsReady(true);
-  }, [streak, wordsLearned, language, accuracy]);
+  }, [streak, wordsLearned, language, accuracy, xpGained, lessonTitle, type]);
 
   const handleDownload = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    track("share_attempted", { type: "streak_card", method: "download" });
+    const cardType = type === "lesson_complete" ? "lesson_card" : "streak_card";
+    track("share_attempted", { type: cardType, method: "download" });
 
     try {
       const dataUrl = canvas.toDataURL("image/png");
       const dateSlug = new Date().toISOString().slice(0, 10);
       const link = document.createElement("a");
-      link.download = `yiya-streak-${dateSlug}.png`;
+      link.download = `yiya-${type === "lesson_complete" ? "lesson" : "streak"}-${dateSlug}.png`;
       link.href = dataUrl;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      track("share_completed", { type: "streak_card", method: "download", success: true });
+      track("share_completed", { type: cardType, method: "download", success: true });
       toast.success("Image downloaded!");
     } catch {
-      track("share_completed", { type: "streak_card", method: "download", success: false });
+      track("share_completed", { type: cardType, method: "download", success: false });
       toast.error("Could not download image.");
     }
-  }, []);
+  }, [type]);
 
   const handleShare = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    track("share_attempted", { type: "streak_card", method: "native" });
+    const cardType = type === "lesson_complete" ? "lesson_card" : "streak_card";
+    const shareText = type === "lesson_complete"
+      ? `I just completed a lesson on Yiya with ${accuracy}% accuracy! 🎉\n\nJoin me: https://yiya.app`
+      : `I'm on a ${streak}-day streak learning ${language} on Yiya! \uD83D\uDD25\n\nJoin me: https://yiya.app`;
+
+    track("share_attempted", { type: cardType, method: "native" });
 
     // Try native Web Share API with file (mobile)
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -222,15 +291,15 @@ export const ShareCard = ({
         );
         if (blob) {
           const dateSlug = new Date().toISOString().slice(0, 10);
-          const file = new File([blob], `yiya-streak-${dateSlug}.png`, {
+          const file = new File([blob], `yiya-${type === "lesson_complete" ? "lesson" : "streak"}-${dateSlug}.png`, {
             type: "image/png",
           });
           await navigator.share({
-            title: "My Yiya Learning Streak",
-            text: `I'm on a ${streak}-day streak learning ${language} on Yiya!`,
+            title: type === "lesson_complete" ? "My Yiya Lesson" : "My Yiya Learning Streak",
+            text: shareText,
             files: [file],
           });
-          track("share_completed", { type: "streak_card", method: "native", success: true });
+          track("share_completed", { type: cardType, method: "native", success: true });
           return;
         }
       } catch {
@@ -239,32 +308,35 @@ export const ShareCard = ({
     }
 
     // Fallback: copy text to clipboard
-    track("share_attempted", { type: "streak_card", method: "clipboard" });
+    track("share_attempted", { type: cardType, method: "clipboard" });
     try {
-      const text = `I'm on a ${streak}-day streak learning ${language} on Yiya! \uD83D\uDD25\n\nJoin me: https://yiya.app`;
-      await navigator.clipboard.writeText(text);
-      track("share_completed", { type: "streak_card", method: "clipboard", success: true });
+      await navigator.clipboard.writeText(shareText);
+      track("share_completed", { type: cardType, method: "clipboard", success: true });
       toast.success("Copied to clipboard!");
     } catch {
-      track("share_completed", { type: "streak_card", method: "clipboard", success: false });
+      track("share_completed", { type: cardType, method: "clipboard", success: false });
       toast.error("Could not copy to clipboard.");
     }
-  }, [streak, language]);
+  }, [streak, language, accuracy, type]);
 
   const handleCopyText = useCallback(async () => {
-    track("share_attempted", { type: "streak_card", method: "clipboard" });
+    const cardType = type === "lesson_complete" ? "lesson_card" : "streak_card";
+    const shareText = type === "lesson_complete"
+      ? `I just completed a lesson on Yiya with ${accuracy}% accuracy! 🎉\n\nJoin me: https://yiya.app`
+      : `I'm on a ${streak}-day streak learning ${language} on Yiya! \uD83D\uDD25\n\nJoin me: https://yiya.app`;
+
+    track("share_attempted", { type: cardType, method: "clipboard" });
     try {
-      const text = `I'm on a ${streak}-day streak learning ${language} on Yiya! \uD83D\uDD25\n\nJoin me: https://yiya.app`;
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(shareText);
       setCopied(true);
-      track("share_completed", { type: "streak_card", method: "clipboard", success: true });
+      track("share_completed", { type: cardType, method: "clipboard", success: true });
       toast.success("Copied to clipboard!");
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      track("share_completed", { type: "streak_card", method: "clipboard", success: false });
+      track("share_completed", { type: cardType, method: "clipboard", success: false });
       toast.error("Could not copy to clipboard.");
     }
-  }, [streak, language]);
+  }, [streak, language, accuracy, type]);
 
   return (
     <div
@@ -290,7 +362,9 @@ export const ShareCard = ({
         <div
           className="w-full max-w-[390px] rounded-2xl overflow-hidden shadow-lg"
           style={{
-            background: "linear-gradient(135deg, #22c55e 0%, #16a34a 60%, #15803d 100%)",
+            background: type === "lesson_complete"
+              ? "linear-gradient(135deg, #3b82f6 0%, #2563eb 60%, #1d4ed8 100%)"
+              : "linear-gradient(135deg, #22c55e 0%, #16a34a 60%, #15803d 100%)",
           }}
         >
           <div className="flex flex-col items-center px-6 py-6 text-white">
@@ -302,45 +376,93 @@ export const ShareCard = ({
 
             {/* Stats */}
             <div className="flex flex-col items-center gap-5 w-full py-2">
-              {/* Streak - largest */}
-              <div className="text-center">
-                <p className="text-6xl font-bold">
-                  {"\uD83D\uDD25"} {streak}
-                </p>
-                <p className="text-base font-semibold text-white/90 mt-1">
-                  day streak
-                </p>
-              </div>
+              {type === "lesson_complete" ? (
+                <>
+                  {/* Lesson Complete - Show XP and Accuracy */}
+                  <div className="text-center">
+                    <p className="text-5xl font-bold">
+                      {xpGained ?? 0} XP
+                    </p>
+                    <p className="text-base font-semibold text-white/90 mt-1">
+                      earned this lesson
+                    </p>
+                  </div>
 
-              {/* Words Learned */}
-              <div className="text-center">
-                <p className="text-4xl font-bold">
-                  {wordsLearned}
-                </p>
-                <p className="text-sm font-medium text-white/90 mt-1">
-                  words learned
-                </p>
-              </div>
+                  {lessonTitle && (
+                    <div className="text-center">
+                      <p className="text-xl font-bold">
+                        {lessonTitle}
+                      </p>
+                      <p className="text-sm font-medium text-white/90 mt-1">
+                        completed
+                      </p>
+                    </div>
+                  )}
 
-              {/* Language */}
-              <div className="text-center">
-                <p className="text-3xl font-bold">
-                  {flag} {language}
-                </p>
-                <p className="text-sm font-medium text-white/90 mt-1">
-                  studying
-                </p>
-              </div>
+                  {/* Accuracy */}
+                  <div className="text-center">
+                    <p className="text-4xl font-bold text-amber-300">
+                      {accuracy}%
+                    </p>
+                    <p className="text-sm font-medium text-white/90 mt-1">
+                      accuracy
+                    </p>
+                  </div>
 
-              {/* Accuracy */}
-              <div className="text-center">
-                <p className="text-4xl font-bold text-amber-300">
-                  {accuracy}%
-                </p>
-                <p className="text-sm font-medium text-white/90 mt-1">
-                  accuracy
-                </p>
-              </div>
+                  {/* Language */}
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">
+                      {flag} {language}
+                    </p>
+                    <p className="text-sm font-medium text-white/90 mt-1">
+                      studying
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Streak Milestone - Show Streak and Words */}
+                  {/* Streak - largest */}
+                  <div className="text-center">
+                    <p className="text-6xl font-bold">
+                      {"\uD83D\uDD25"} {streak}
+                    </p>
+                    <p className="text-base font-semibold text-white/90 mt-1">
+                      day streak
+                    </p>
+                  </div>
+
+                  {/* Words Learned */}
+                  <div className="text-center">
+                    <p className="text-4xl font-bold">
+                      {wordsLearned}
+                    </p>
+                    <p className="text-sm font-medium text-white/90 mt-1">
+                      words learned
+                    </p>
+                  </div>
+
+                  {/* Language */}
+                  <div className="text-center">
+                    <p className="text-3xl font-bold">
+                      {flag} {language}
+                    </p>
+                    <p className="text-sm font-medium text-white/90 mt-1">
+                      studying
+                    </p>
+                  </div>
+
+                  {/* Accuracy */}
+                  <div className="text-center">
+                    <p className="text-4xl font-bold text-amber-300">
+                      {accuracy}%
+                    </p>
+                    <p className="text-sm font-medium text-white/90 mt-1">
+                      accuracy
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* CTA + Date */}
