@@ -71,6 +71,10 @@ export type AnalyticsEventMap = {
   streak_risk_shown: BaseProperties & { streak: number; has_freeze: boolean };
   streak_risk_clicked: BaseProperties & { streak: number; has_freeze: boolean };
   streak_saved: BaseProperties & { streak: number; lessons_completed: number };
+  // Quest reminder events
+  quest_reminder_sent: BaseProperties & { quest_id: string; user_id: string; channel: "push" | "email" };
+  quest_reminder_clicked: BaseProperties & { quest_id: string; user_id: string };
+  quest_completed_via_reminder: BaseProperties & { quest_id: string; user_id: string };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;
