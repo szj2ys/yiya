@@ -25,6 +25,7 @@ beforeEach(() => {
     })),
     beginPath: vi.fn(),
     roundRect: vi.fn(),
+    arc: vi.fn(),
     fill: vi.fn(),
     clip: vi.fn(),
     stroke: vi.fn(),
