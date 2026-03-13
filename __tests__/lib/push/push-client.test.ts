@@ -11,7 +11,7 @@ describe("push client utilities", () => {
     expect(result.length).toBeGreaterThan(0);
 
     // Decode back to verify
-    const decoded = String.fromCharCode(...result);
+    const decoded = String.fromCharCode(...Array.from(result));
     expect(decoded).toBe("Hello World");
   });
 
@@ -19,14 +19,14 @@ describe("push client utilities", () => {
     // Test with a string that needs padding
     const base64 = "YQ"; // "a" - needs 2 padding chars
     const result = urlBase64ToUint8Array(base64);
-    expect(String.fromCharCode(...result)).toBe("a");
+    expect(String.fromCharCode(...Array.from(result))).toBe("a");
   });
 
   it("should handle base64url special characters", () => {
     // base64url uses - and _ instead of + and /
     const base64url = "dGVzdC1kYXRh"; // "test-data"
     const result = urlBase64ToUint8Array(base64url);
-    const decoded = String.fromCharCode(...result);
+    const decoded = String.fromCharCode(...Array.from(result));
     expect(decoded).toBe("test-data");
   });
 });
