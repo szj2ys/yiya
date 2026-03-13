@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/churn-detection",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/quest-reminder",
+      "schedule": "0 18,21 * * *"
     }
   ]
 }
