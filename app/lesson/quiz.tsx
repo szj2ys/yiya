@@ -450,6 +450,16 @@ export const Quiz = ({
           }),
     ).catch(() => undefined);
 
+    // Track streak saved if user had 0 lessons today before this one
+    if (!isPractice && (todayLessonCount ?? 0) === 0 && streak > 0) {
+      trackPayload(
+        buildTrackPayload("streak_saved", {
+          streak: streak + 1, // New streak after completing this lesson
+          lessons_completed: 1,
+        }),
+      ).catch(() => undefined);
+    }
+
     const isPerfect = wrongAnswers.length === 0;
     const accuracyPercent = challenges.length > 0
       ? Math.round((correctCount / challenges.length) * 100)

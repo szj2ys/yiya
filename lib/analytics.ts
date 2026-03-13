@@ -67,6 +67,10 @@ export type AnalyticsEventMap = {
   onboarding_course_selected: BaseProperties & { course_id: number };
   onboarding_goal_selected: BaseProperties & { goal: number };
   onboarding_try_it_result: BaseProperties & { correct: boolean };
+  // Streak risk intervention events
+  streak_risk_shown: BaseProperties & { streak: number; has_freeze: boolean };
+  streak_risk_clicked: BaseProperties & { streak: number; has_freeze: boolean };
+  streak_saved: BaseProperties & { streak: number; lessons_completed: number };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;
