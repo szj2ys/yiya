@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
-import { Nunito } from "next/font/google";
+
 import { ClerkProvider } from '@clerk/nextjs'
 import { Toaster } from "@/components/ui/sonner";
 import { PostHogProvider } from "@/components/posthog-provider";
@@ -14,7 +14,7 @@ const HeartsModal = dynamic(() => import("@/components/modals/hearts-modal").the
 const PracticeModal = dynamic(() => import("@/components/modals/practice-modal").then(m => ({ default: m.PracticeModal })), { ssr: false });
 const InstallPrompt = dynamic(() => import("@/components/install-prompt").then(m => ({ default: m.InstallPrompt })), { ssr: false });
 
-const font = Nunito({ subsets: ["latin"] });
+
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://yiya.app";
 
@@ -96,7 +96,7 @@ export default function RootLayout({
             }}
           />
         </head>
-        <body className={font.className}>
+        <body className="font-sans">
           <Toaster />
           <PostHogProvider>
             <ExitModal />
