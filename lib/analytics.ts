@@ -57,6 +57,8 @@ export type AnalyticsEventMap = {
   referral_reward_granted: BaseProperties & { referrer_id: string; referred_user_id: string; xp_reward: number };
   referral_invite_shared: BaseProperties & { user_id: string; method: string };
   lesson_share: BaseProperties & { lesson_id: number; method: "native" | "clipboard"; accuracy: number };
+  lesson_share_prompt_shown: BaseProperties & { lesson_id: number; accuracy: number };
+  lesson_share_clicked: BaseProperties & { lesson_id: number; method: "native" | "clipboard" | "card"; accuracy: number };
   milestone_share_clicked: BaseProperties & { type: string; value: number; method: string };
   share_card_opened: BaseProperties & { type: string; streak?: number; accuracy?: number };
   share_attempted: BaseProperties & { type: string; method: "native" | "clipboard" | "download" };
@@ -67,6 +69,14 @@ export type AnalyticsEventMap = {
   onboarding_course_selected: BaseProperties & { course_id: number };
   onboarding_goal_selected: BaseProperties & { goal: number };
   onboarding_try_it_result: BaseProperties & { correct: boolean };
+  // Streak risk intervention events
+  streak_risk_shown: BaseProperties & { streak: number; has_freeze: boolean };
+  streak_risk_clicked: BaseProperties & { streak: number; has_freeze: boolean };
+  streak_saved: BaseProperties & { streak: number; lessons_completed: number };
+  // Quest reminder events
+  quest_reminder_sent: BaseProperties & { quest_id: string; user_id: string; channel: "push" | "email" };
+  quest_reminder_clicked: BaseProperties & { quest_id: string; user_id: string };
+  quest_completed_via_reminder: BaseProperties & { quest_id: string; user_id: string };
   // A/B test analytics for paywall
   paywall_variant_shown: BaseProperties & { variant: "a" | "b" | "c"; surface: string };
   paywall_conversion_by_variant: BaseProperties & { variant: "a" | "b" | "c"; surface: string; converted: boolean };
