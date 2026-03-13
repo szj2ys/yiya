@@ -3,6 +3,8 @@ import { eq, count } from "drizzle-orm";
 import db from "@/db/drizzle";
 import { userProgress, lessonCompletions, courses } from "@/db/schema";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/agent/progress?userId=xxx
  *

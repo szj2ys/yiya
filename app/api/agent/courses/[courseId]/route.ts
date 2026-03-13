@@ -3,6 +3,8 @@ import { eq } from "drizzle-orm";
 import db from "@/db/drizzle";
 import { courses, units, lessons } from "@/db/schema";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/agent/courses/[courseId]
  *
