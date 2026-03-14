@@ -1,7 +1,9 @@
 "use client";
 
-import { Admin, Resource } from "react-admin";
+import { Admin, Resource, Layout, AppBar, Menu, MenuItemLink } from "react-admin";
 import simpleRestProvider from "ra-data-simple-rest";
+import { BarChart } from "lucide-react";
+import Link from "next/link";
 
 import { CourseList } from "./course/list";
 import { CourseEdit } from "./course/edit";
@@ -25,9 +27,25 @@ import { ChallengeOptionCreate } from "./challengeOption/create";
 
 const dataProvider = simpleRestProvider("/api");
 
+// Custom Menu with Analytics link
+const CustomMenu = () => (
+  <Menu>
+    <MenuItemLink
+      to="/admin/analytics"
+      primaryText="Analytics"
+      leftIcon={<BarChart />}
+    />
+  </Menu>
+);
+
+// Custom Layout using the custom menu
+const CustomLayout = (props: React.ComponentProps<typeof Layout>) => (
+  <Layout {...props} menu={CustomMenu} />
+);
+
 const App = () => {
   return (
-    <Admin dataProvider={dataProvider}>
+    <Admin dataProvider={dataProvider} layout={CustomLayout}>
       <Resource
         name="courses"
         list={CourseList}
