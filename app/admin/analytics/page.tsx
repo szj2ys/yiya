@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Trophy,
   AlertCircle,
+  Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +34,7 @@ import {
   type Granularity,
   RETENTION_DAYS,
 } from "@/lib/admin/cohort-analytics";
+import { OnboardingFunnel } from "./components/OnboardingFunnel";
 
 // Analytics event definitions from lib/analytics.ts
 const TRACKED_EVENTS = [
@@ -59,6 +61,16 @@ const TRACKED_EVENTS = [
   { name: "streak_risk_clicked", category: "Retention", icon: Flame },
   { name: "empty_state_shown", category: "Activation", icon: Activity },
   { name: "empty_state_cta_clicked", category: "Activation", icon: Activity },
+  // Onboarding funnel events
+  { name: "onboarding_step_viewed", category: "Onboarding", icon: Target },
+  { name: "onboarding_step_completed", category: "Onboarding", icon: Target },
+  { name: "onboarding_step_skipped", category: "Onboarding", icon: Target },
+  { name: "onboarding_abandon", category: "Onboarding", icon: Target },
+  { name: "onboarding_course_selected", category: "Onboarding", icon: Target },
+  { name: "onboarding_goal_selected", category: "Onboarding", icon: Target },
+  { name: "onboarding_try_it_result", category: "Onboarding", icon: Target },
+  { name: "onboarding_try_it_variant_shown", category: "Onboarding", icon: Target },
+  { name: "onboarding_quick_start_selected", category: "Onboarding", icon: Target },
 ];
 
 type MetricCardProps = {
@@ -541,10 +553,15 @@ export default function AnalyticsDashboard() {
           />
         </div>
 
-        {/* A/B Test & Events */}
+        {/* Onboarding Funnel & Events */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <ABTestResults data={mockConversionData} />
+          <OnboardingFunnel />
           <EventsList />
+        </div>
+
+        {/* A/B Test Results */}
+        <div className="mt-6">
+          <ABTestResults data={mockConversionData} />
         </div>
 
         {/* Quick Links */}

@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useRef, useState, useTransition, useCallback } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, Zap, ArrowRight } from "lucide-react";
 
 import { courses } from "@/db/schema";
 import { upsertUserProgress } from "@/actions/user-progress";
 import { getReferralData, clearReferralData } from "@/lib/referral";
 import { track } from "@/lib/analytics";
+import { useOnboardingTryItABTest } from "@/lib/onboarding-ab-test";
 
 import { getSampleChallenge } from "./sample-challenges";
 
@@ -51,10 +52,54 @@ export const OnboardingFlow = ({ courses }: Props) => {
   const [selectedGoal, setSelectedGoal] = useState<number | null>(null); // No default, user must select
   const [pending, startTransition] = useTransition();
 
+  // A/B test for Try-it Quiz
+  const { variant: tryItVariant, getVariantInfo } = useOnboardingTryItABTest(null);
+
+  // Track step timing for duration calculation
+  const stepStartTimeRef = useRef<number>(Date.now());
+  const currentStepRef = useRef<number>(1);
+
   // Track initial step view
   useEffect(() => {
-    track("onboarding_step_viewed", { step: 1 });
+    stepStartTimeRef.current = Date.now();
+    currentStepRef.current = 1;
+    track("onboarding_step_viewed", { step: 1, total_steps: STEP_COUNT });
+
+    // Track page unload/abandon
+    const handleBeforeUnload = () => {
+      const durationSeconds = Math.round((Date.now() - stepStartTimeRef.current) / 1000);
+      track("onboarding_abandon", {
+        last_step: currentStepRef.current,
+        exit_reason: "page_close",
+      });
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
+
+  // Track step changes
+  useEffect(() => {
+    if (step !== currentStepRef.current) {
+      const durationSeconds = Math.round((Date.now() - stepStartTimeRef.current) / 1000);
+
+      // Track completion of previous step
+      if (step > currentStepRef.current) {
+        track("onboarding_step_completed", {
+          step: currentStepRef.current,
+          duration_seconds: durationSeconds,
+        });
+      }
+
+      // Track view of new step (if not completion step)
+      if (step <= STEP_COUNT) {
+        track("onboarding_step_viewed", { step, total_steps: STEP_COUNT });
+      }
+
+      stepStartTimeRef.current = Date.now();
+      currentStepRef.current = step;
+    }
+  }, [step]);
 
   const selectedCourse = useMemo(
     () => courses.find((course) => course.id === selectedCourseId),
@@ -85,18 +130,48 @@ export const OnboardingFlow = ({ courses }: Props) => {
 
   const goToGoalStep = useCallback(() => {
     clearAdvanceTimeout();
-    track("onboarding_step_completed", { step: 2 });
     setStep(3);
-    track("onboarding_step_viewed", { step: 3 });
   }, [clearAdvanceTimeout]);
+
+  const goToFirstLesson = useCallback(() => {
+    if (selectedCourseId === null) return;
+
+    // Track quick start selection
+    track("onboarding_quick_start_selected", { course_id: selectedCourseId });
+
+    // Use default goal of 1 lesson/day for quick start
+    const goalToUse = selectedGoal ?? 1;
+
+    startTransition(() => {
+      upsertUserProgress(selectedCourseId, goalToUse, getReferralData(), new Date().getTimezoneOffset())
+        .then(() => {
+          clearReferralData();
+          // Redirect to first lesson
+          window.location.href = "/learn";
+        })
+        .catch(() => {
+          toast.error("Something went wrong. Please try again.");
+        });
+    });
+  }, [selectedCourseId, selectedGoal, startTransition]);
 
   useEffect(() => {
     if (step !== 2) return;
 
+    // Track variant shown for A/B test analysis
+    track("onboarding_try_it_variant_shown", { variant: tryItVariant });
+
+    // Handle "skip_quiz" variant - auto-skip to daily goal
+    if (tryItVariant === "skip_quiz") {
+      track("onboarding_step_skipped", { step: 2, reason: "ab_test_skip_quiz" });
+      goToGoalStep();
+      return;
+    }
+
     setSelectedOptionIndex(null);
     setTryItStatus(null);
     clearAdvanceTimeout();
-  }, [step, selectedCourseId, clearAdvanceTimeout]);
+  }, [step, selectedCourseId, clearAdvanceTimeout, tryItVariant]);
 
   useEffect(() => {
     if (step === 2 && selectedCourseId !== null && !sampleChallenge) {
@@ -127,15 +202,12 @@ export const OnboardingFlow = ({ courses }: Props) => {
 
   const handleContinueToTryIt = useCallback(() => {
     if (selectedCourseId === null) return;
-    track("onboarding_step_completed", { step: 1 });
     setStep(2);
-    track("onboarding_step_viewed", { step: 2 });
   }, [selectedCourseId]);
 
   const handleSkipTryIt = useCallback(() => {
     if (selectedCourseId === null) return;
     track("onboarding_step_skipped", { step: 2 });
-    track("onboarding_step_completed", { step: 1 });
     goToGoalStep();
   }, [selectedCourseId, goToGoalStep]);
 
@@ -155,9 +227,7 @@ export const OnboardingFlow = ({ courses }: Props) => {
 
   const handleFinish = useCallback(() => {
     if (selectedCourseId === null) return;
-    track("onboarding_step_completed", { step: 3 });
     setStep(4);
-    track("onboarding_step_viewed", { step: 4 });
 
     const referral = getReferralData();
     startTransition(() => {
@@ -244,7 +314,7 @@ export const OnboardingFlow = ({ courses }: Props) => {
             </div>
 
             {/* Bottom CTA */}
-            <div className="mx-auto mt-auto w-full max-w-lg pt-6 pb-2">
+            <div className="mx-auto mt-auto w-full max-w-lg pt-6 pb-2 space-y-3">
               <button
                 onClick={handleContinueToTryIt}
                 disabled={selectedCourseId === null}
@@ -252,6 +322,17 @@ export const OnboardingFlow = ({ courses }: Props) => {
               >
                 Continue
               </button>
+              {selectedCourseId !== null && (
+                <button
+                  onClick={goToFirstLesson}
+                  disabled={pending}
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-600 bg-white text-base font-semibold text-green-600 transition-all duration-200 hover:bg-green-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Zap className="h-4 w-4" />
+                  Quick Start
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -340,12 +421,29 @@ export const OnboardingFlow = ({ courses }: Props) => {
 
             {/* Bottom CTA */}
             <div className="mx-auto mt-auto w-full max-w-lg pt-6 pb-2">
-              <button
-                onClick={handleSkipTryIt}
-                className="h-10 w-full rounded-2xl text-sm font-medium text-neutral-500 transition-colors hover:text-neutral-700"
-              >
-                Skip
-              </button>
+              {tryItVariant === "prominent_skip" ? (
+                <div className="space-y-3">
+                  <button
+                    onClick={handleSkipTryIt}
+                    className="h-12 w-full rounded-2xl border-2 border-neutral-200 bg-white text-base font-semibold text-neutral-700 transition-all duration-200 hover:border-neutral-300 hover:bg-neutral-50 active:scale-[0.98]"
+                  >
+                    Not sure? Skip for now
+                  </button>
+                  <button
+                    onClick={handleSkipTryIt}
+                    className="h-10 w-full rounded-2xl text-sm font-medium text-neutral-400 transition-colors hover:text-neutral-600"
+                  >
+                    I&apos;ll try later
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleSkipTryIt}
+                  className="h-10 w-full rounded-2xl text-sm font-medium text-neutral-500 transition-colors hover:text-neutral-700"
+                >
+                  Skip
+                </button>
+              )}
             </div>
           </div>
         )}
