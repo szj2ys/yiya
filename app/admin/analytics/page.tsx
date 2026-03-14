@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Users,
@@ -10,9 +10,19 @@ import {
   Share2,
   ShoppingCart,
   Activity,
-  ChevronRight
+  ChevronRight,
+  Trophy,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  calculateConversionData,
+  analyzeABTest,
+  formatPercent,
+  formatCurrency,
+  type ConversionData,
+} from "@/lib/admin/ab-analytics";
+import { getVariantMetadata } from "@/lib/ab-testing";
 
 // Analytics event definitions from lib/analytics.ts
 const TRACKED_EVENTS = [
@@ -27,6 +37,8 @@ const TRACKED_EVENTS = [
   { name: "checkout_complete", category: "Conversion", icon: ShoppingCart },
   { name: "paywall_variant_shown", category: "A/B Test", icon: Activity },
   { name: "paywall_conversion_by_variant", category: "A/B Test", icon: Activity },
+  { name: "paywall_start_checkout", category: "A/B Test", icon: Activity },
+  { name: "paywall_complete", category: "A/B Test", icon: Activity },
   { name: "quest_reminder_sent", category: "Retention", icon: Flame },
   { name: "quest_reminder_clicked", category: "Retention", icon: Flame },
   { name: "signup_completed", category: "Acquisition", icon: Users },
@@ -70,50 +82,104 @@ const MetricCard = ({ title, value, change, trend, icon: Icon }: MetricCardProps
   </div>
 );
 
-const ABTestResults = () => (
-  <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
-    <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100 mb-4">
-      Paywall A/B Test Results
-    </h3>
-    <div className="space-y-4">
-      <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800">
-        <div>
-          <p className="font-medium text-neutral-900 dark:text-neutral-100">Variant A (Control)</p>
-          <p className="text-sm text-neutral-500">&quot;Take a breath — you can earn hearts back&quot;</p>
-        </div>
-        <div className="text-right">
-          <p className="font-bold text-neutral-900 dark:text-neutral-100">33%</p>
-          <p className="text-sm text-neutral-500">Traffic</p>
-        </div>
+const ABTestResults = ({ data }: { data: ConversionData[] }) => {
+  const analysis = useMemo(() => analyzeABTest(data), [data]);
+
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
+          Paywall A/B Test Results
+        </h3>
+        {analysis.isSignificant && analysis.winner && (
+          <span className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
+            <Trophy className="h-3 w-3" />
+            Winner: {getVariantMetadata(analysis.winner).name}
+          </span>
+        )}
       </div>
-      <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800">
-        <div>
-          <p className="font-medium text-neutral-900 dark:text-neutral-100">Variant B (Unlimited)</p>
-          <p className="text-sm text-neutral-500">&quot;Keep learning without limits&quot;</p>
-        </div>
-        <div className="text-right">
-          <p className="font-bold text-neutral-900 dark:text-neutral-100">33%</p>
-          <p className="text-sm text-neutral-500">Traffic</p>
-        </div>
+
+      {/* Conversion Table */}
+      <div className="space-y-3">
+        {data.map((variant) => {
+          const meta = getVariantMetadata(variant.variant);
+          const isWinner = analysis.winner === variant.variant;
+          const isBestConversion = variant.conversionRate === Math.max(...data.map(d => d.conversionRate));
+
+          return (
+            <div
+              key={variant.variant}
+              className={`p-3 rounded-lg border ${
+                isWinner
+                  ? "border-green-300 bg-green-50 dark:bg-green-950/30"
+                  : "border-neutral-200 bg-neutral-50 dark:bg-neutral-800 dark:border-neutral-700"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                    Variant {variant.variant.toUpperCase()} ({meta.name})
+                  </span>
+                  {isBestConversion && !isWinner && (
+                    <span className="text-xs text-amber-600">Leading</span>
+                  )}
+                </div>
+                <span className="text-sm text-neutral-500">
+                  {variant.impressions.toLocaleString()} impressions
+                </span>
+              </div>
+
+              {/* Metrics Grid */}
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div>
+                  <p className="text-neutral-500">Click Rate</p>
+                  <p className="font-semibold text-neutral-900 dark:text-neutral-100">
+                    {formatPercent(variant.clickRate)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-neutral-500">Conversion</p>
+                  <p className="font-semibold text-neutral-900 dark:text-neutral-100">
+                    {formatPercent(variant.conversionRate)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-neutral-500">Revenue</p>
+                  <p className="font-semibold text-neutral-900 dark:text-neutral-100">
+                    {formatCurrency(variant.revenue)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
-      <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800">
-        <div>
-          <p className="font-medium text-neutral-900 dark:text-neutral-100">Variant C (Social Proof)</p>
-          <p className="text-sm text-neutral-500">&quot;Join 1,000+ learners who went unlimited&quot;</p>
-        </div>
-        <div className="text-right">
-          <p className="font-bold text-neutral-900 dark:text-neutral-100">34%</p>
-          <p className="text-sm text-neutral-500">Traffic</p>
+
+      {/* Statistical Significance */}
+      <div className={`mt-4 p-3 rounded-lg border ${
+        analysis.isSignificant
+          ? "border-green-200 bg-green-50 dark:bg-green-950/50 dark:border-green-800"
+          : "border-amber-200 bg-amber-50 dark:bg-amber-950/50 dark:border-amber-800"
+      }`}>
+        <div className="flex items-start gap-2">
+          <AlertCircle className={`h-4 w-4 mt-0.5 ${
+            analysis.isSignificant ? "text-green-600" : "text-amber-600"
+          }`} />
+          <div className="text-sm">
+            <p className={analysis.isSignificant ? "text-green-800 dark:text-green-200" : "text-amber-800 dark:text-amber-200"}>
+              <strong>Status:</strong> {analysis.isSignificant
+                ? `Statistically significant result (p=${analysis.pValue.toFixed(3)})`
+                : `Inconclusive (p=${analysis.pValue.toFixed(3)}). Need more data.`}
+            </p>
+            <p className="mt-1 text-neutral-600 dark:text-neutral-400">
+              Sample size: {analysis.sampleSize.toLocaleString()} total impressions
+            </p>
+          </div>
         </div>
       </div>
     </div>
-    <div className="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800">
-      <p className="text-sm text-amber-800 dark:text-amber-200">
-        <strong>Status:</strong> Test running. Check PostHog for conversion rates by variant.
-      </p>
-    </div>
-  </div>
-);
+  );
+};
 
 const EventsList = () => (
   <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
@@ -144,6 +210,13 @@ const EventsList = () => (
 
 export default function AnalyticsDashboard() {
   const [mounted, setMounted] = useState(false);
+
+  // Mock data - replace with real PostHog API call
+  const mockConversionData: ConversionData[] = useMemo(() => [
+    { variant: "a", impressions: 1247, clicks: 312, conversions: 89, revenue: 889.11, clickRate: 0.25, conversionRate: 0.285 },
+    { variant: "b", impressions: 1234, clicks: 358, conversions: 112, revenue: 1118.88, clickRate: 0.29, conversionRate: 0.313 },
+    { variant: "c", impressions: 1256, clicks: 389, conversions: 134, revenue: 1338.66, clickRate: 0.31, conversionRate: 0.344 },
+  ], []);
 
   useEffect(() => {
     setMounted(true);
@@ -206,7 +279,7 @@ export default function AnalyticsDashboard() {
 
         {/* A/B Test & Events */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <ABTestResults />
+          <ABTestResults data={mockConversionData} />
           <EventsList />
         </div>
 
