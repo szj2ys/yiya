@@ -63,12 +63,15 @@ export type AnalyticsEventMap = {
   share_card_opened: BaseProperties & { type: string; streak?: number; accuracy?: number };
   share_attempted: BaseProperties & { type: string; method: "native" | "clipboard" | "download" };
   share_completed: BaseProperties & { type: string; method: "native" | "clipboard" | "download"; success: boolean };
-  onboarding_step_viewed: BaseProperties & { step: number };
-  onboarding_step_completed: BaseProperties & { step: number };
-  onboarding_step_skipped: BaseProperties & { step: number };
+  onboarding_step_viewed: BaseProperties & { step: number; total_steps: number };
+  onboarding_step_completed: BaseProperties & { step: number; duration_seconds?: number };
+  onboarding_step_skipped: BaseProperties & { step: number; reason?: string };
+  onboarding_abandon: BaseProperties & { last_step: number; exit_reason?: string };
   onboarding_course_selected: BaseProperties & { course_id: number };
   onboarding_goal_selected: BaseProperties & { goal: number };
   onboarding_try_it_result: BaseProperties & { correct: boolean };
+  onboarding_try_it_variant_shown: BaseProperties & { variant: string };
+  onboarding_quick_start_selected: BaseProperties & { course_id: number };
   // Streak risk intervention events
   streak_risk_shown: BaseProperties & { streak: number; has_freeze: boolean };
   streak_risk_clicked: BaseProperties & { streak: number; has_freeze: boolean };
@@ -169,7 +172,7 @@ export async function trackOnboardingStep(
 ) {
   switch (action) {
     case "view":
-      return track("onboarding_step_viewed", { step });
+      return track("onboarding_step_viewed", { step, total_steps: totalSteps });
     case "complete":
       return track("onboarding_step_completed", { step });
     case "skip":

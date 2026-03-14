@@ -58,16 +58,18 @@ export function NewUserOnboarding({ userId, onComplete }: Props) {
     }
   }, []);
 
+  const TOTAL_ONBOARDING_STEPS = TOOLTIP_STEPS.length;
+
   const handleStart = () => {
     setHasStarted(true);
-    track("onboarding_step_viewed", { step: 0 }).catch(() => undefined);
+    track("onboarding_step_viewed", { step: 0, total_steps: TOTAL_ONBOARDING_STEPS }).catch(() => undefined);
   };
 
   const handleNext = () => {
     if (currentStep < TOOLTIP_STEPS.length - 1) {
       track("onboarding_step_completed", { step: currentStep }).catch(() => undefined);
       setCurrentStep((prev) => prev + 1);
-      track("onboarding_step_viewed", { step: currentStep + 1 }).catch(() => undefined);
+      track("onboarding_step_viewed", { step: currentStep + 1, total_steps: TOTAL_ONBOARDING_STEPS }).catch(() => undefined);
     } else {
       handleComplete();
     }
