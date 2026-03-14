@@ -65,7 +65,7 @@ export type AnalyticsEventMap = {
   share_completed: BaseProperties & { type: string; method: "native" | "clipboard" | "download"; success: boolean };
   onboarding_step_viewed: BaseProperties & { step: number; total_steps: number };
   onboarding_step_completed: BaseProperties & { step: number; duration_seconds?: number };
-  onboarding_step_skipped: BaseProperties & { step: number };
+  onboarding_step_skipped: BaseProperties & { step: number; reason?: string };
   onboarding_abandon: BaseProperties & { last_step: number; exit_reason?: string };
   onboarding_course_selected: BaseProperties & { course_id: number };
   onboarding_goal_selected: BaseProperties & { goal: number };
@@ -172,7 +172,7 @@ export async function trackOnboardingStep(
 ) {
   switch (action) {
     case "view":
-      return track("onboarding_step_viewed", { step });
+      return track("onboarding_step_viewed", { step, total_steps: totalSteps });
     case "complete":
       return track("onboarding_step_completed", { step });
     case "skip":

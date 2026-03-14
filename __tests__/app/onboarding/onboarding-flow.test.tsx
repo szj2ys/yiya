@@ -21,6 +21,20 @@ vi.mock("sonner", () => ({
   toast: { error: vi.fn(), success: vi.fn() },
 }));
 
+// Mock A/B test hook to always return control variant for consistent tests
+vi.mock("@/lib/onboarding-ab-test", () => ({
+  useOnboardingTryItABTest: () => ({
+    variant: "control",
+    getVariantInfo: () => ({
+      variant: "control",
+      variantName: "Control (Current)",
+      isControl: true,
+      showProminentSkip: false,
+      skipQuiz: false,
+    }),
+  }),
+}));
+
 import { OnboardingFlow } from "@/app/onboarding/onboarding-flow";
 
 const mockCourses = [
