@@ -80,6 +80,14 @@ export type AnalyticsEventMap = {
   // A/B test analytics for paywall
   paywall_variant_shown: BaseProperties & { variant: "a" | "b" | "c"; surface: string };
   paywall_conversion_by_variant: BaseProperties & { variant: "a" | "b" | "c"; surface: string; converted: boolean };
+  // Paywall conversion funnel events
+  paywall_start_checkout: BaseProperties & { variant: "a" | "b" | "c"; surface: string };
+  paywall_complete: BaseProperties & { variant: "a" | "b" | "c"; surface: string; provider: string; subscription_id: string };
+  paywall_cancel: BaseProperties & { variant: "a" | "b" | "c"; surface: string; step: "checkout" | "payment" };
+  // App engagement for retention tracking
+  app_open: BaseProperties & { user_id: string; session_count?: number };
+  user_returned: BaseProperties & { user_id: string; days_since_last_session: number };
+  streak_started: BaseProperties & { user_id: string };
   // Empty state events
   empty_state_shown: BaseProperties & { state_type: "new_user" | "no_progress" | "first_lesson"; user_id: string };
   empty_state_cta_clicked: BaseProperties & { state_type: "new_user" | "no_progress" | "first_lesson"; user_id: string; cta_action: string };
@@ -113,6 +121,101 @@ export function buildTrackPayload<E extends AnalyticsEventName>(
 }
 
 export type TrackDispatcher = (payload: TrackPayload<AnalyticsEventName>) => void | Promise<void>;
+
+/**
+ * Helper type for A/B test variants.
+ */
+export type Variant = "a" | "b" | "c";
+
+/**
+ * Track paywall conversion funnel events.
+ * Use this to track the full paywall-to-purchase funnel with A/B variant.
+ */
+export async function trackPaywallConversion(
+  variant: Variant,
+  surface: string,
+  outcome: "start" | "complete" | "cancel",
+  details?: { provider?: string; subscription_id?: string; step?: "checkout" | "payment" },
+) {
+  const baseProps = { variant, surface };
+
+  switch (outcome) {
+    case "start":
+      return track("paywall_start_checkout", baseProps);
+    case "complete":
+      if (!details?.provider || !details?.subscription_id) {
+        throw new Error("provider and subscription_id required for complete event");
+      }
+      return track("paywall_complete", {
+        ...baseProps,
+        provider: details.provider,
+        subscription_id: details.subscription_id,
+      });
+    case "cancel":
+      return track("paywall_cancel", {
+        ...baseProps,
+        step: details?.step ?? "checkout",
+      });
+  }
+}
+
+/**
+ * Track onboarding step completion.
+ */
+export async function trackOnboardingStep(
+  step: number,
+  totalSteps: number,
+  action: "view" | "complete" | "skip",
+) {
+  switch (action) {
+    case "view":
+      return track("onboarding_step_viewed", { step });
+    case "complete":
+      return track("onboarding_step_completed", { step });
+    case "skip":
+      return track("onboarding_step_skipped", { step });
+  }
+}
+
+/**
+ * Track user activation events.
+ */
+export async function trackActivationEvent(
+  event: "first_lesson_complete" | "streak_started" | "daily_goal_set",
+  userId: string,
+) {
+  const ts = Date.now();
+  switch (event) {
+    case "first_lesson_complete":
+      return trackPayload({
+        event: "user_activated",
+        properties: {
+          ts,
+          schema_version: 1,
+          user_id: userId,
+          lesson_count: 1,
+        },
+      });
+    case "streak_started":
+      return track("streak_started", { user_id: userId });
+    case "daily_goal_set":
+      return track("onboarding_goal_selected", { goal: 1 });
+  }
+}
+
+/**
+ * Track app open for retention analytics.
+ */
+export async function trackAppOpen(userId: string, sessionCount?: number) {
+  return track("app_open", { user_id: userId, session_count: sessionCount });
+}
+
+/**
+ * Track user return after absence.
+ */
+export async function trackUserReturned(userId: string, daysSinceLastSession: number) {
+  return track("user_returned", { user_id: userId, days_since_last_session: daysSinceLastSession });
+}
 
 function consoleDispatcher(payload: TrackPayload<AnalyticsEventName>) {
   // eslint-disable-next-line no-console

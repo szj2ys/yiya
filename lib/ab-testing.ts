@@ -2,7 +2,30 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-type Variant = "a" | "b" | "c";
+export type Variant = "a" | "b" | "c";
+
+/**
+ * Variant metadata for analytics and dashboard display.
+ */
+export const VARIANT_METADATA: Record<Variant, { name: string; description: string; isControl: boolean }> = {
+  a: { name: "Control", description: "Current paywall design", isControl: true },
+  b: { name: "Unlimited Focus", description: "Emphasis on unlimited hearts", isControl: false },
+  c: { name: "Social Proof", description: "Social proof and testimonials", isControl: false },
+};
+
+/**
+ * Get metadata for a variant.
+ */
+export function getVariantMetadata(variant: Variant) {
+  return VARIANT_METADATA[variant];
+}
+
+/**
+ * List all variants for dashboard queries.
+ */
+export function listVariants(): Variant[] {
+  return ["a", "b", "c"];
+}
 
 const STORAGE_KEY = "yiya_ab_test_bucket";
 
